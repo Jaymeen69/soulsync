@@ -33,7 +33,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     _scaleAnim = Tween<double>(begin: 0.8, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.6, curve: Curves.easeOutBack)),
     );
-    _pulseAnim = Tween<double>(begin: 1.0, end: 1.08).animate(
+    _pulseAnim = Tween<double>(begin: 1.0, end: 1.06).animate(
       CurvedAnimation(parent: _controller, curve: const Interval(0.6, 1.0, curve: Curves.easeInOut)),
     );
 
@@ -42,7 +42,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 
   Future<void> _navigate() async {
-    await Future.delayed(const Duration(milliseconds: 2200));
+    await Future.delayed(const Duration(milliseconds: 2400));
     if (!mounted) return;
     final authState = ref.read(authProvider);
     final isLoggedIn = authState.valueOrNull != null;
@@ -57,8 +57,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -66,8 +64,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFF28104E),
-              Color(0xFF4A1E9E),
+              Color(0xFF1E0A3C),
+              Color(0xFF3D167E),
               Color(0xFF6C3EBC),
               Color(0xFFE8498A),
             ],
@@ -92,19 +90,19 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                         children: [
                           const Spacer(),
 
-                          // Romantic Floating Hearts Emblem
+                          // Romantic Logo Emblem Badge
                           Stack(
                             alignment: Alignment.center,
                             children: [
                               // Outer Glowing Aura
                               Container(
-                                width: 140 * _pulseAnim.value,
-                                height: 140 * _pulseAnim.value,
+                                width: 170 * _pulseAnim.value,
+                                height: 170 * _pulseAnim.value,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFFE8498A).withOpacity(0.4),
+                                      color: const Color(0xFFE8498A).withOpacity(0.45),
                                       blurRadius: 40,
                                       spreadRadius: 10,
                                     ),
@@ -112,46 +110,26 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                                 ),
                               ),
 
-                              // Inner Glassmorphic Badge
+                              // Official App Logo
                               Container(
-                                width: 120,
-                                height: 120,
+                                width: 150,
+                                height: 150,
                                 decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  gradient: const LinearGradient(
-                                    colors: [Color(0xFFE8498A), Color(0xFF9C6FE4)],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  border: Border.all(color: Colors.white.withOpacity(0.4), width: 2),
+                                  borderRadius: BorderRadius.circular(32),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.25),
-                                      blurRadius: 16,
-                                      offset: const Offset(0, 8),
+                                      color: Colors.black.withOpacity(0.35),
+                                      blurRadius: 20,
+                                      offset: const Offset(0, 10),
                                     ),
                                   ],
                                 ),
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.favorite_rounded,
-                                    size: 64,
-                                    color: Colors.white,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(32),
+                                  child: Image.asset(
+                                    'assets/images/app_logo.png',
+                                    fit: BoxFit.cover,
                                   ),
-                                ),
-                              ),
-
-                              // Small orbital sparkles
-                              Positioned(
-                                top: 4,
-                                right: 10,
-                                child: Container(
-                                  padding: const EdgeInsets.all(6),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.25),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(Icons.auto_awesome, color: Colors.amberAccent, size: 18),
                                 ),
                               ),
                             ],
@@ -163,7 +141,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                             'SoulSync',
                             style: TextStyle(
                               fontFamily: 'Nunito',
-                              fontSize: 42,
+                              fontSize: 40,
                               fontWeight: FontWeight.w900,
                               color: Colors.white,
                               letterSpacing: 1.5,
@@ -172,7 +150,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                               ],
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 8),
 
                           // Tagline
                           Container(
@@ -183,10 +161,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                               border: Border.all(color: Colors.white.withOpacity(0.2)),
                             ),
                             child: const Text(
-                              'Two Hearts • One Connection 💞',
+                              'Connect • Share • Grow Together 💞',
                               style: TextStyle(
                                 fontFamily: 'Nunito',
-                                fontSize: 14,
+                                fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
                                 letterSpacing: 0.5,
@@ -196,13 +174,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
                           const Spacer(),
 
-                          // Modern Loader & Security Indicator
+                          // Modern Security Badge
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const SizedBox(
-                                width: 16,
-                                height: 16,
+                                width: 14,
+                                height: 14,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
                                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white70),
