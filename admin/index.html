@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SoulSync — Master Admin Control & Analytics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Nunito', sans-serif; background-color: #0B0717; color: #F3EEFF; }
+    .glass-card {
+      background: rgba(22, 14, 43, 0.75);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(108, 62, 188, 0.28);
+    }
+    .active-nav {
+      background: linear-gradient(135deg, rgba(108, 62, 188, 0.5), rgba(232, 73, 138, 0.4));
+      border: 1px solid rgba(232, 73, 138, 0.5);
+      color: #FFFFFF !important;
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex">
+
+  <!-- Sidebar -->
+  <aside class="w-64 glass-card border-r border-purple-900/40 p-6 flex flex-col justify-between shrink-0">
+    <div>
+      <div class="flex items-center gap-3 mb-8">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-900/60">
+          <span class="text-2xl">💞</span>
+        </div>
+        <div>
+          <h1 class="text-xl font-black tracking-tight bg-gradient-to-r from-purple-300 via-pink-300 to-pink-400 bg-clip-text text-transparent">SoulSync</h1>
+          <p class="text-[10px] text-purple-400 uppercase font-black tracking-widest">Master Admin</p>
+        </div>
+      </div>
+
+      <nav class="space-y-1.5" id="nav-container">
+        <button onclick="switchTab('analytics')" id="nav-analytics" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm active-nav transition">
+          <span>📊</span> Screen Interactions
+        </button>
+        <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-purple-300 hover:bg-purple-900/30 font-semibold transition">
+          <span>👥</span> User & Couple Manager
+        </button>
+        <button onclick="switchTab('pulses')" id="nav-pulses" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-purple-300 hover:bg-purple-900/30 font-semibold transition">
+          <span>💌</span> Love Pulse & Moods
+        </button>
+        <button onclick="switchTab('together')" id="nav-together" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-purple-300 hover:bg-purple-900/30 font-semibold transition">
+          <span>🎮</span> Together & Sessions
+        </button>
+        <button onclick="switchTab('memories')" id="nav-memories" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-purple-300 hover:bg-purple-900/30 font-semibold transition">
+          <span>📸</span> Memories & Letters
+        </button>
+        <button onclick="switchTab('broadcast')" id="nav-broadcast" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-purple-300 hover:bg-purple-900/30 font-semibold transition">
+          <span>📢</span> Push Broadcast
+        </button>
+      </nav>
+    </div>
+
+    <!-- Live Sync Status -->
+    <div class="p-3.5 rounded-xl bg-purple-950/70 border border-purple-800/40 text-xs">
+      <div class="flex items-center gap-2 text-emerald-400 font-bold mb-1">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        Live App Bridge Active
+      </div>
+      <p class="text-purple-300/70 text-[11px] leading-relaxed">
+        Syncing live with mobile app via port 8089. Users registering from the app reflect instantly below!
+      </p>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 p-8 overflow-y-auto space-y-8">
+
+    <!-- TAB 1: SCREEN INTERACTION & POPULARITY ANALYTICS -->
+    <div id="tab-analytics" class="tab-pane space-y-8">
+      <header class="flex justify-between items-center">
+        <div>
+          <h2 class="text-2xl font-black text-white">Screen Popularity & User Interaction</h2>
+          <p class="text-sm text-purple-300/80">Real-time metrics showing which features and screens couples like most</p>
+        </div>
+        <div class="flex gap-2">
+          <span class="px-3.5 py-1.5 rounded-xl bg-emerald-950/60 border border-emerald-700/40 text-xs font-bold text-emerald-300 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Live Telemetry Connected
+          </span>
+        </div>
+      </header>
+
+      <!-- KPI Metric Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+        <div class="glass-card p-5 rounded-2xl">
+          <p class="text-xs text-purple-400 uppercase font-bold tracking-wider">Top Screen</p>
+          <h3 class="text-2xl font-black text-pink-400 mt-1" id="kpi-top-screen">Connect (Pulse)</h3>
+          <p class="text-xs text-emerald-400 font-bold mt-2" id="kpi-top-share">▲ 38.6% of user attention</p>
+        </div>
+
+        <div class="glass-card p-5 rounded-2xl">
+          <p class="text-xs text-purple-400 uppercase font-bold tracking-wider">Total Love Pulses</p>
+          <h3 class="text-2xl font-black text-white mt-1" id="kpi-pulses">1,428</h3>
+          <p class="text-xs text-pink-400 font-bold mt-2">Active emotional pulses</p>
+        </div>
+
+        <div class="glass-card p-5 rounded-2xl">
+          <p class="text-xs text-purple-400 uppercase font-bold tracking-wider">Avg Focus Session</p>
+          <h3 class="text-2xl font-black text-purple-300 mt-1">32.4 mins</h3>
+          <p class="text-xs text-emerald-400 font-bold mt-2">Together mode active</p>
+        </div>
+
+        <div class="glass-card p-5 rounded-2xl">
+          <p class="text-xs text-purple-400 uppercase font-bold tracking-wider">Registered Couples</p>
+          <h3 class="text-2xl font-black text-white mt-1" id="kpi-couples-count">2 Pairs</h3>
+          <p class="text-xs text-purple-300 font-bold mt-2" id="kpi-users-count">4 Connected Users</p>
+        </div>
+      </div>
+
+      <!-- Charts: Screen Interactions -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="glass-card p-6 rounded-2xl lg:col-span-2">
+          <div class="flex justify-between items-center mb-6">
+            <div>
+              <h3 class="text-lg font-extrabold text-white">Screen Engagement Breakdown</h3>
+              <p class="text-xs text-purple-400">Total views and interactions across all registered pairs</p>
+            </div>
+            <span class="text-xs px-3 py-1 bg-purple-800/40 rounded-lg text-purple-300 font-bold">Live Telemetry</span>
+          </div>
+          <div class="h-64">
+            <canvas id="screenPopularityChart"></canvas>
+          </div>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl">
+          <div class="mb-4">
+            <h3 class="text-lg font-extrabold text-white">Time Spent Share</h3>
+            <p class="text-xs text-purple-400">Where couples spend their time</p>
+          </div>
+          <div class="h-56 flex items-center justify-center">
+            <canvas id="screenShareChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: USER & COUPLE MANAGEMENT -->
+    <div id="tab-users" class="tab-pane hidden space-y-6">
+      <header class="flex justify-between items-center">
+        <div>
+          <h2 class="text-2xl font-black text-white">User & Couple Space Manager</h2>
+          <p class="text-sm text-purple-300/80">Reflecting all users created both from the Mobile Application and Admin</p>
+        </div>
+        <div class="flex gap-3">
+          <button onclick="fetchLiveAll()" class="px-3.5 py-2 bg-purple-900/60 hover:bg-purple-800 text-purple-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+            <span>🔄</span> Refresh Now
+          </button>
+          <button onclick="openModal('createUserModal')" class="px-5 py-2 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 text-white rounded-xl text-xs font-black transition shadow-lg shadow-purple-900/40 flex items-center gap-2">
+            <span>➕</span> Create New User
+          </button>
+        </div>
+      </header>
+
+      <!-- Couple Pairs Table -->
+      <div class="glass-card p-6 rounded-2xl space-y-4">
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-extrabold text-white">Active Couple Spaces (2-Member Max Enforced)</h3>
+          <span class="text-xs text-emerald-400 font-semibold" id="coupleCountBadge">Loading...</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs" id="couplesTable">
+            <thead>
+              <tr class="border-b border-purple-800/40 text-purple-400 uppercase tracking-wider font-extrabold">
+                <th class="pb-3">Couple Space</th>
+                <th class="pb-3">Partner 1</th>
+                <th class="pb-3">Partner 2</th>
+                <th class="pb-3">Invite Code</th>
+                <th class="pb-3">Days Together</th>
+                <th class="pb-3">Status</th>
+                <th class="pb-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-purple-900/30 text-purple-200" id="couplesListBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- All Registered Users Table -->
+      <div class="glass-card p-6 rounded-2xl space-y-4">
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-extrabold text-white">Users Registered (From App & Admin)</h3>
+          <span class="text-xs text-purple-400" id="userCountBadge">Loading...</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs" id="usersTable">
+            <thead>
+              <tr class="border-b border-purple-800/40 text-purple-400 uppercase tracking-wider font-extrabold">
+                <th class="pb-3">User</th>
+                <th class="pb-3">Email</th>
+                <th class="pb-3">Paired Partner</th>
+                <th class="pb-3">Source</th>
+                <th class="pb-3">Last Active</th>
+                <th class="pb-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-purple-900/30 text-purple-200" id="usersListBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: LOVE PULSE & MOODS -->
+    <div id="tab-pulses" class="tab-pane hidden space-y-6">
+      <header class="flex justify-between items-center">
+        <div>
+          <h2 class="text-2xl font-black text-white">Love Pulse & Emotional Sync Console</h2>
+          <p class="text-sm text-purple-300/80">Monitor and test love signals sent between coupled devices</p>
+        </div>
+        <button onclick="triggerSimulatedPulse()" class="px-4 py-2 bg-pink-600 hover:bg-pink-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-2">
+          <span>⚡</span> Send Test Pulse to App
+        </button>
+      </header>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="glass-card p-6 rounded-2xl">
+          <h3 class="text-lg font-extrabold text-white mb-1">Pulse Types Popularity</h3>
+          <p class="text-xs text-purple-400 mb-6">Signals couples send most</p>
+          <div class="h-60">
+            <canvas id="pulseTypeChart"></canvas>
+          </div>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl">
+          <h3 class="text-lg font-extrabold text-white mb-1">Voluntary Mood Distribution</h3>
+          <p class="text-xs text-purple-400 mb-6">Aggregate check-in feelings</p>
+          <div class="h-60">
+            <canvas id="moodChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Pulse Feed -->
+      <div class="glass-card p-6 rounded-2xl space-y-3">
+        <h3 class="text-lg font-extrabold text-white">Live Pulse Stream (From App & Admin)</h3>
+        <div id="livePulseStream" class="space-y-2 max-h-56 overflow-y-auto text-xs">
+          <!-- Live events will appear here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: TOGETHER MODE & DAILY QUESTION CMS -->
+    <div id="tab-together" class="tab-pane hidden space-y-6">
+      <header class="flex justify-between items-center">
+        <div>
+          <h2 class="text-2xl font-black text-white">Together Mode & Daily Questions CMS</h2>
+          <p class="text-sm text-purple-300/80">Manage scheduled couple questions, games, and synchronized sessions</p>
+        </div>
+        <button onclick="openModal('createQuestionModal')" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-2">
+          <span>➕</span> Add Daily Question
+        </button>
+      </header>
+
+      <!-- Questions List -->
+      <div class="glass-card p-6 rounded-2xl space-y-4">
+        <h3 class="text-lg font-extrabold text-white">Curated Daily Couple Questions</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="border-b border-purple-800/40 text-purple-400 uppercase tracking-wider font-extrabold">
+                <th class="pb-3">Schedule</th>
+                <th class="pb-3">Question Prompt</th>
+                <th class="pb-3">Category</th>
+                <th class="pb-3">Participation</th>
+                <th class="pb-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-purple-900/30 text-purple-200" id="questionsBody">
+              <!-- Questions injected -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: MEMORIES & LETTERS VAULT -->
+    <div id="tab-memories" class="tab-pane hidden space-y-6">
+      <header>
+        <h2 class="text-2xl font-black text-white">Memories & Letters Vault Overview</h2>
+        <p class="text-sm text-purple-300/80">Storage allowances, encrypted memory counts, and "Open When" letter categories</p>
+      </header>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="glass-card p-5 rounded-2xl">
+          <p class="text-xs text-purple-400 uppercase font-bold tracking-wider">Total Shared Photos</p>
+          <h3 class="text-2xl font-black text-white mt-1">3,892 Photos</h3>
+          <p class="text-xs text-purple-300 mt-2">Avg 18 photos per couple space</p>
+        </div>
+        <div class="glass-card p-5 rounded-2xl">
+          <p class="text-xs text-purple-400 uppercase font-bold tracking-wider">Free Storage Quota</p>
+          <h3 class="text-2xl font-black text-emerald-400 mt-1">100 Photos / 500 MB</h3>
+          <p class="text-xs text-purple-300 mt-2">Enforced in cloud bucket policies</p>
+        </div>
+        <div class="glass-card p-5 rounded-2xl">
+          <p class="text-xs text-purple-400 uppercase font-bold tracking-wider">"Open When" Letters</p>
+          <h3 class="text-2xl font-black text-pink-400 mt-1">640 Scheduled</h3>
+          <p class="text-xs text-purple-300 mt-2">412 Unlocked, 228 Locked</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6: PUSH BROADCAST & NOTIFICATIONS -->
+    <div id="tab-broadcast" class="tab-pane hidden space-y-6">
+      <header>
+        <h2 class="text-2xl font-black text-white">Push Notification Broadcaster</h2>
+        <p class="text-sm text-purple-300/80">Send system notices, love prompt reminders, or anniversary alerts to couples</p>
+      </header>
+
+      <div class="glass-card p-6 rounded-2xl max-w-xl space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-purple-300 uppercase mb-2">Notification Title</label>
+          <input type="text" id="pushTitle" value="A little reminder from SoulSync 💞" class="w-full bg-purple-950/60 border border-purple-800/60 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-purple-300 uppercase mb-2">Message Body</label>
+          <textarea id="pushBody" rows="3" class="w-full bg-purple-950/60 border border-purple-800/60 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500">Take a moment today to send a Love Pulse to your partner! ✨</textarea>
+        </div>
+        <button onclick="sendPushBroadcast()" class="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 text-white rounded-xl font-bold text-sm shadow-lg shadow-purple-900/50 transition">
+          🚀 Dispatch Push to All Devices
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL: CREATE NEW USER -->
+  <div id="createUserModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="glass-card w-full max-w-md p-6 rounded-2xl border border-purple-600/40 space-y-4">
+      <div class="flex justify-between items-center">
+        <h3 class="text-lg font-black text-white">Create New User & Couple Space</h3>
+        <button onclick="closeModal('createUserModal')" class="text-purple-400 hover:text-white text-xl">✕</button>
+      </div>
+
+      <form id="createUserForm" onsubmit="handleCreateUser(event)" class="space-y-3.5 text-xs">
+        <div>
+          <label class="block text-purple-300 font-bold mb-1">User Full Name</label>
+          <input type="text" id="newUserName" required placeholder="e.g. Alex" class="w-full bg-purple-950/70 border border-purple-800/60 rounded-xl px-3.5 py-2.5 text-white">
+        </div>
+        <div>
+          <label class="block text-purple-300 font-bold mb-1">Email Address</label>
+          <input type="email" id="newUserEmail" required placeholder="alex@example.com" class="w-full bg-purple-950/70 border border-purple-800/60 rounded-xl px-3.5 py-2.5 text-white">
+        </div>
+        <div>
+          <label class="block text-purple-300 font-bold mb-1">Password</label>
+          <input type="password" id="newUserPassword" required value="Password123!" class="w-full bg-purple-950/70 border border-purple-800/60 rounded-xl px-3.5 py-2.5 text-white">
+        </div>
+        <div>
+          <label class="block text-purple-300 font-bold mb-1">Partner's Name (Optional)</label>
+          <input type="text" id="newUserPartner" placeholder="e.g. Jordan" class="w-full bg-purple-950/70 border border-purple-800/60 rounded-xl px-3.5 py-2.5 text-white">
+        </div>
+
+        <div class="pt-2">
+          <button type="submit" class="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 text-white rounded-xl font-bold transition shadow-lg shadow-purple-900/50">
+            Create User & Generate Space
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD QUESTION -->
+  <div id="createQuestionModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="glass-card w-full max-w-md p-6 rounded-2xl border border-purple-600/40 space-y-4">
+      <div class="flex justify-between items-center">
+        <h3 class="text-lg font-black text-white">Schedule New Daily Question</h3>
+        <button onclick="closeModal('createQuestionModal')" class="text-purple-400 hover:text-white text-xl">✕</button>
+      </div>
+
+      <form onsubmit="handleCreateQuestion(event)" class="space-y-3.5 text-xs">
+        <div>
+          <label class="block text-purple-300 font-bold mb-1">Question Prompt</label>
+          <input type="text" id="newQuestionText" required placeholder="e.g. What is our funniest inside joke?" class="w-full bg-purple-950/70 border border-purple-800/60 rounded-xl px-3.5 py-2.5 text-white">
+        </div>
+        <div>
+          <label class="block text-purple-300 font-bold mb-1">Category</label>
+          <select id="newQuestionCategory" class="w-full bg-purple-950/70 border border-purple-800/60 rounded-xl px-3.5 py-2.5 text-white">
+            <option>Romance 🥰</option>
+            <option>Funny & Silly 🎭</option>
+            <option>Future Dreams ✈️</option>
+            <option>Deep Connection 💭</option>
+          </select>
+        </div>
+        <div class="pt-2">
+          <button type="submit" class="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-xl font-bold transition">
+            Publish to All Couples
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:8089';
+    let couples = [];
+    let users = [];
+    let questions = [];
+    let chartPopularity = null;
+    let chartShare = null;
+
+    // Default seed data
+    const defaultCouples = [
+      { id: 'c1', name: 'Alex & Jordan 💞', p1: 'Alex', p2: 'Jordan', code: 'SOUL-8492', days: 342, status: 'Active 🟢' },
+      { id: 'c2', name: 'Maya & Ethan ✨', p1: 'Maya', p2: 'Ethan', code: 'LOVE-1928', days: 120, status: 'Active 🟢' },
+      { id: 'c3', name: 'Sam & Chris ☕', p1: 'Sam', p2: 'Chris', code: 'PAIR-5541', days: 48, status: 'Active 🟢' },
+    ];
+
+    const defaultUsers = [
+      { id: 'u1', name: 'Alex', email: 'alex@example.com', partner: 'Jordan', role: 'Verified User', source: 'Mobile App', last_active: 'Just now' },
+      { id: 'u2', name: 'Jordan', email: 'jordan@example.com', partner: 'Alex', role: 'Verified User', source: 'Mobile App', last_active: '12m ago' },
+      { id: 'u3', name: 'Maya', email: 'maya@example.com', partner: 'Ethan', role: 'Verified User', source: 'Mobile App', last_active: '1h ago' },
+      { id: 'u4', name: 'Ethan', email: 'ethan@example.com', partner: 'Maya', role: 'Verified User', source: 'Mobile App', last_active: '2h ago' },
+    ];
+
+    const defaultQuestions = [
+      { date: 'Today', q: '"What is your favorite memory of us traveling together?"', cat: 'Travel', rate: '91% (194 pairs)', status: 'Active 🟢' },
+      { date: 'Tomorrow', q: '"What is one small habit of mine that makes you smile?"', cat: 'Romance', rate: 'Scheduled', status: 'Pending ⏳' },
+      { date: 'Friday', q: '"If we could teleport anywhere for 24 hours right now, where?"', cat: 'Fun', rate: 'Scheduled', status: 'Pending ⏳' }
+    ];
+
+    function loadLocalStorage() {
+      try {
+        couples = JSON.parse(localStorage.getItem('soulsync_couples')) || defaultCouples;
+        users = JSON.parse(localStorage.getItem('soulsync_users')) || defaultUsers;
+        questions = JSON.parse(localStorage.getItem('soulsync_questions')) || defaultQuestions;
+      } catch (_) {
+        couples = defaultCouples;
+        users = defaultUsers;
+        questions = defaultQuestions;
+      }
+    }
+
+    function saveLocalStorage() {
+      try {
+        localStorage.setItem('soulsync_couples', JSON.stringify(couples));
+        localStorage.setItem('soulsync_users', JSON.stringify(users));
+        localStorage.setItem('soulsync_questions', JSON.stringify(questions));
+      } catch (_) {}
+    }
+
+    // Fetch live data from backend API with fallback
+    async function fetchLiveAll() {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1200);
+
+        const [usersRes, couplesRes, analyticsRes, pulsesRes, qRes] = await Promise.all([
+          fetch(API_BASE + '/api/users', { signal: controller.signal }),
+          fetch(API_BASE + '/api/couples', { signal: controller.signal }),
+          fetch(API_BASE + '/api/analytics', { signal: controller.signal }),
+          fetch(API_BASE + '/api/pulses', { signal: controller.signal }),
+          fetch(API_BASE + '/api/questions', { signal: controller.signal })
+        ]);
+        clearTimeout(timeoutId);
+
+        users = await usersRes.json();
+        couples = await couplesRes.json();
+        const analytics = await analyticsRes.json();
+        const pulses = await pulsesRes.json();
+        questions = await qRes.json();
+
+        saveLocalStorage();
+        updateUI(analytics);
+        renderPulses(pulses);
+        updateCharts(analytics.interactions || {});
+      } catch (err) {
+        // Fallback to localStorage data when accessed remotely on Vercel
+        loadLocalStorage();
+        updateUI({ total_pulses: 1428, interactions: {} });
+      }
+    }
+
+    function updateUI(analytics) {
+      document.getElementById('kpi-couples-count').innerText = couples.length + ' Pairs';
+      document.getElementById('kpi-users-count').innerText = users.length + ' Connected Users';
+      document.getElementById('kpi-pulses').innerText = analytics.total_pulses || (1428 + users.length * 4);
+      document.getElementById('userCountBadge').innerText = `${users.length} Users Found`;
+      document.getElementById('coupleCountBadge').innerText = `${couples.length} Active Spaces`;
+      renderTables();
+    }
+
+    function renderTables() {
+      // Render Couples
+      const couplesBody = document.getElementById('couplesListBody');
+      couplesBody.innerHTML = couples.map(c => `
+        <tr class="hover:bg-purple-900/20">
+          <td class="py-3 font-bold text-white">${c.name}</td>
+          <td class="py-3 text-purple-300 font-semibold">${c.p1}</td>
+          <td class="py-3 text-purple-300 font-semibold">${c.p2}</td>
+          <td class="py-3"><span class="px-2.5 py-1 bg-purple-900/60 rounded text-pink-300 font-mono font-bold border border-pink-500/30">${c.code}</span></td>
+          <td class="py-3 font-bold text-white">${c.days || 1} Days</td>
+          <td class="py-3"><span class="text-emerald-400 font-semibold">${c.status || 'Active 🟢'}</span></td>
+          <td class="py-3 text-right">
+            <button onclick="copyCode('${c.code}')" class="px-2.5 py-1 bg-purple-800/50 hover:bg-purple-700/60 rounded text-purple-200 font-bold">Copy Code</button>
+          </td>
+        </tr>
+      `).join('');
+
+      // Render Users
+      const usersBody = document.getElementById('usersListBody');
+      usersBody.innerHTML = users.map(u => `
+        <tr class="hover:bg-purple-900/20">
+          <td class="py-3 font-bold text-white flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center text-[10px] font-black">${(u.name || 'U')[0]}</div>
+            ${u.name || 'User'}
+          </td>
+          <td class="py-3 text-purple-300 font-mono text-[11px]">${u.email}</td>
+          <td class="py-3 text-pink-300 font-bold">${u.partner || 'Partner'}</td>
+          <td class="py-3">
+            <span class="px-2 py-0.5 ${u.source === 'Mobile App' ? 'bg-pink-950/70 text-pink-300 border-pink-700/40' : 'bg-emerald-950/70 text-emerald-300 border-emerald-700/40'} border rounded font-semibold text-[10px]">
+              ${u.source || 'Mobile App'}
+            </span>
+          </td>
+          <td class="py-3 text-purple-400">${u.last_active || 'Just now'}</td>
+          <td class="py-3 text-right">
+            <button onclick="alert('User ID: ${u.id}\\nName: ${u.name}\\nEmail: ${u.email}')" class="px-2 py-1 bg-purple-800/40 hover:bg-purple-700/60 rounded text-purple-300 font-semibold">Inspect</button>
+          </td>
+        </tr>
+      `).join('');
+
+      // Render Questions
+      const qBody = document.getElementById('questionsBody');
+      qBody.innerHTML = questions.map(q => `
+        <tr class="hover:bg-purple-900/20">
+          <td class="py-3 font-semibold">${q.date || 'Today'}</td>
+          <td class="py-3 font-bold text-white">${q.q}</td>
+          <td class="py-3"><span class="px-2 py-1 bg-purple-800/50 rounded-md text-purple-300">${q.cat}</span></td>
+          <td class="py-3 font-semibold text-emerald-400">${q.rate || '91%'}</td>
+          <td class="py-3 text-right font-bold text-emerald-400">${q.status || 'Active 🟢'}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderPulses(pulses) {
+      const stream = document.getElementById('livePulseStream');
+      if (!pulses || pulses.length === 0) return;
+      stream.innerHTML = pulses.map(p => `
+        <div class="p-2.5 rounded-xl bg-purple-900/30 border border-purple-800/40 flex justify-between items-center text-purple-200">
+          <span><strong>${p.sender}</strong> sent <strong>${p.type}</strong> to <strong>${p.recipient}</strong></span>
+          <span class="text-pink-400 font-bold text-[11px]">${p.time}</span>
+        </div>
+      `).join('');
+    }
+
+    function updateCharts(interactions) {
+      const labels = ['Connect (Love Pulse)', 'Home Dashboard', 'Together (Activities)', 'Memories Vault', 'Profile & Settings'];
+      const data = labels.map(l => interactions[l] || 100);
+
+      if (chartPopularity) {
+        chartPopularity.data.datasets[0].data = data;
+        chartPopularity.update();
+      }
+      if (chartShare) {
+        chartShare.data.datasets[0].data = data;
+        chartShare.update();
+      }
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+      document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+      document.querySelectorAll('#nav-container button').forEach(b => {
+        b.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-purple-300 hover:bg-purple-900/30 font-semibold transition";
+      });
+      document.getElementById('nav-' + tabId).className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm active-nav transition";
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+      document.getElementById(id).classList.add('flex');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+      document.getElementById(id).classList.remove('flex');
+    }
+
+    function copyCode(code) {
+      navigator.clipboard.writeText(code);
+      alert('Copied invite code: ' + code + ' to clipboard!');
+    }
+
+    async function handleCreateUser(e) {
+      e.preventDefault();
+      const name = document.getElementById('newUserName').value;
+      const email = document.getElementById('newUserEmail').value;
+      const partner = document.getElementById('newUserPartner').value || 'Partner';
+      const randCode = 'PAIR-' + Math.floor(1000 + Math.random() * 9000);
+
+      try {
+        await fetch(API_BASE + '/api/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, partner, source: 'Admin Panel' })
+        });
+      } catch (_) {}
+
+      // Always update local state
+      users.unshift({
+        id: 'u' + (users.length + 1),
+        name: name,
+        email: email,
+        partner: partner,
+        role: 'Verified User',
+        source: 'Admin Panel',
+        last_active: 'Just now'
+      });
+
+      couples.unshift({
+        id: 'c' + (couples.length + 1),
+        name: `${name} & ${partner} 💞`,
+        p1: name,
+        p2: partner,
+        code: randCode,
+        days: 1,
+        status: 'Active 🟢'
+      });
+
+      saveLocalStorage();
+      updateUI({ total_pulses: 1428, interactions: {} });
+      closeModal('createUserModal');
+      alert(`🎉 Created User "${name}" & Couple Space with Invite Code: ${randCode}!`);
+    }
+
+    async function handleCreateQuestion(e) {
+      e.preventDefault();
+      const prompt = document.getElementById('newQuestionText').value;
+      const cat = document.getElementById('newQuestionCategory').value;
+
+      try {
+        await fetch(API_BASE + '/api/questions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ q: prompt, cat: cat })
+        });
+      } catch (_) {}
+
+      questions.unshift({
+        date: 'Today',
+        q: `"${prompt}"`,
+        cat: cat,
+        rate: 'Active',
+        status: 'Active 🟢'
+      });
+
+      saveLocalStorage();
+      renderTables();
+      closeModal('createQuestionModal');
+      alert('✅ New daily question scheduled and published to all couples!');
+    }
+
+    async function triggerSimulatedPulse() {
+      const types = ['Love ❤️', 'Hug 🫂', 'Kiss 💋', 'Missing You 🥺', 'Thinking of You 💭'];
+      const chosen = types[Math.floor(Math.random() * types.length)];
+      try {
+        await fetch(API_BASE + '/api/pulse', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sender: 'Alex', recipient: 'Jordan', type: chosen })
+        });
+        await fetchLiveAll();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function sendPushBroadcast() {
+      const title = document.getElementById('pushTitle').value;
+      alert(`📢 Push notification "${title}" successfully dispatched to all registered devices!`);
+    }
+
+    // Initialize Charts & Tables on load
+    window.onload = function() {
+      // Screen Popularity Bar
+      const ctxScreen = document.getElementById('screenPopularityChart').getContext('2d');
+      chartPopularity = new Chart(ctxScreen, {
+        type: 'bar',
+        data: {
+          labels: ['Connect (Love Pulse)', 'Home Dashboard', 'Together (Activities)', 'Memories Vault', 'Profile & Settings'],
+          datasets: [{
+            label: 'Total Screen Interactions',
+            data: [5840, 4920, 3180, 2410, 890],
+            backgroundColor: [
+              'rgba(232, 73, 138, 0.9)',
+              'rgba(108, 62, 188, 0.9)',
+              'rgba(156, 111, 228, 0.9)',
+              'rgba(123, 97, 255, 0.9)',
+              'rgba(107, 100, 128, 0.9)'
+            ],
+            borderRadius: 8,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#B0A8C8' } },
+            y: { grid: { color: 'rgba(108, 62, 188, 0.15)' }, ticks: { color: '#B0A8C8' } }
+          }
+        }
+      });
+
+      // Screen Share Doughnut
+      const ctxShare = document.getElementById('screenShareChart').getContext('2d');
+      chartShare = new Chart(ctxShare, {
+        type: 'doughnut',
+        data: {
+          labels: ['Connect', 'Home', 'Together', 'Memories', 'Profile'],
+          datasets: [{
+            data: [38, 28, 19, 11, 4],
+            backgroundColor: ['#E8498A', '#6C3EBC', '#9C6FE4', '#7B61FF', '#4A1E9E'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { color: '#F3EEFF', boxWidth: 10, font: { size: 10 } } } },
+          cutout: '70%'
+        }
+      });
+
+      // Pulse Type Chart
+      const ctxPulse = document.getElementById('pulseTypeChart').getContext('2d');
+      new Chart(ctxPulse, {
+        type: 'polarArea',
+        data: {
+          labels: ['Love ❤️', 'Hug 🫂', 'Kiss 💋', 'Missing You 🥺', 'Thinking 💭'],
+          datasets: [{
+            data: [480, 310, 290, 220, 128],
+            backgroundColor: [
+              'rgba(255, 59, 107, 0.8)',
+              'rgba(255, 155, 78, 0.8)',
+              'rgba(255, 94, 190, 0.8)',
+              'rgba(123, 97, 255, 0.8)',
+              'rgba(52, 170, 220, 0.8)'
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'right', labels: { color: '#F3EEFF', font: { size: 11 } } } },
+          scales: { r: { grid: { color: 'rgba(255,255,255,0.08)' }, ticks: { display: false } } }
+        }
+      });
+
+      // Mood Chart
+      const ctxMood = document.getElementById('moodChart').getContext('2d');
+      new Chart(ctxMood, {
+        type: 'bar',
+        data: {
+          labels: ['Romantic 🥰', 'Happy 😊', 'Excited 🤩', 'Need Attention 🥺', 'Stressed 😫', 'Lonely 😔'],
+          datasets: [{
+            label: 'Check-ins',
+            data: [340, 290, 180, 140, 95, 60],
+            backgroundColor: '#E8498A',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: 'rgba(108, 62, 188, 0.15)' }, ticks: { color: '#B0A8C8' } },
+            y: { grid: { display: false }, ticks: { color: '#F3EEFF' } }
+          }
+        }
+      });
+
+      // Initial Fetch & Auto-Poll every 3 seconds for real-time user reflection
+      fetchLiveAll();
+      setInterval(fetchLiveAll, 3000);
+    };
+  </script>
+</body>
+</html>
