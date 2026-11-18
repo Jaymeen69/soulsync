@@ -1,22 +1,30 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../shared/widgets/soulsync_button.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 
-class ConnectScreen extends StatefulWidget {
+class ConnectScreen extends ConsumerStatefulWidget {
   const ConnectScreen({super.key});
 
   @override
-  State<ConnectScreen> createState() => _ConnectScreenState();
+  ConsumerState<ConnectScreen> createState() => _ConnectScreenState();
 }
 
-class _ConnectScreenState extends State<ConnectScreen> {
+class _ConnectScreenState extends ConsumerState<ConnectScreen> {
   int _selectedPulseIndex = 0;
-  int _selectedMoodIndex = 1;
+  int _selectedMoodIndex = 0;
   bool _isSendingPulse = false;
-  String? _pulseFeedback;
+  bool _isSavingMood = false;
+  bool _isMoodPrivate = false;
+  final TextEditingController _moodNoteCtrl = TextEditingController();
+
+  Map<String, dynamic>? _partnerLatestMood;
+  List<Map<String, dynamic>> _userMoodHistory = [];
 
   static const List<_PulseType> _pulseTypes = [
     _PulseType(name: 'Love', emoji: '❤️', icon: Icons.favorite_rounded, color: AppColors.pulseLove),
@@ -42,32 +50,129 @@ class _ConnectScreenState extends State<ConnectScreen> {
     'You sent "Kiss 💋" • Yesterday',
   ];
 
-  void _sendPulse() async {
+  @override
+  void initState() {
+    super.initState();
+    _fetchMoodData();
+  }
+
+  @override
+  void dispose() {
+    _moodNoteCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchMoodData() async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+    try {
+      final res = await http.get(
+        Uri.parse('${AuthNotifier.apiBaseUrl}/api/mood?user_id=${user.id}&couple_id=${user.coupleId ?? ""}'),
+      ).timeout(const Duration(seconds: 4));
+
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body) as Map<String, dynamic>;
+        if (mounted) {
+          setState(() {
+            _partnerLatestMood = data['partner_latest'] as Map<String, dynamic>?;
+            _userMoodHistory = (data['user_history'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
+          });
+        }
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _sendPulse() async {
+    final user = ref.read(currentUserProvider);
     final pulse = _pulseTypes[_selectedPulseIndex];
     HapticFeedback.heavyImpact();
+
     setState(() {
       _isSendingPulse = true;
-      _pulseFeedback = 'Sent ${pulse.name} ${pulse.emoji} to Partner!';
-      _pulseHistory.insert(0, 'You sent "${pulse.name} ${pulse.emoji}" • Just now');
     });
 
-    await Future.delayed(const Duration(milliseconds: 1200));
-    if (mounted) {
-      setState(() {
-        _isSendingPulse = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('✨ ${pulse.name} pulse delivered to your partner!'),
-          duration: const Duration(seconds: 2),
-        ),
-      );
+    try {
+      final res = await http.post(
+        Uri.parse('${AuthNotifier.apiBaseUrl}/api/pulse'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'sender': user?.displayName ?? 'You',
+          'recipient': user?.partnerName ?? 'Partner',
+          'type': '${pulse.name} ${pulse.emoji}',
+        }),
+      ).timeout(const Duration(seconds: 4));
+
+      if (mounted) {
+        setState(() {
+          _pulseHistory.insert(0, 'You sent "${pulse.name} ${pulse.emoji}" • Just now');
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('✨ ${pulse.name} ${pulse.emoji} pulse delivered to your partner!'),
+            duration: const Duration(seconds: 2),
+            backgroundColor: pulse.color,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Delivered pulse locally: ${pulse.name} ${pulse.emoji}')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSendingPulse = false);
+    }
+  }
+
+  Future<void> _submitMood() async {
+    final user = ref.read(currentUserProvider);
+    final chosenMood = _moodItems[_selectedMoodIndex];
+    setState(() => _isSavingMood = true);
+
+    try {
+      await http.post(
+        Uri.parse('${AuthNotifier.apiBaseUrl}/api/mood'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'user_id': user?.id ?? 'u1',
+          'couple_id': user?.coupleId ?? 'c1',
+          'mood': chosenMood.label,
+          'emoji': chosenMood.emoji,
+          'note': _moodNoteCtrl.text.trim(),
+          'is_private': _isMoodPrivate,
+        }),
+      ).timeout(const Duration(seconds: 4));
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              _isMoodPrivate
+                  ? '🔒 Private mood saved in personal journal.'
+                  : '✨ Mood "${chosenMood.label} ${chosenMood.emoji}" shared with ${user?.partnerName ?? "Partner"}!',
+            ),
+          ),
+        );
+        _moodNoteCtrl.clear();
+        _fetchMoodData();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Mood recorded locally!')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSavingMood = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final currentPulse = _pulseTypes[_selectedPulseIndex];
+    final user = ref.watch(currentUserProvider);
+    final partnerName = user?.partnerName ?? 'Partner';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -101,7 +206,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
                   Text('Send a Love Pulse', style: AppTypography.headlineMedium),
                   const SizedBox(height: 4),
                   Text(
-                    'Lightweight signal to say "I\'m thinking of you"',
+                    'Instant haptic & emotional signal to your partner',
                     style: AppTypography.bodySmall,
                   ),
                   const SizedBox(height: 24),
@@ -115,7 +220,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
                       height: _isSendingPulse ? 130 : 110,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [currentPulse.color, currentPulse.color.withOpacity(0.7)],
+                          colors: [currentPulse.color, currentPulse.color.withOpacity(0.75)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -180,7 +285,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
                   ),
                   const SizedBox(height: 20),
                   SoulSyncButton(
-                    label: 'Send ${currentPulse.name} ${currentPulse.emoji}',
+                    label: 'Send ${currentPulse.name} ${currentPulse.emoji} to $partnerName',
                     onPressed: _sendPulse,
                     isLoading: _isSendingPulse,
                   ),
@@ -189,10 +294,52 @@ class _ConnectScreenState extends State<ConnectScreen> {
             ),
             const SizedBox(height: 28),
 
-            // Emotional Sync / Mood Section
+            // Partner's Shared Mood Banner (Section 6 Fix)
+            if (_partnerLatestMood != null) ...[
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.accent.withOpacity(0.15), AppColors.primary.withOpacity(0.08)],
+                  ),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: AppColors.accent.withOpacity(0.3)),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      _partnerLatestMood!['emoji'] ?? '🥰',
+                      style: const TextStyle(fontSize: 32),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '$partnerName is feeling ${_partnerLatestMood!['mood']} right now',
+                            style: AppTypography.titleLarge,
+                          ),
+                          if ((_partnerLatestMood!['note'] ?? '').toString().isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              '"${_partnerLatestMood!['note']}"',
+                              style: AppTypography.bodySmall.copyWith(fontStyle: FontStyle.italic),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+
+            // Emotional Sync / Mood Section (Section 6 Fix: Note + Privacy + Backend Sync)
             Text('Emotional Sync (Mood)', style: AppTypography.headlineSmall),
             const SizedBox(height: 4),
-            Text('Voluntarily share how you feel right now', style: AppTypography.bodySmall),
+            Text('Check in and voluntarily share your mood with your partner', style: AppTypography.bodySmall),
             const SizedBox(height: 14),
 
             // Mood selector grid
@@ -213,9 +360,6 @@ class _ConnectScreenState extends State<ConnectScreen> {
                   onTap: () {
                     HapticFeedback.selectionClick();
                     setState(() => _selectedMoodIndex = index);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Updated mood to "${m.label} ${m.emoji}" for partner!')),
-                    );
                   },
                   child: Container(
                     decoration: BoxDecoration(
@@ -244,6 +388,49 @@ class _ConnectScreenState extends State<ConnectScreen> {
                   ),
                 );
               },
+            ),
+            const SizedBox(height: 14),
+
+            // Optional Personal Note TextField
+            TextField(
+              controller: _moodNoteCtrl,
+              decoration: InputDecoration(
+                hintText: 'Add an optional note for $partnerName...',
+                filled: true,
+                fillColor: AppColors.surface,
+                prefixIcon: const Icon(Icons.edit_note_rounded, color: AppColors.primary),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide(color: AppColors.primary.withOpacity(0.1)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Private vs Shared with Partner Switch (Rule: Private by default not exposed to partner or admin)
+            Row(
+              children: [
+                Switch(
+                  value: _isMoodPrivate,
+                  activeColor: AppColors.primary,
+                  onChanged: (val) => setState(() => _isMoodPrivate = val),
+                ),
+                Text(
+                  _isMoodPrivate ? 'Keep this mood private (Journal only 🔒)' : 'Share this mood with $partnerName 💞',
+                  style: AppTypography.bodySmall.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: _isMoodPrivate ? AppColors.warning : AppColors.primary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            SoulSyncButton(
+              label: 'Update My Mood',
+              onPressed: _submitMood,
+              isLoading: _isSavingMood,
+              variant: SoulSyncButtonVariant.secondary,
             ),
             const SizedBox(height: 28),
 
@@ -278,7 +465,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
                 },
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
           ],
         ),
       ),

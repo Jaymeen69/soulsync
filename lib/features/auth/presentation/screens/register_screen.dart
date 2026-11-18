@@ -19,6 +19,7 @@ class RegisterScreen extends ConsumerStatefulWidget {
 class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
+  final _partnerCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _confirmPasswordCtrl = TextEditingController();
@@ -29,6 +30,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   @override
   void dispose() {
     _nameCtrl.dispose();
+    _partnerCtrl.dispose();
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
     _confirmPasswordCtrl.dispose();
@@ -41,20 +43,24 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       setState(() => _errorMessage = 'Please agree to the Privacy Policy to continue.');
       return;
     }
-    setState(() { _isLoading = true; _errorMessage = null; });
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
     try {
       final authRepo = ref.read(authRepositoryProvider);
-      final user = await authRepo.register(
-        email: _emailCtrl.text,
+      final email = _emailCtrl.text.trim().toLowerCase();
+      await authRepo.register(
+        email: email,
         password: _passwordCtrl.text,
-        displayName: _nameCtrl.text,
+        displayName: _nameCtrl.text.trim(),
+        partnerName: _partnerCtrl.text.trim().isEmpty ? 'Partner' : _partnerCtrl.text.trim(),
       );
+
       if (mounted) {
-        if (!user.isEmailVerified) {
-          context.go(RouteNames.emailVerification);
-        } else {
-          context.go(RouteNames.home);
-        }
+        // Enforce mandatory OTP verification flow before login
+        context.push(RouteNames.emailVerification, extra: email);
       }
     } catch (e) {
       setState(() => _errorMessage = e.toString().replaceFirst('Exception: ', ''));
@@ -69,109 +75,138 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       appBar: AppBar(leading: const BackButton()),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Create account 💞', style: AppTypography.displayMedium),
-                const SizedBox(height: 8),
-                Text('Start your shared journey', style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary)),
-                const SizedBox(height: 32),
+                Text('Create Account 💞', style: AppTypography.displayMedium),
+                const SizedBox(height: 6),
+                Text(
+                  'Start your shared journey together',
+                  style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: 24),
+
                 if (_errorMessage != null) ...[
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: AppColors.error.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.error.withOpacity(0.3)),
                     ),
-                    child: Row(children: [
-                      const Icon(Icons.error_outline, color: AppColors.error, size: 20),
-                      const SizedBox(width: 10),
-                      Expanded(child: Text(_errorMessage!, style: TextStyle(color: AppColors.error))),
-                    ]),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline, color: AppColors.error, size: 20),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(_errorMessage!, style: const TextStyle(color: AppColors.error, fontSize: 13)),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 16),
                 ],
+
                 SoulSyncTextField(
-                  label: 'Your name',
-                  hint: 'How your partner will see you',
+                  label: 'Your Name',
+                  hint: 'How your partner sees you',
                   controller: _nameCtrl,
-                  textInputAction: TextInputAction.next,
-                  prefixIcon: Icons.person_outline_rounded,
                   validator: Validators.displayName,
-                ),
-                const SizedBox(height: 16),
-                SoulSyncTextField(
-                  label: 'Email',
-                  hint: 'you@example.com',
-                  controller: _emailCtrl,
-                  keyboardType: TextInputType.emailAddress,
+                  prefixIcon: Icons.person_outline,
                   textInputAction: TextInputAction.next,
-                  prefixIcon: Icons.email_outlined,
-                  validator: Validators.email,
-                  autofillHints: const [AutofillHints.newUsername],
                 ),
                 const SizedBox(height: 16),
+
+                SoulSyncTextField(
+                  label: 'Partner\'s Name (Optional)',
+                  hint: 'Your partner\'s nickname or first name',
+                  controller: _partnerCtrl,
+                  prefixIcon: Icons.favorite_border_rounded,
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: 16),
+
+                SoulSyncTextField(
+                  label: 'Email Address',
+                  hint: 'your.name@example.com',
+                  controller: _emailCtrl,
+                  validator: Validators.email,
+                  keyboardType: TextInputType.emailAddress,
+                  prefixIcon: Icons.email_outlined,
+                  textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: 16),
+
                 SoulSyncTextField(
                   label: 'Password',
+                  hint: 'At least 8 chars, 1 uppercase, 1 number, 1 special char',
                   controller: _passwordCtrl,
                   obscureText: true,
-                  textInputAction: TextInputAction.next,
-                  prefixIcon: Icons.lock_outline_rounded,
                   validator: Validators.password,
-                  autofillHints: const [AutofillHints.newPassword],
+                  prefixIcon: Icons.lock_outline,
+                  textInputAction: TextInputAction.next,
                 ),
                 const SizedBox(height: 16),
+
                 SoulSyncTextField(
-                  label: 'Confirm password',
+                  label: 'Confirm Password',
+                  hint: 'Re-enter your password',
                   controller: _confirmPasswordCtrl,
                   obscureText: true,
-                  textInputAction: TextInputAction.done,
-                  prefixIcon: Icons.lock_outline_rounded,
                   validator: (v) => Validators.confirmPassword(v, _passwordCtrl.text),
+                  prefixIcon: Icons.lock_clock_outlined,
+                  textInputAction: TextInputAction.done,
                   onSubmitted: (_) => _register(),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
+
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Checkbox(
                       value: _agreedToTerms,
-                      onChanged: (v) => setState(() => _agreedToTerms = v ?? false),
                       activeColor: AppColors.primary,
+                      onChanged: (v) => setState(() => _agreedToTerms = v ?? false),
                     ),
                     Expanded(
-                      child: Text.rich(
-                        TextSpan(
-                          text: 'I agree to the ',
-                          style: AppTypography.bodySmall,
-                          children: [
-                            TextSpan(
-                              text: 'Privacy Policy',
-                              style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
-                            ),
-                            const TextSpan(text: '. Your data is private and secure.'),
-                          ],
-                        ),
+                      child: Text(
+                        'I agree to the SoulSync Privacy Policy and Terms of Couple Data Security.',
+                        style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 24),
-                SoulSyncButton(label: 'Create Account', onPressed: _register, isLoading: _isLoading),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Already have an account?', style: AppTypography.bodyMedium),
-                    TextButton(
-                      onPressed: () => context.go(RouteNames.login),
-                      child: const Text('Sign In'),
-                    ),
-                  ],
+
+                SoulSyncButton(
+                  label: 'Create Account & Send OTP',
+                  onPressed: _register,
+                  isLoading: _isLoading,
                 ),
+                const SizedBox(height: 20),
+
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Already have an account? ', style: AppTypography.bodyMedium),
+                      GestureDetector(
+                        onTap: () => context.go(RouteNames.login),
+                        child: Text(
+                          'Sign In',
+                          style: AppTypography.bodyMedium.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
               ],
             ),
           ),

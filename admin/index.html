@@ -53,6 +53,9 @@
         <button onclick="switchTab('memories')" id="nav-memories" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-purple-300 hover:bg-purple-900/30 font-semibold transition">
           <span>📸</span> Memories & Letters
         </button>
+        <button onclick="switchTab('audit')" id="nav-audit" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-purple-300 hover:bg-purple-900/30 font-semibold transition">
+          <span>🛡️</span> Security & Audit Logs
+        </button>
         <button onclick="switchTab('broadcast')" id="nav-broadcast" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-purple-300 hover:bg-purple-900/30 font-semibold transition">
           <span>📢</span> Push Broadcast
         </button>
@@ -66,7 +69,7 @@
         Live App Bridge Active
       </div>
       <p class="text-purple-300/70 text-[11px] leading-relaxed">
-        Syncing live with mobile app via port 8089. Users registering from the app reflect instantly below!
+        Syncing live with mobile app via port 8089. Users registering from the app reflect instantly!
       </p>
     </div>
   </aside>
@@ -200,8 +203,9 @@
                 <th class="pb-3">User</th>
                 <th class="pb-3">Email</th>
                 <th class="pb-3">Paired Partner</th>
+                <th class="pb-3">Invite Code</th>
                 <th class="pb-3">Source</th>
-                <th class="pb-3">Last Active</th>
+                <th class="pb-3">Status</th>
                 <th class="pb-3 text-right">Actions</th>
               </tr>
             </thead>
@@ -312,7 +316,39 @@
       </div>
     </div>
 
-    <!-- TAB 6: PUSH BROADCAST & NOTIFICATIONS -->
+    <!-- TAB 6: SECURITY & AUDIT LOGS (Section 3.F Fix) -->
+    <div id="tab-audit" class="tab-pane hidden space-y-6">
+      <header class="flex justify-between items-center">
+        <div>
+          <h2 class="text-2xl font-black text-white">Security & Administrative Audit Logs</h2>
+          <p class="text-sm text-purple-300/80">Immutable log of administrative password resets, account creations, and security actions</p>
+        </div>
+        <button onclick="fetchAuditLogs()" class="px-3.5 py-2 bg-purple-900/60 hover:bg-purple-800 text-purple-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+          <span>🔄</span> Refresh Logs
+        </button>
+      </header>
+
+      <div class="glass-card p-6 rounded-2xl space-y-4">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="border-b border-purple-800/40 text-purple-400 uppercase tracking-wider font-extrabold">
+                <th class="pb-3">Timestamp</th>
+                <th class="pb-3">Actor</th>
+                <th class="pb-3">Action</th>
+                <th class="pb-3">Target</th>
+                <th class="pb-3">Details</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-purple-900/30 text-purple-200" id="auditLogsBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 7: PUSH BROADCAST & NOTIFICATIONS -->
     <div id="tab-broadcast" class="tab-pane hidden space-y-6">
       <header>
         <h2 class="text-2xl font-black text-white">Push Notification Broadcaster</h2>
@@ -355,27 +391,56 @@
         </div>
         <div>
           <label class="block text-purple-300 font-bold mb-1">Password</label>
-          <input type="password" id="newUserPassword" required value="Password123!" class="w-full bg-purple-950/70 border border-purple-800/60 rounded-xl px-3.5 py-2.5 text-white">
+          <input type="password" id="newUserPassword" required value="SoulSync@2024!" class="w-full bg-purple-950/70 border border-purple-800/60 rounded-xl px-3.5 py-2.5 text-white">
+          <p class="text-[10px] text-purple-400 mt-1">Default meeting complexity policy (min 8 chars, uppercase, lowercase, number, special char)</p>
         </div>
         <div>
-          <label class="block text-purple-300 font-bold mb-1">Partner's Name (Optional)</label>
-          <input type="text" id="newUserPartner" placeholder="e.g. Jordan" class="w-full bg-purple-950/70 border border-purple-800/60 rounded-xl px-3.5 py-2.5 text-white">
+          <label class="block text-purple-300 font-bold mb-1">Partner's Name</label>
+          <input type="text" id="newUserPartner" required placeholder="e.g. Jordan" class="w-full bg-purple-950/70 border border-purple-800/60 rounded-xl px-3.5 py-2.5 text-white">
         </div>
-
         <div class="pt-2">
-          <button type="submit" class="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 text-white rounded-xl font-bold transition shadow-lg shadow-purple-900/50">
-            Create User & Generate Space
+          <button type="submit" class="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 text-white rounded-xl font-bold transition">
+            Create User & Generate Partner Code
           </button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- MODAL: ADD QUESTION -->
+  <!-- MODAL: ADMIN RESET USER PASSWORD (Section 3.F Fix) -->
+  <div id="resetPasswordModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="glass-card w-full max-w-md p-6 rounded-2xl border border-pink-500/40 space-y-4">
+      <div class="flex justify-between items-center pb-2 border-b border-purple-800/40">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <span>🔒</span> Admin Password Reset
+        </h3>
+        <button onclick="closeModal('resetPasswordModal')" class="text-purple-400 hover:text-white text-lg font-bold">&times;</button>
+      </div>
+      <form onsubmit="handleAdminResetPassword(event)" class="space-y-3.5 text-xs">
+        <input type="hidden" id="resetUserId">
+        <div>
+          <label class="block text-purple-300 font-bold mb-1">Target User</label>
+          <input type="text" id="resetUserEmail" readonly class="w-full bg-purple-950/40 border border-purple-800/40 rounded-xl px-3.5 py-2.5 text-purple-300 font-mono">
+        </div>
+        <div>
+          <label class="block text-purple-300 font-bold mb-1">New Secure Password</label>
+          <input type="password" id="resetNewPassword" required value="SoulSync@2024!" class="w-full bg-purple-950/70 border border-purple-800/60 rounded-xl px-3.5 py-2.5 text-white">
+          <p class="text-[10px] text-purple-400 mt-1">Must meet complexity: min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char.</p>
+        </div>
+        <div class="pt-2">
+          <button type="submit" class="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-xl font-bold transition">
+            Confirm Password Reset
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CREATE DAILY QUESTION -->
   <div id="createQuestionModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="glass-card w-full max-w-md p-6 rounded-2xl border border-purple-600/40 space-y-4">
       <div class="flex justify-between items-center">
-        <h3 class="text-lg font-black text-white">Schedule New Daily Question</h3>
+        <h3 class="text-lg font-black text-white">Add New Couple Question</h3>
         <button onclick="closeModal('createQuestionModal')" class="text-purple-400 hover:text-white text-xl">✕</button>
       </div>
 
@@ -403,31 +468,30 @@
   </div>
 
   <script>
-    const API_BASE = 'http://localhost:8089';
+    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? 'http://127.0.0.1:8089'
+      : 'http://127.0.0.1:8089';
+
     let couples = [];
     let users = [];
     let questions = [];
+    let auditLogs = [];
     let chartPopularity = null;
     let chartShare = null;
 
-    // Default seed data
     const defaultCouples = [
       { id: 'c1', name: 'Alex & Jordan 💞', p1: 'Alex', p2: 'Jordan', code: 'SOUL-8492', days: 342, status: 'Active 🟢' },
-      { id: 'c2', name: 'Maya & Ethan ✨', p1: 'Maya', p2: 'Ethan', code: 'LOVE-1928', days: 120, status: 'Active 🟢' },
-      { id: 'c3', name: 'Sam & Chris ☕', p1: 'Sam', p2: 'Chris', code: 'PAIR-5541', days: 48, status: 'Active 🟢' },
+      { id: 'c2', name: 'Maya & Ethan ✨', p1: 'Maya', p2: 'Ethan', code: 'SOUL-1928', days: 120, status: 'Active 🟢' },
     ];
 
     const defaultUsers = [
-      { id: 'u1', name: 'Alex', email: 'alex@example.com', partner: 'Jordan', role: 'Verified User', source: 'Mobile App', last_active: 'Just now' },
-      { id: 'u2', name: 'Jordan', email: 'jordan@example.com', partner: 'Alex', role: 'Verified User', source: 'Mobile App', last_active: '12m ago' },
-      { id: 'u3', name: 'Maya', email: 'maya@example.com', partner: 'Ethan', role: 'Verified User', source: 'Mobile App', last_active: '1h ago' },
-      { id: 'u4', name: 'Ethan', email: 'ethan@example.com', partner: 'Maya', role: 'Verified User', source: 'Mobile App', last_active: '2h ago' },
+      { id: 'u1', name: 'Alex', email: 'alex@example.com', partner: 'Jordan', invite_code: 'SOUL-8492', role: 'Verified User', source: 'Mobile App', is_active: true, last_active: 'Just now' },
+      { id: 'u2', name: 'Jordan', email: 'jordan@example.com', partner: 'Alex', invite_code: 'SOUL-8493', role: 'Verified User', source: 'Mobile App', is_active: true, last_active: '12m ago' },
     ];
 
     const defaultQuestions = [
       { date: 'Today', q: '"What is your favorite memory of us traveling together?"', cat: 'Travel', rate: '91% (194 pairs)', status: 'Active 🟢' },
       { date: 'Tomorrow', q: '"What is one small habit of mine that makes you smile?"', cat: 'Romance', rate: 'Scheduled', status: 'Pending ⏳' },
-      { date: 'Friday', q: '"If we could teleport anywhere for 24 hours right now, where?"', cat: 'Fun', rate: 'Scheduled', status: 'Pending ⏳' }
     ];
 
     function loadLocalStorage() {
@@ -450,44 +514,78 @@
       } catch (_) {}
     }
 
-    // Fetch live data from backend API with fallback
     async function fetchLiveAll() {
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 1200);
-
-        const [usersRes, couplesRes, analyticsRes, pulsesRes, qRes] = await Promise.all([
-          fetch(API_BASE + '/api/users', { signal: controller.signal }),
-          fetch(API_BASE + '/api/couples', { signal: controller.signal }),
-          fetch(API_BASE + '/api/analytics', { signal: controller.signal }),
-          fetch(API_BASE + '/api/pulses', { signal: controller.signal }),
-          fetch(API_BASE + '/api/questions', { signal: controller.signal })
+        const [resUsers, resCouples, resAnalytics, resPulses, resQuestions] = await Promise.all([
+          fetch(API_BASE + '/api/users').then(r => r.json()).catch(() => null),
+          fetch(API_BASE + '/api/couples').then(r => r.json()).catch(() => null),
+          fetch(API_BASE + '/api/analytics').then(r => r.json()).catch(() => null),
+          fetch(API_BASE + '/api/pulses').then(r => r.json()).catch(() => null),
+          fetch(API_BASE + '/api/questions').then(r => r.json()).catch(() => null),
         ]);
-        clearTimeout(timeoutId);
 
-        users = await usersRes.json();
-        couples = await couplesRes.json();
-        const analytics = await analyticsRes.json();
-        const pulses = await pulsesRes.json();
-        questions = await qRes.json();
+        if (resUsers && Array.isArray(resUsers)) {
+          users = resUsers;
+          localStorage.setItem('soulsync_users', JSON.stringify(users));
+        }
+        if (resCouples && Array.isArray(resCouples)) {
+          couples = resCouples;
+          localStorage.setItem('soulsync_couples', JSON.stringify(couples));
+        }
+        if (resQuestions && Array.isArray(resQuestions)) {
+          questions = resQuestions;
+          localStorage.setItem('soulsync_questions', JSON.stringify(questions));
+        }
 
-        saveLocalStorage();
-        updateUI(analytics);
-        renderPulses(pulses);
-        updateCharts(analytics.interactions || {});
+        updateUI(resAnalytics);
+        if (resPulses && Array.isArray(resPulses)) {
+          renderPulses(resPulses);
+        }
       } catch (err) {
-        // Fallback to localStorage data when accessed remotely on Vercel
-        loadLocalStorage();
-        updateUI({ total_pulses: 1428, interactions: {} });
+        console.error('Polling error:', err);
       }
     }
 
+    async function fetchAuditLogs() {
+      try {
+        const res = await fetch(API_BASE + '/api/admin/audit').then(r => r.json());
+        if (res && res.audit_logs) {
+          auditLogs = res.audit_logs;
+          renderAuditLogs();
+        }
+      } catch (_) {}
+    }
+
+    function renderAuditLogs() {
+      const body = document.getElementById('auditLogsBody');
+      if (!body) return;
+      if (auditLogs.length === 0) {
+        body.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-purple-400">No security audit logs recorded yet.</td></tr>`;
+        return;
+      }
+      body.innerHTML = auditLogs.map(a => `
+        <tr class="hover:bg-purple-900/20">
+          <td class="py-3 text-purple-400 font-mono text-[11px]">${(a.timestamp || '').replace('T', ' ').substring(0, 19)}</td>
+          <td class="py-3 font-bold text-pink-300">${a.actor}</td>
+          <td class="py-3"><span class="px-2 py-0.5 bg-purple-900/80 rounded border border-purple-600/40 text-purple-200 font-bold">${a.action}</span></td>
+          <td class="py-3 font-mono text-[11px] text-purple-300">${a.target}</td>
+          <td class="py-3 text-purple-300">${a.details || ''}</td>
+        </tr>
+      `).join('');
+    }
+
     function updateUI(analytics) {
-      document.getElementById('kpi-couples-count').innerText = couples.length + ' Pairs';
-      document.getElementById('kpi-users-count').innerText = users.length + ' Connected Users';
-      document.getElementById('kpi-pulses').innerText = analytics.total_pulses || (1428 + users.length * 4);
-      document.getElementById('userCountBadge').innerText = `${users.length} Users Found`;
-      document.getElementById('coupleCountBadge').innerText = `${couples.length} Active Spaces`;
+      document.getElementById('kpi-couples-count').innerText = `${couples.length} Pairs`;
+      document.getElementById('kpi-users-count').innerText = `${users.length} Connected Users`;
+      document.getElementById('coupleCountBadge').innerText = `${couples.length} Active Couple Spaces`;
+      document.getElementById('userCountBadge').innerText = `${users.length} Users Registered`;
+
+      if (analytics && analytics.total_pulses) {
+        document.getElementById('kpi-pulses').innerText = analytics.total_pulses.toLocaleString();
+      }
+      if (analytics && analytics.interactions) {
+        updateCharts(analytics.interactions);
+      }
       renderTables();
     }
 
@@ -496,7 +594,7 @@
       const couplesBody = document.getElementById('couplesListBody');
       couplesBody.innerHTML = couples.map(c => `
         <tr class="hover:bg-purple-900/20">
-          <td class="py-3 font-bold text-white">${c.name}</td>
+          <td class="py-3 font-bold text-white">${c.name || 'Couple Space'}</td>
           <td class="py-3 text-purple-300 font-semibold">${c.p1}</td>
           <td class="py-3 text-purple-300 font-semibold">${c.p2}</td>
           <td class="py-3"><span class="px-2.5 py-1 bg-purple-900/60 rounded text-pink-300 font-mono font-bold border border-pink-500/30">${c.code}</span></td>
@@ -518,14 +616,16 @@
           </td>
           <td class="py-3 text-purple-300 font-mono text-[11px]">${u.email}</td>
           <td class="py-3 text-pink-300 font-bold">${u.partner || 'Partner'}</td>
+          <td class="py-3 font-mono text-[11px] text-pink-400">${u.invite_code || 'SOUL-8492'}</td>
           <td class="py-3">
             <span class="px-2 py-0.5 ${u.source === 'Mobile App' ? 'bg-pink-950/70 text-pink-300 border-pink-700/40' : 'bg-emerald-950/70 text-emerald-300 border-emerald-700/40'} border rounded font-semibold text-[10px]">
               ${u.source || 'Mobile App'}
             </span>
           </td>
-          <td class="py-3 text-purple-400">${u.last_active || 'Just now'}</td>
-          <td class="py-3 text-right">
-            <button onclick="alert('User ID: ${u.id}\\nName: ${u.name}\\nEmail: ${u.email}')" class="px-2 py-1 bg-purple-800/40 hover:bg-purple-700/60 rounded text-purple-300 font-semibold">Inspect</button>
+          <td class="py-3"><span class="text-emerald-400 font-semibold">Active 🟢</span></td>
+          <td class="py-3 text-right space-x-1">
+            <button onclick="openResetModal('${u.id}', '${u.email}')" class="px-2 py-1 bg-pink-900/50 hover:bg-pink-800/60 rounded text-pink-200 font-semibold text-[11px]">Reset PW</button>
+            <button onclick="alert('User ID: ${u.id}\\nName: ${u.name}\\nEmail: ${u.email}\\nInvite Code: ${u.invite_code || "SOUL-8492"}')" class="px-2 py-1 bg-purple-800/40 hover:bg-purple-700/60 rounded text-purple-300 font-semibold text-[11px]">Inspect</button>
           </td>
         </tr>
       `).join('');
@@ -576,63 +676,83 @@
         b.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-purple-300 hover:bg-purple-900/30 font-semibold transition";
       });
       document.getElementById('nav-' + tabId).className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm active-nav transition";
+
+      if (tabId === 'audit') {
+        fetchAuditLogs();
+      }
     }
 
     function openModal(id) {
-      document.getElementById(id).classList.remove('hidden');
-      document.getElementById(id).classList.add('flex');
+      const m = document.getElementById(id);
+      m.classList.remove('hidden');
+      m.classList.add('flex');
     }
 
     function closeModal(id) {
-      document.getElementById(id).classList.add('hidden');
-      document.getElementById(id).classList.remove('flex');
+      const m = document.getElementById(id);
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    function openResetModal(userId, userEmail) {
+      document.getElementById('resetUserId').value = userId;
+      document.getElementById('resetUserEmail').value = userEmail;
+      openModal('resetPasswordModal');
+    }
+
+    async function handleAdminResetPassword(e) {
+      e.preventDefault();
+      const userId = document.getElementById('resetUserId').value;
+      const userEmail = document.getElementById('resetUserEmail').value;
+      const newPassword = document.getElementById('resetNewPassword').value;
+
+      try {
+        const res = await fetch(API_BASE + '/api/admin/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId, email: userEmail, new_password: newPassword, admin: 'Admin' })
+        }).then(r => r.json());
+
+        if (res.status === 'success') {
+          alert('✅ ' + res.message);
+          closeModal('resetPasswordModal');
+          fetchAuditLogs();
+        } else {
+          alert('⚠️ Error: ' + (res.error || 'Failed to reset password.'));
+        }
+      } catch (err) {
+        alert('⚠️ Unable to connect to backend server: ' + err);
+      }
     }
 
     function copyCode(code) {
       navigator.clipboard.writeText(code);
-      alert('Copied invite code: ' + code + ' to clipboard!');
+      alert('📋 Copied Couple Invite Code: ' + code);
     }
 
     async function handleCreateUser(e) {
       e.preventDefault();
       const name = document.getElementById('newUserName').value;
       const email = document.getElementById('newUserEmail').value;
+      const password = document.getElementById('newUserPassword').value;
       const partner = document.getElementById('newUserPartner').value || 'Partner';
-      const randCode = 'PAIR-' + Math.floor(1000 + Math.random() * 9000);
 
       try {
-        await fetch(API_BASE + '/api/users', {
+        const res = await fetch(API_BASE + '/api/users', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, partner, source: 'Admin Panel' })
-        });
+          body: JSON.stringify({ name, email, password, partner, source: 'Admin Panel' })
+        }).then(r => r.json());
+
+        if (res.status === 'success') {
+          alert(`🎉 User "${name}" created! Eligible for mobile login with assigned password.`);
+          closeModal('createUserModal');
+          fetchLiveAll();
+          return;
+        } else {
+          alert('⚠️ Error: ' + (res.error || 'Failed to create user'));
+        }
       } catch (_) {}
-
-      // Always update local state
-      users.unshift({
-        id: 'u' + (users.length + 1),
-        name: name,
-        email: email,
-        partner: partner,
-        role: 'Verified User',
-        source: 'Admin Panel',
-        last_active: 'Just now'
-      });
-
-      couples.unshift({
-        id: 'c' + (couples.length + 1),
-        name: `${name} & ${partner} 💞`,
-        p1: name,
-        p2: partner,
-        code: randCode,
-        days: 1,
-        status: 'Active 🟢'
-      });
-
-      saveLocalStorage();
-      updateUI({ total_pulses: 1428, interactions: {} });
-      closeModal('createUserModal');
-      alert(`🎉 Created User "${name}" & Couple Space with Invite Code: ${randCode}!`);
     }
 
     async function handleCreateQuestion(e) {
@@ -646,20 +766,10 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ q: prompt, cat: cat })
         });
+        alert('✅ New daily question scheduled and published to all couples!');
+        closeModal('createQuestionModal');
+        fetchLiveAll();
       } catch (_) {}
-
-      questions.unshift({
-        date: 'Today',
-        q: `"${prompt}"`,
-        cat: cat,
-        rate: 'Active',
-        status: 'Active 🟢'
-      });
-
-      saveLocalStorage();
-      renderTables();
-      closeModal('createQuestionModal');
-      alert('✅ New daily question scheduled and published to all couples!');
     }
 
     async function triggerSimulatedPulse() {
@@ -682,9 +792,9 @@
       alert(`📢 Push notification "${title}" successfully dispatched to all registered devices!`);
     }
 
-    // Initialize Charts & Tables on load
     window.onload = function() {
-      // Screen Popularity Bar
+      loadLocalStorage();
+
       const ctxScreen = document.getElementById('screenPopularityChart').getContext('2d');
       chartPopularity = new Chart(ctxScreen, {
         type: 'bar',
@@ -714,7 +824,6 @@
         }
       });
 
-      // Screen Share Doughnut
       const ctxShare = document.getElementById('screenShareChart').getContext('2d');
       chartShare = new Chart(ctxShare, {
         type: 'doughnut',
@@ -734,7 +843,6 @@
         }
       });
 
-      // Pulse Type Chart
       const ctxPulse = document.getElementById('pulseTypeChart').getContext('2d');
       new Chart(ctxPulse, {
         type: 'polarArea',
@@ -760,7 +868,6 @@
         }
       });
 
-      // Mood Chart
       const ctxMood = document.getElementById('moodChart').getContext('2d');
       new Chart(ctxMood, {
         type: 'bar',
@@ -785,7 +892,6 @@
         }
       });
 
-      // Initial Fetch & Auto-Poll every 3 seconds for real-time user reflection
       fetchLiveAll();
       setInterval(fetchLiveAll, 3000);
     };

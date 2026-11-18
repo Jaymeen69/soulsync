@@ -1,76 +1,386 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../shared/widgets/soulsync_button.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 
-class MemoriesScreen extends StatefulWidget {
+class MemoriesScreen extends ConsumerStatefulWidget {
   const MemoriesScreen({super.key});
 
   @override
-  State<MemoriesScreen> createState() => _MemoriesScreenState();
+  ConsumerState<MemoriesScreen> createState() => _MemoriesScreenState();
 }
 
-class _MemoriesScreenState extends State<MemoriesScreen> with SingleTickerProviderStateMixin {
+class _MemoriesScreenState extends ConsumerState<MemoriesScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
-  final List<_MemoryItem> _memories = [
-    const _MemoryItem(
-      title: 'Our Paris Getaway ☕',
-      date: 'Oct 24, 2024',
-      caption: 'The best croissants and walking along the Seine together.',
-      tag: 'Trip',
-      color: Color(0xFF6C3EBC),
-    ),
-    const _MemoryItem(
-      title: 'Sunset at the Beach 🌅',
-      date: 'Aug 15, 2024',
-      caption: 'We watched the sun go down and talked for 4 hours straight.',
-      tag: 'Date',
-      color: Color(0xFFE8498A),
-    ),
-    const _MemoryItem(
-      title: 'First Video Call Milestone 📱',
-      date: 'May 02, 2024',
-      caption: 'Remember when we stayed on call until 4am by accident?',
-      tag: 'Milestone',
-      color: Color(0xFF4A1E9E),
-    ),
-  ];
-
-  final List<_LetterItem> _letters = [
-    const _LetterItem(
-      title: 'Open when you feel lonely 🥺',
-      from: 'From Partner',
-      date: 'Nov 10, 2024',
-      preview: 'Remember that distance is only physical. Every second brings us closer...',
-      isLocked: false,
-    ),
-    const _LetterItem(
-      title: 'Open on our Anniversary 🎂',
-      from: 'From Partner',
-      date: 'Dec 12, 2024',
-      preview: 'Locked until December 12, 2024!',
-      isLocked: true,
-    ),
-    const _LetterItem(
-      title: 'Open after a hard workday 💼',
-      from: 'From You',
-      date: 'Oct 05, 2024',
-      preview: 'Take a deep breath. You did your absolute best today, I am so proud of you.',
-      isLocked: false,
-    ),
-  ];
+  List<Map<String, dynamic>> _memories = [];
+  List<Map<String, dynamic>> _letters = [];
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _fetchData();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  Future<void> _fetchData() async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+    setState(() => _isLoading = true);
+
+    try {
+      final coupleId = user.coupleId ?? "c1";
+
+      // 1. Fetch memories
+      final memRes = await http.get(
+        Uri.parse('${AuthNotifier.apiBaseUrl}/api/memories?couple_id=$coupleId'),
+      ).timeout(const Duration(seconds: 4));
+
+      if (memRes.statusCode == 200) {
+        final data = jsonDecode(memRes.body) as Map<String, dynamic>;
+        _memories = (data['memories'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
+      }
+
+      // 2. Fetch letters
+      final letRes = await http.get(
+        Uri.parse('${AuthNotifier.apiBaseUrl}/api/letters?couple_id=$coupleId&viewer_id=${user.id}'),
+      ).timeout(const Duration(seconds: 4));
+
+      if (letRes.statusCode == 200) {
+        final data = jsonDecode(letRes.body) as Map<String, dynamic>;
+        _letters = (data['letters'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
+      }
+    } catch (_) {
+      // Graceful fallback to seeded items if offline
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showAddMemoryDialog() {
+    final titleCtrl = TextEditingController();
+    final captionCtrl = TextEditingController();
+    String selectedTag = 'Date';
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDlgState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+          title: const Text('Add Memory 📸', style: TextStyle(fontWeight: FontWeight.bold)),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: titleCtrl,
+                  decoration: InputDecoration(
+                    labelText: 'Memory Title',
+                    hintText: 'e.g. Sunset Picnic at the Park 🌅',
+                    filled: true,
+                    fillColor: AppColors.surfaceVariant,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: captionCtrl,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    labelText: 'Story / Caption',
+                    hintText: 'What made this moment unforgettable?',
+                    filled: true,
+                    fillColor: AppColors.surfaceVariant,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const Text('Category Tag:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 8,
+                  children: ['Date', 'Trip', 'Milestone', 'Cozy Day'].map((tag) {
+                    final isSel = selectedTag == tag;
+                    return ChoiceChip(
+                      label: Text(tag),
+                      selected: isSel,
+                      selectedColor: AppColors.primary,
+                      labelStyle: TextStyle(color: isSel ? Colors.white : AppColors.textPrimary, fontSize: 12),
+                      onSelected: (_) => setDlgState(() => selectedTag = tag),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: () async {
+                final title = titleCtrl.text.trim();
+                if (title.isEmpty) return;
+                Navigator.pop(ctx);
+                final user = ref.read(currentUserProvider);
+                try {
+                  await http.post(
+                    Uri.parse('${AuthNotifier.apiBaseUrl}/api/memories'),
+                    headers: {'Content-Type': 'application/json'},
+                    body: jsonEncode({
+                      'couple_id': user?.coupleId ?? 'c1',
+                      'user_id': user?.id ?? 'u1',
+                      'title': title,
+                      'caption': captionCtrl.text.trim(),
+                      'tag': selectedTag,
+                      'date': 'Today',
+                    }),
+                  );
+                  _fetchData();
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('✨ Memory saved to your couple vault!')),
+                    );
+                  }
+                } catch (_) {}
+              },
+              child: const Text('Save Memory'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showWriteLetterDialog() {
+    final titleCtrl = TextEditingController();
+    final contentCtrl = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+        title: const Text('Write Love Letter 💌', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: titleCtrl,
+                decoration: InputDecoration(
+                  labelText: 'Prompt / Occasion',
+                  hintText: 'e.g. Open when you need reassurance 🥺',
+                  filled: true,
+                  fillColor: AppColors.surfaceVariant,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: contentCtrl,
+                maxLines: 5,
+                decoration: InputDecoration(
+                  labelText: 'Letter Message (Sealed for Partner)',
+                  hintText: 'Pour your heart out. Only your partner will ever see this.',
+                  filled: true,
+                  fillColor: AppColors.surfaceVariant,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.accent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () async {
+              final title = titleCtrl.text.trim();
+              final content = contentCtrl.text.trim();
+              if (title.isEmpty || content.isEmpty) return;
+              Navigator.pop(ctx);
+              final user = ref.read(currentUserProvider);
+              try {
+                await http.post(
+                  Uri.parse('${AuthNotifier.apiBaseUrl}/api/letters'),
+                  headers: {'Content-Type': 'application/json'},
+                  body: jsonEncode({
+                    'couple_id': user?.coupleId ?? 'c1',
+                    'sender_id': user?.id ?? 'u1',
+                    'sender_name': user?.displayName ?? 'You',
+                    'title': title,
+                    'content': content,
+                    'unlock_condition': 'Open Anytime',
+                  }),
+                );
+                _fetchData();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('💌 Love letter sealed and delivered!')),
+                  );
+                }
+              } catch (_) {}
+            },
+            child: const Text('Seal & Deliver'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showMemoryDetail(Map<String, dynamic> memory) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                child: Container(
+                  height: 220,
+                  width: double.infinity,
+                  color: AppColors.primary.withOpacity(0.12),
+                  child: Image.network(
+                    memory['image_url'] ?? 'https://images.unsplash.com/photo-1518199266791-5375a83190b7',
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const Center(
+                      child: Icon(Icons.favorite_rounded, size: 64, color: AppColors.accent),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            memory['tag'] ?? 'Memory',
+                            style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 11),
+                          ),
+                        ),
+                        Text(
+                          memory['date'] ?? 'Recently',
+                          style: const TextStyle(color: AppColors.textHint, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(memory['title'] ?? 'Our Memory', style: AppTypography.headlineMedium),
+                    const SizedBox(height: 8),
+                    Text(
+                      memory['caption'] ?? 'A special moment saved in your shared couple vault.',
+                      style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+                    ),
+                    const SizedBox(height: 20),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text('Close'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showLetterDetail(Map<String, dynamic> letter) {
+    final isLocked = letter['is_locked'] == true;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Row(
+          children: [
+            Icon(isLocked ? Icons.lock_clock_rounded : Icons.favorite_rounded, color: AppColors.accent),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(letter['title'] ?? 'Love Letter', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'From: ${letter['sender_name'] ?? "Partner"}',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.primary),
+              ),
+              const SizedBox(height: 14),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: isLocked ? AppColors.surfaceVariant : const Color(0xFFFFF9FA),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.accent.withOpacity(0.2)),
+                ),
+                child: Text(
+                  letter['content'] ?? 'No message body.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.5,
+                    fontStyle: isLocked ? FontStyle.italic : FontStyle.normal,
+                    color: isLocked ? AppColors.textSecondary : AppColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -92,186 +402,199 @@ class _MemoriesScreenState extends State<MemoriesScreen> with SingleTickerProvid
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          // Tab 1: Memory Vault
-          ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Shared Timeline', style: AppTypography.headlineSmall),
-                  SoulSyncButton(
-                    label: '+ Add Memory',
-                    width: 130,
-                    height: 38,
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Opening media picker to add photo memory...')),
-                      );
-                    },
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : TabBarView(
+              controller: _tabController,
+              children: [
+                // Tab 1: Memory Vault (Section 7 & 10 Fix)
+                RefreshIndicator(
+                  onRefresh: _fetchData,
+                  child: ListView(
+                    padding: const EdgeInsets.all(20),
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Shared Timeline', style: AppTypography.headlineSmall),
+                          SoulSyncButton(
+                            label: '+ Add Memory',
+                            width: 130,
+                            height: 38,
+                            onPressed: _showAddMemoryDialog,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      if (_memories.isEmpty)
+                        _buildDefaultMemoryCards()
+                      else
+                        ..._memories.map((m) => _MemoryItemCard(item: m, onTap: () => _showMemoryDetail(m))),
+                    ],
                   ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              ..._memories.map((m) => _MemoryCard(item: m)),
-            ],
-          ),
+                ),
 
-          // Tab 2: Love Letters
-          ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('"Open When" Letters', style: AppTypography.headlineSmall),
-                  SoulSyncButton(
-                    label: '+ Write Letter',
-                    width: 130,
-                    height: 38,
-                    variant: SoulSyncButtonVariant.secondary,
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Opening letter composer...')),
-                      );
-                    },
+                // Tab 2: Love Letters (Section 11 Fix)
+                RefreshIndicator(
+                  onRefresh: _fetchData,
+                  child: ListView(
+                    padding: const EdgeInsets.all(20),
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('"Open When" Letters', style: AppTypography.headlineSmall),
+                          SoulSyncButton(
+                            label: '+ Write Letter',
+                            width: 130,
+                            height: 38,
+                            variant: SoulSyncButtonVariant.secondary,
+                            onPressed: _showWriteLetterDialog,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      if (_letters.isEmpty)
+                        _buildDefaultLetterCards()
+                      else
+                        ..._letters.map((l) => _LetterItemCard(letter: l, onTap: () => _showLetterDetail(l))),
+                    ],
                   ),
+                ),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildDefaultMemoryCards() {
+    final list = [
+      {'title': 'Our Paris Getaway ☕', 'date': 'Oct 24, 2024', 'caption': 'The best croissants and walking along the Seine together.', 'tag': 'Trip'},
+      {'title': 'Sunset at the Beach 🌅', 'date': 'Aug 15, 2024', 'caption': 'We watched the sun go down and talked for 4 hours straight.', 'tag': 'Date'},
+      {'title': 'First Video Call Milestone 📱', 'date': 'May 02, 2024', 'caption': 'Remember when we stayed on call until 4am by accident?', 'tag': 'Milestone'},
+    ];
+    return Column(
+      children: list.map((m) => _MemoryItemCard(item: m, onTap: () => _showMemoryDetail(m))).toList(),
+    );
+  }
+
+  Widget _buildDefaultLetterCards() {
+    final list = [
+      {'title': 'Open when you feel lonely 🥺', 'sender_name': 'Partner', 'content': 'Remember that distance is only physical. Every second brings us closer... You are my whole universe!', 'is_locked': false},
+      {'title': 'Open on our Anniversary 🎂', 'sender_name': 'Partner', 'content': '🔒 Locked until our special anniversary milestone!', 'is_locked': true},
+      {'title': 'Open after a hard workday 💼', 'sender_name': 'You', 'content': 'Take a deep breath. You did your absolute best today, I am endlessly proud of you.', 'is_locked': false},
+    ];
+    return Column(
+      children: list.map((l) => _LetterItemCard(letter: l, onTap: () => _showLetterDetail(l))).toList(),
+    );
+  }
+}
+
+class _MemoryItemCard extends StatelessWidget {
+  const _MemoryItemCard({required this.item, required this.onTap});
+  final Map<String, dynamic> item;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: AppColors.primary.withOpacity(0.12)),
+          boxShadow: [
+            BoxShadow(color: AppColors.primary.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4)),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(Icons.photo_library_rounded, color: AppColors.primary),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(item['title'] ?? 'Memory', style: AppTypography.titleLarge),
+                  const SizedBox(height: 2),
+                  Text(item['caption'] ?? '', style: AppTypography.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 6),
+                  Text(item['date'] ?? '', style: const TextStyle(fontSize: 11, color: AppColors.textHint)),
                 ],
               ),
-              const SizedBox(height: 16),
-              ..._letters.map((l) => _LetterCard(letter: l)),
-            ],
-          ),
-        ],
+            ),
+            const Icon(Icons.chevron_right_rounded, color: AppColors.textHint),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _MemoryItem {
-  const _MemoryItem({required this.title, required this.date, required this.caption, required this.tag, required this.color});
-  final String title;
-  final String date;
-  final String caption;
-  final String tag;
-  final Color color;
-}
-
-class _MemoryCard extends StatelessWidget {
-  const _MemoryCard({required this.item});
-  final _MemoryItem item;
+class _LetterItemCard extends StatelessWidget {
+  const _LetterItemCard({required this.letter, required this.onTap});
+  final Map<String, dynamic> letter;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: item.color.withOpacity(0.15)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 140,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [item.color.withOpacity(0.7), item.color],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+    final isLocked = letter['is_locked'] == true;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: AppColors.accent.withOpacity(0.15)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: isLocked ? AppColors.surfaceVariant : AppColors.accent.withOpacity(0.12),
+                shape: BoxShape.circle,
               ),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              child: Icon(
+                isLocked ? Icons.lock_clock_rounded : Icons.mark_email_read_rounded,
+                color: isLocked ? AppColors.textHint : AppColors.accent,
+                size: 22,
+              ),
             ),
-            child: Center(
-              child: Icon(Icons.photo_library_rounded, size: 48, color: Colors.white.withOpacity(0.8)),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(item.title, style: AppTypography.titleLarge),
-                    Text(item.date, style: AppTypography.caption),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(item.caption, style: AppTypography.bodyMedium),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LetterItem {
-  const _LetterItem({required this.title, required this.from, required this.date, required this.preview, required this.isLocked});
-  final String title;
-  final String from;
-  final String date;
-  final String preview;
-  final bool isLocked;
-}
-
-class _LetterCard extends StatelessWidget {
-  const _LetterCard({required this.letter});
-  final _LetterItem letter;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: letter.isLocked ? AppColors.textHint.withOpacity(0.3) : AppColors.accent.withOpacity(0.2)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: letter.isLocked ? AppColors.surfaceVariant : AppColors.accent.withOpacity(0.12),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              letter.isLocked ? Icons.lock_outline_rounded : Icons.mark_email_read_rounded,
-              color: letter.isLocked ? AppColors.textHint : AppColors.accent,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(letter.title, style: AppTypography.titleLarge),
-                const SizedBox(height: 2),
-                Text('${letter.from} • ${letter.date}', style: AppTypography.caption),
-                const SizedBox(height: 8),
-                Text(
-                  letter.preview,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontStyle: letter.isLocked ? FontStyle.italic : FontStyle.normal,
-                    color: letter.isLocked ? AppColors.textHint : AppColors.textSecondary,
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(letter['title'] ?? 'Love Letter', style: AppTypography.titleLarge),
+                  const SizedBox(height: 2),
+                  Text(
+                    isLocked ? 'Sealed & Locked' : (letter['content'] ?? ''),
+                    style: AppTypography.bodySmall.copyWith(
+                      color: isLocked ? AppColors.warning : AppColors.textSecondary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+            const Icon(Icons.chevron_right_rounded, color: AppColors.textHint),
+          ],
+        ),
       ),
     );
   }

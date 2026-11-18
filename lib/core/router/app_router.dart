@@ -69,7 +69,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RouteNames.emailVerification,
-        builder: (context, state) => const EmailVerificationScreen(),
+        builder: (context, state) => EmailVerificationScreen(email: state.extra as String?),
       ),
       GoRoute(
         path: RouteNames.forgotPassword,
