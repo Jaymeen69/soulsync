@@ -20,21 +20,21 @@ class RomanticGlassCard extends StatelessWidget {
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.92),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(
-          color: Colors.white,
+          color: const Color(0xFFEADBFA),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.06),
-            blurRadius: 24,
+            color: const Color(0xFF6C3EBC).withOpacity(0.08),
+            blurRadius: 28,
             offset: const Offset(0, 10),
           ),
           BoxShadow(
-            color: AppColors.romanticRose.withOpacity(0.04),
-            blurRadius: 16,
+            color: const Color(0xFFFF4B72).withOpacity(0.05),
+            blurRadius: 18,
             offset: const Offset(0, 4),
           ),
         ],
