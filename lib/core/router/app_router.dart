@@ -69,7 +69,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: RouteNames.emailVerification,
-        builder: (context, state) => EmailVerificationScreen(email: state.extra as String?),
+        builder: (context, state) {
+          if (state.extra is Map<String, dynamic>) {
+            final map = state.extra as Map<String, dynamic>;
+            return EmailVerificationScreen(
+              email: map['email'] as String?,
+              initialOtp: map['dev_otp'] as String?,
+            );
+          }
+          return EmailVerificationScreen(email: state.extra as String?);
+        },
       ),
       GoRoute(
         path: RouteNames.forgotPassword,

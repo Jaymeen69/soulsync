@@ -202,7 +202,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
   }
 
   /// 3. Resend OTP
-  Future<void> resendOtp(String email) async {
+  Future<Map<String, dynamic>?> resendOtp(String email) async {
     final cleanEmail = email.trim().toLowerCase();
     try {
       final res = await http.post(
@@ -212,11 +212,14 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
       ).timeout(const Duration(seconds: 5));
 
       final body = jsonDecode(res.body) as Map<String, dynamic>;
-      if (res.statusCode != 200) {
+      if (res.statusCode == 200) {
+        return body;
+      } else {
         throw Exception(body['error'] ?? 'Failed to resend OTP.');
       }
     } catch (e) {
       debugPrint('Resend OTP notice: $e');
+      rethrow;
     }
   }
 
@@ -269,15 +272,19 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
   }
 
   /// 5. Forgot Password Request
-  Future<void> forgotPassword(String email) async {
+  Future<Map<String, dynamic>?> forgotPassword(String email) async {
     final cleanEmail = email.trim().toLowerCase();
     try {
-      await http.post(
+      final res = await http.post(
         Uri.parse('$apiBaseUrl/api/auth/forgot-password'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': cleanEmail}),
       ).timeout(const Duration(seconds: 5));
+      if (res.statusCode == 200) {
+        return jsonDecode(res.body) as Map<String, dynamic>;
+      }
     } catch (_) {}
+    return null;
   }
 
   /// 6. Verify Reset Password OTP

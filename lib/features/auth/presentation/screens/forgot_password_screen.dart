@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/router/route_names.dart';
+import '../../../../shared/widgets/romantic_background.dart';
+import '../../../../shared/widgets/romantic_glass_card.dart';
 import '../../../../shared/widgets/soulsync_button.dart';
 import '../../../../shared/widgets/soulsync_text_field.dart';
 import '../../../../shared/utils/validators.dart';
@@ -31,6 +33,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   bool _isLoading = false;
   String? _errorMessage;
   String? _statusMessage;
+  String? _receivedDevOtp;
 
   @override
   void dispose() {
@@ -39,6 +42,26 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     _newPwCtrl.dispose();
     _confirmPwCtrl.dispose();
     super.dispose();
+  }
+
+  void _handleBack() {
+    if (_currentStep == ForgotPasswordStep.enterOtp) {
+      setState(() {
+        _currentStep = ForgotPasswordStep.enterEmail;
+        _errorMessage = null;
+      });
+    } else if (_currentStep == ForgotPasswordStep.newPassword) {
+      setState(() {
+        _currentStep = ForgotPasswordStep.enterOtp;
+        _errorMessage = null;
+      });
+    } else {
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go(RouteNames.login);
+      }
+    }
   }
 
   // Step 1: Send Reset OTP
@@ -51,13 +74,16 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
     try {
       final email = _emailCtrl.text.trim().toLowerCase();
-      await ref.read(authRepositoryProvider).forgotPassword(email);
+      final res = await ref.read(authRepositoryProvider).forgotPassword(email);
+      final devOtp = res?['dev_otp'] as String?;
+
       setState(() {
         _currentStep = ForgotPasswordStep.enterOtp;
+        _receivedDevOtp = devOtp;
         _statusMessage = 'A 6-digit password reset code has been sent to $email.';
       });
     } catch (e) {
-      setState(() => _errorMessage = 'Unable to send reset code. Please try again.');
+      setState(() => _errorMessage = 'Unable to send reset code. Please check your network and try again.');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -80,7 +106,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       await ref.read(authRepositoryProvider).verifyResetOtp(email: email, otp: otp);
       setState(() {
         _currentStep = ForgotPasswordStep.newPassword;
-        _statusMessage = 'Code verified! Please create your new strong password.';
+        _statusMessage = 'Code verified! Please create your new password.';
       });
     } catch (e) {
       setState(() => _errorMessage = e.toString().replaceFirst('Exception: ', ''));
@@ -117,63 +143,148 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(leading: const BackButton()),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (_currentStep == ForgotPasswordStep.completed)
-                _buildCompletedView()
-              else ...[
-                Text('Reset Password 🔑', style: AppTypography.displayMedium),
-                const SizedBox(height: 6),
-                Text(
-                  _getStepSubtitle(),
-                  style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 14, top: 8),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.92),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withOpacity(0.12),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
                 ),
-                const SizedBox(height: 24),
-
-                if (_errorMessage != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.error.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.error.withOpacity(0.3)),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.error_outline, color: AppColors.error, size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(_errorMessage!, style: const TextStyle(color: AppColors.error, fontSize: 13)),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-
-                if (_statusMessage != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.primary.withOpacity(0.2)),
-                    ),
-                    child: Text(_statusMessage!, style: const TextStyle(color: AppColors.primary, fontSize: 13)),
-                  ),
-                  const SizedBox(height: 20),
-                ],
-
-                if (_currentStep == ForgotPasswordStep.enterEmail) _buildEmailStep(),
-                if (_currentStep == ForgotPasswordStep.enterOtp) _buildOtpStep(),
-                if (_currentStep == ForgotPasswordStep.newPassword) _buildNewPasswordStep(),
               ],
-            ],
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.primary),
+              tooltip: 'Back',
+              onPressed: _handleBack,
+            ),
+          ),
+        ),
+      ),
+      body: RomanticBackground(
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    if (_currentStep == ForgotPasswordStep.completed)
+                      _buildCompletedView()
+                    else ...[
+                      // Romantic Icon Header
+                      Container(
+                        width: 76,
+                        height: 76,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: AppColors.romanticGradient,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.romanticRose.withOpacity(0.35),
+                              blurRadius: 20,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(Icons.lock_reset_rounded, size: 38, color: Colors.white),
+                      ),
+                      const SizedBox(height: 20),
+
+                      Text(
+                        'Reset Password 🔑',
+                        style: AppTypography.displayMedium.copyWith(
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _getStepSubtitle(),
+                        style: AppTypography.bodyMedium.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Glassmorphic Card
+                      RomanticGlassCard(
+                        padding: const EdgeInsets.all(22),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (_errorMessage != null) ...[
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: AppColors.error.withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: AppColors.error.withOpacity(0.25)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 20),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        _errorMessage!,
+                                        style: const TextStyle(color: AppColors.error, fontSize: 13, height: 1.3),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+
+                            if (_statusMessage != null) ...[
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.mail_outline_rounded, color: AppColors.primary, size: 20),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        _statusMessage!,
+                                        style: const TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.w500),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 18),
+                            ],
+
+                            if (_currentStep == ForgotPasswordStep.enterEmail) _buildEmailStep(),
+                            if (_currentStep == ForgotPasswordStep.enterOtp) _buildOtpStep(),
+                            if (_currentStep == ForgotPasswordStep.newPassword) _buildNewPasswordStep(),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -210,7 +321,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           ),
           const SizedBox(height: 24),
           SoulSyncButton(
-            label: 'Send Verification Code',
+            label: 'Send Verification Code 💌',
             onPressed: _sendResetOtp,
             isLoading: _isLoading,
           ),
@@ -222,6 +333,42 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   Widget _buildOtpStep() {
     return Column(
       children: [
+        if (_receivedDevOtp != null) ...[
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              gradient: AppColors.softRomanceGradient,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.romanticRose.withOpacity(0.3)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.auto_awesome_rounded, color: AppColors.romanticRose, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Direct OTP Code: $_receivedDevOtp',
+                    style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.textPrimary, fontSize: 13),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _otpCtrl.text = _receivedDevOtp!;
+                    });
+                  },
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    foregroundColor: AppColors.romanticRose,
+                  ),
+                  child: const Text('Auto-Fill', style: TextStyle(fontWeight: FontWeight.w700)),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+
         SoulSyncTextField(
           label: '6-Digit Reset Code',
           hint: 'e.g. 123456',
@@ -233,14 +380,23 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         ),
         const SizedBox(height: 24),
         SoulSyncButton(
-          label: 'Verify Code',
+          label: 'Verify Code ✨',
           onPressed: _verifyOtp,
           isLoading: _isLoading,
         ),
         const SizedBox(height: 12),
-        TextButton(
-          onPressed: () => setState(() => _currentStep = ForgotPasswordStep.enterEmail),
-          child: const Text('Change Email'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextButton(
+              onPressed: () => setState(() => _currentStep = ForgotPasswordStep.enterEmail),
+              child: const Text('Change Email'),
+            ),
+            TextButton(
+              onPressed: _sendResetOtp,
+              child: const Text('Resend Code'),
+            ),
+          ],
         ),
       ],
     );
@@ -253,11 +409,11 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         children: [
           SoulSyncTextField(
             label: 'New Password',
-            hint: 'Min 8 chars, 1 uppercase, 1 number, 1 special char',
+            hint: 'Min 8 chars, 1 uppercase, 1 number, 1 special',
             controller: _newPwCtrl,
             obscureText: true,
             validator: Validators.password,
-            prefixIcon: Icons.lock_outline,
+            prefixIcon: Icons.lock_outline_rounded,
             textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: 16),
@@ -273,7 +429,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           ),
           const SizedBox(height: 24),
           SoulSyncButton(
-            label: 'Update Password & Finish',
+            label: 'Update Password & Finish 💞',
             onPressed: _updatePassword,
             isLoading: _isLoading,
           ),
@@ -283,33 +439,35 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   }
 
   Widget _buildCompletedView() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const SizedBox(height: 40),
-        Container(
-          width: 90,
-          height: 90,
-          decoration: BoxDecoration(
-            color: AppColors.success.withOpacity(0.12),
-            shape: BoxShape.circle,
+    return RomanticGlassCard(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: AppColors.success.withOpacity(0.12),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.check_circle_rounded, size: 52, color: AppColors.success),
           ),
-          child: const Icon(Icons.check_circle_rounded, size: 56, color: AppColors.success),
-        ),
-        const SizedBox(height: 24),
-        Text('Password Reset Done! 🎉', style: AppTypography.headlineLarge, textAlign: TextAlign.center),
-        const SizedBox(height: 12),
-        Text(
-          'Your password has been securely updated. You can now log in with your new credentials.',
-          style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 36),
-        SoulSyncButton(
-          label: 'Proceed to Sign In',
-          onPressed: () => context.go(RouteNames.login),
-        ),
-      ],
+          const SizedBox(height: 20),
+          Text('Password Reset Done! 🎉', style: AppTypography.headlineLarge, textAlign: TextAlign.center),
+          const SizedBox(height: 10),
+          Text(
+            'Your password has been securely updated. You can now log in with your new credentials.',
+            style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 30),
+          SoulSyncButton(
+            label: 'Proceed to Sign In 💞',
+            onPressed: () => context.go(RouteNames.login),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -6,6 +6,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../shared/utils/validators.dart';
+import '../../../../shared/widgets/soulsync_text_field.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -111,28 +112,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     Text(errorMsg!, style: const TextStyle(color: AppColors.error, fontSize: 12)),
                     const SizedBox(height: 10),
                   ],
-                  TextFormField(
+                  SoulSyncTextField(
                     controller: newPwCtrl,
+                    label: 'New Password',
                     obscureText: true,
                     validator: Validators.password,
-                    decoration: InputDecoration(
-                      labelText: 'New Password',
-                      filled: true,
-                      fillColor: AppColors.surfaceVariant,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                    ),
+                    prefixIcon: Icons.lock_outline_rounded,
                   ),
                   const SizedBox(height: 12),
-                  TextFormField(
+                  SoulSyncTextField(
                     controller: confirmPwCtrl,
+                    label: 'Confirm New Password',
                     obscureText: true,
                     validator: (v) => Validators.confirmPassword(v, newPwCtrl.text),
-                    decoration: InputDecoration(
-                      labelText: 'Confirm New Password',
-                      filled: true,
-                      fillColor: AppColors.surfaceVariant,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                    ),
+                    prefixIcon: Icons.lock_reset_rounded,
                   ),
                 ],
               ),

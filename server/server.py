@@ -4,6 +4,9 @@ import random
 import string
 import re
 import hashlib
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 from datetime import datetime, timedelta
@@ -102,6 +105,17 @@ def _ensure_db_structure(db):
         db["questions"] = []
     if "audit_logs" not in db:
         db["audit_logs"] = []
+    if "email_outbox" not in db:
+        db["email_outbox"] = []
+    if "smtp_config" not in db:
+        db["smtp_config"] = {
+            "host": os.environ.get("SOULSYNC_SMTP_HOST", os.environ.get("SMTP_HOST", "")),
+            "port": int(os.environ.get("SOULSYNC_SMTP_PORT", os.environ.get("SMTP_PORT", 587))),
+            "user": os.environ.get("SOULSYNC_SMTP_USER", os.environ.get("SMTP_USER", "")),
+            "password": os.environ.get("SOULSYNC_SMTP_PASS", os.environ.get("SMTP_PASS", "")),
+            "from_address": os.environ.get("SOULSYNC_SMTP_FROM", os.environ.get("SMTP_FROM", "SoulSync <no-reply@soulsync.app>")),
+            "enabled": True
+        }
 
 def save_db(db):
     with open(DB_FILE, "w", encoding="utf-8") as f:
@@ -137,6 +151,131 @@ def gen_code(prefix="SOUL"):
 
 def gen_otp():
     return ''.join(random.choices(string.digits, k=6))
+
+def send_email_otp(db, to_email, code, purpose="verification", recipient_name="Partner"):
+    """
+    Sends an actual email OTP to the recipient with an attractive SoulSync HTML template.
+    If SMTP server credentials are provided (via environment or admin panel smtp_config),
+    it connects and sends the email via STARTTLS or SSL.
+    Records every attempt in db['email_outbox'] for audit, test verification, and admin display.
+    """
+    now_iso = datetime.utcnow().isoformat() + "Z"
+    if purpose == "verification":
+        subject = f"Your SoulSync Verification Code: {code} 💞"
+        heading = "Verify Your SoulSync Account"
+        subtitle = "Welcome to SoulSync! Use the 6-digit verification code below to confirm your email and enter your shared couple space."
+    elif purpose == "password_reset":
+        subject = f"SoulSync Password Reset Code: {code} 🔑"
+        heading = "Reset Your SoulSync Password"
+        subtitle = "We received a request to reset your password. Use the 6-digit code below to securely verify your identity and set a new password."
+    elif purpose == "welcome_credentials":
+        subject = f"Welcome to SoulSync! Your Partner Code: {code} 💞"
+        heading = "Your SoulSync Account Is Ready!"
+        subtitle = f"Your couple account has been prepared by the administrator. Use your registered email to log in and share your unique partner code: {code}"
+    else:
+        subject = f"SoulSync Security Notice: {code}"
+        heading = "SoulSync Account Update"
+        subtitle = f"Important update regarding your account security: {code}"
+
+    html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {{ font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #FAF8FF; margin: 0; padding: 24px; color: #1A1033; }}
+    .container {{ max-width: 480px; margin: 0 auto; background: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 12px 32px rgba(108, 62, 188, 0.12); border: 1px solid #F3EEFF; }}
+    .header {{ background: linear-gradient(135deg, #6C3EBC 0%, #E8498A 100%); padding: 36px 24px; text-align: center; color: #ffffff; }}
+    .logo {{ font-size: 30px; font-weight: 800; letter-spacing: -0.5px; margin: 0; }}
+    .tagline {{ font-size: 13px; opacity: 0.95; margin-top: 6px; font-weight: 500; }}
+    .content {{ padding: 36px 28px; text-align: center; }}
+    .heading {{ font-size: 20px; font-weight: 700; color: #1A1033; margin-bottom: 12px; }}
+    .text {{ font-size: 14px; color: #6B6480; line-height: 1.6; margin-bottom: 24px; }}
+    .code-box {{ background: #FFF5F8; border: 2px dashed #FF5286; border-radius: 16px; padding: 20px; margin: 20px 0; display: inline-block; min-width: 240px; }}
+    .code {{ font-size: 38px; font-weight: 800; letter-spacing: 8px; color: #6C3EBC; margin: 0; font-family: monospace; }}
+    .expiry {{ font-size: 13px; color: #E8498A; font-weight: 600; margin-top: 8px; }}
+    .footer {{ background: #FAF8FF; padding: 20px; text-align: center; font-size: 12px; color: #B0A8C8; border-top: 1px solid #F3EEFF; }}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">SoulSync 💞</div>
+      <div class="tagline">Connect • Share • Grow Together</div>
+    </div>
+    <div class="content">
+      <div class="heading">{heading}</div>
+      <div class="text">{subtitle}</div>
+      <div class="code-box">
+        <div class="code">{code}</div>
+        <div class="expiry">⏰ Valid for 5 minutes</div>
+      </div>
+      <div class="text" style="font-size: 12px; margin-top: 20px;">
+        If you did not request this code, no action is needed. Your couple space remains safe.
+      </div>
+    </div>
+    <div class="footer">
+      © 2026 SoulSync Inc. All rights reserved.
+    </div>
+  </div>
+</body>
+</html>"""
+
+    text_content = f"{heading}\n\n{subtitle}\n\nCode: {code}\n\n(Valid for 5 minutes)\n\nSoulSync Team"
+
+    cfg = db.get("smtp_config", {})
+    host = cfg.get("host") or os.environ.get("SMTP_HOST", "")
+    port = int(cfg.get("port") or os.environ.get("SMTP_PORT", 587))
+    user = cfg.get("user") or os.environ.get("SMTP_USER", "")
+    password = cfg.get("password") or os.environ.get("SMTP_PASS", "")
+    from_addr = cfg.get("from_address") or os.environ.get("SMTP_FROM", "SoulSync <no-reply@soulsync.app>")
+
+    status = "dispatched"
+    delivery_note = ""
+
+    if host and user and password:
+        try:
+            msg = MIMEMultipart("alternative")
+            msg["Subject"] = subject
+            msg["From"] = from_addr
+            msg["To"] = to_email
+            msg.attach(MIMEText(text_content, "plain"))
+            msg.attach(MIMEText(html_content, "html"))
+
+            if port == 465:
+                with smtplib.SMTP_SSL(host, port, timeout=8) as server:
+                    server.login(user, password)
+                    server.sendmail(from_addr, [to_email], msg.as_string())
+            else:
+                with smtplib.SMTP(host, port, timeout=8) as server:
+                    server.starttls()
+                    server.login(user, password)
+                    server.sendmail(from_addr, [to_email], msg.as_string())
+            status = "delivered"
+            delivery_note = f"Sent successfully via SMTP {host}:{port}"
+            print(f"✅ [SoulSync Mailer] Real email sent to {to_email} via SMTP!")
+        except Exception as err:
+            status = "smtp_error"
+            delivery_note = f"SMTP error: {str(err)}"
+            print(f"⚠️ [SoulSync Mailer] SMTP delivery to {to_email} failed: {err}")
+    else:
+        status = "simulated_local"
+        delivery_note = "Dispatched and saved to outbox (Configure SMTP in environment or admin to send via external mail server)"
+        print(f"📧 [SoulSync Mailer] Verification email dispatched for {to_email}: OTP = {code}")
+
+    outbox_entry = {
+        "id": f"mail_{len(db.get('email_outbox', [])) + 1}",
+        "to": to_email,
+        "code": code,
+        "purpose": purpose,
+        "subject": subject,
+        "status": status,
+        "note": delivery_note,
+        "timestamp": now_iso
+    }
+    db.setdefault("email_outbox", []).insert(0, outbox_entry)
+    if len(db["email_outbox"]) > 100:
+        db["email_outbox"] = db["email_outbox"][:100]
+    return outbox_entry
 
 class SoulSyncAPIHandler(BaseHTTPRequestHandler):
     def _set_headers(self, status=200):
@@ -187,6 +326,14 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
                 sanitized.append(u_copy)
             self._set_headers(200)
             self.wfile.write(json.dumps(sanitized).encode("utf-8"))
+
+        elif path == "/api/email-outbox":
+            self._set_headers(200)
+            self.wfile.write(json.dumps({
+                "status": "success",
+                "total": len(db.get("email_outbox", [])),
+                "outbox": db.get("email_outbox", [])[:50]
+            }).encode("utf-8"))
 
         elif path == "/api/couples":
             self._set_headers(200)
@@ -368,17 +515,18 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
                 "expires_at": expires_at,
                 "attempts": 0
             }
-            save_db(db)
 
-            # In production, dispatch email via SMTP / SendGrid. Here we securely log and return for verification
-            print(f"📧 [SoulSync OTP Service] Verification code for {email}: {otp} (Expires: 5 minutes)")
+            # Dispatch real email with SoulSync romantic template
+            outbox_entry = send_email_otp(db, email, otp, purpose="verification", recipient_name=name)
+            save_db(db)
 
             self._set_headers(200)
             self.wfile.write(json.dumps({
                 "status": "pending_verification",
                 "message": f"Verification code sent to {email}. Valid for 5 minutes.",
                 "email": email,
-                "dev_otp": otp # Provided for direct test automation
+                "dev_otp": otp, # Provided for direct test automation and fallback display
+                "delivery_status": outbox_entry.get("status")
             }).encode("utf-8"))
 
         # 2. VERIFY REGISTRATION OTP
@@ -473,14 +621,16 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
             expires_at = (now + timedelta(minutes=5)).isoformat() + "Z"
             pending["otp"] = otp
             pending["expires_at"] = expires_at
+
+            outbox_entry = send_email_otp(db, email, otp, purpose="verification", recipient_name=pending.get("name", "Partner"))
             save_db(db)
 
-            print(f"📧 [SoulSync OTP Service] Resent OTP for {email}: {otp}")
             self._set_headers(200)
             self.wfile.write(json.dumps({
                 "status": "success",
                 "message": "New OTP has been sent to your email.",
-                "dev_otp": otp
+                "dev_otp": otp,
+                "delivery_status": outbox_entry.get("status")
             }).encode("utf-8"))
 
         # 4. SECURE LOGIN
@@ -528,7 +678,8 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
         elif path == "/api/auth/forgot-password":
             email = (data.get("email") or "").strip().lower()
             matching = [u for u in db["users"] if u.get("email") == email]
-            
+            dev_otp = None
+
             # Security: Always acknowledge request without leaking account existence
             if matching:
                 u = matching[0]
@@ -540,14 +691,15 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
                     "expires_at": expires_at,
                     "user_id": u["id"]
                 }
+                outbox_entry = send_email_otp(db, email, otp, purpose="password_reset", recipient_name=u.get("name", "Partner"))
+                dev_otp = otp
                 save_db(db)
-                print(f"🔑 [SoulSync Password Reset] OTP for {email}: {otp}")
 
             self._set_headers(200)
             self.wfile.write(json.dumps({
                 "status": "success",
                 "message": "If an account exists with this email, a 6-digit reset code has been sent.",
-                "dev_otp": db["otps"].get(f"reset_{email}", {}).get("otp") if matching else None
+                "dev_otp": dev_otp
             }).encode("utf-8"))
 
         # 6. VERIFY RESET PASSWORD OTP

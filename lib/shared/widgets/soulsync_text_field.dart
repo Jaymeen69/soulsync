@@ -56,6 +56,16 @@ class _SoulSyncTextFieldState extends State<SoulSyncTextField> {
   }
 
   @override
+  void didUpdateWidget(SoulSyncTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.obscureText != widget.obscureText) {
+      setState(() {
+        _obscure = widget.obscureText;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: widget.controller,
@@ -80,10 +90,17 @@ class _SoulSyncTextFieldState extends State<SoulSyncTextField> {
         suffixIcon: widget.obscureText
             ? IconButton(
                 icon: Icon(
-                  _obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                  color: AppColors.textHint,
+                  _obscure ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                  color: _obscure ? AppColors.textHint : AppColors.primary,
+                  size: 22,
                 ),
-                onPressed: () => setState(() => _obscure = !_obscure),
+                tooltip: _obscure ? 'Show password' : 'Hide password',
+                splashRadius: 22,
+                onPressed: () {
+                  setState(() {
+                    _obscure = !_obscure;
+                  });
+                },
               )
             : widget.suffix,
       ),

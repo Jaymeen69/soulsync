@@ -36,6 +36,34 @@ abstract final class AppColors {
     end: Alignment.bottomRight,
   );
 
+  static const LinearGradient romanticGradient = LinearGradient(
+    colors: [Color(0xFF8A2387), Color(0xFFE94057), Color(0xFFF27121)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient loveGlowGradient = LinearGradient(
+    colors: [Color(0xFFFF5286), Color(0xFF9044FF)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient softRomanceGradient = LinearGradient(
+    colors: [Color(0xFFFFF5F8), Color(0xFFF7F1FF), Color(0xFFF5F8FF)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  static const LinearGradient cardGlassGradient = LinearGradient(
+    colors: [Color(0xFFFFFFFF), Color(0xFFFDFBFF)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const Color romanticRose = Color(0xFFFF4B72);
+  static const Color romanticGlow = Color(0xFFFF8DA1);
+  static const Color romanticBlush = Color(0xFFFFF0F5);
+
   static const LinearGradient splashGradient = LinearGradient(
     colors: [Color(0xFF3D1A78), Color(0xFF6C3EBC), Color(0xFFE8498A)],
     begin: Alignment.topCenter,
