@@ -35,12 +35,55 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       description: 'Capture moments, share rituals, and celebrate your relationship milestones together.',
       color: AppColors.accent,
     ),
+    _OnboardingPage(
+      icon: Icons.link_rounded,
+      title: 'Pair Privately',
+      description: 'Exchange your 8-character invitation code to unlock your private space, daily streaks, and couple games.',
+      color: Color(0xFFE94057),
+    ),
   ];
 
   @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  void _showPermissionsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+        title: const Row(
+          children: [
+            Icon(Icons.security_rounded, color: AppColors.primary),
+            SizedBox(width: 8),
+            Text('App Permissions 🛡️', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+          ],
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('To provide an intimate, real-time experience, SoulSync uses:', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+            SizedBox(height: 12),
+            _PermissionItem(icon: Icons.notifications_active, title: 'Notifications', desc: 'Real-time love pulses, chat whispers, and daily questions.'),
+            _PermissionItem(icon: Icons.mic, title: 'Microphone', desc: 'Sending cozy voice whispers to your partner.'),
+            _PermissionItem(icon: Icons.photo_library, title: 'Photos & Vault', desc: 'Preserving relationship memories in your private vault.'),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
+            onPressed: () {
+              Navigator.pop(ctx);
+              context.go(RouteNames.register);
+            },
+            child: const Text('Understand & Continue'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -107,7 +150,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   else ...[
                     SoulSyncButton(
                       label: 'Get Started',
-                      onPressed: () => context.go(RouteNames.register),
+                      onPressed: () => _showPermissionsDialog(context),
                     ),
                     const SizedBox(height: 12),
                     SoulSyncButton(
@@ -139,6 +182,43 @@ class _OnboardingPage extends StatelessWidget {
   final String description;
   final Color color;
 
+  void _showPermissionsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+        title: const Row(
+          children: [
+            Icon(Icons.security_rounded, color: AppColors.primary),
+            SizedBox(width: 8),
+            Text('App Permissions 🛡️', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+          ],
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('To provide an intimate, real-time experience, SoulSync uses:', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+            SizedBox(height: 12),
+            _PermissionItem(icon: Icons.notifications_active, title: 'Notifications', desc: 'Real-time love pulses, chat whispers, and daily questions.'),
+            _PermissionItem(icon: Icons.mic, title: 'Microphone', desc: 'Sending cozy voice whispers to your partner.'),
+            _PermissionItem(icon: Icons.photo_library, title: 'Photos & Vault', desc: 'Preserving relationship memories in your private vault.'),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
+            onPressed: () {
+              Navigator.pop(ctx);
+              context.go(RouteNames.register);
+            },
+            child: const Text('Understand & Continue'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -162,6 +242,41 @@ class _OnboardingPage extends StatelessWidget {
             description,
             style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
             textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PermissionItem extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String desc;
+
+  const _PermissionItem({required this.icon, required this.title, required this.desc});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: 16,
+            backgroundColor: AppColors.primary.withOpacity(0.1),
+            child: Icon(icon, size: 16, color: AppColors.primary),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimary)),
+                Text(desc, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+              ],
+            ),
           ),
         ],
       ),

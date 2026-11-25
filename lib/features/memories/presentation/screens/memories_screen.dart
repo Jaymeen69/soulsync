@@ -19,6 +19,9 @@ class _MemoriesScreenState extends ConsumerState<MemoriesScreen> with SingleTick
   List<Map<String, dynamic>> _memories = [];
   List<Map<String, dynamic>> _letters = [];
   bool _isLoading = false;
+  String _selectedTagFilter = 'All';
+  String _memorySearchQuery = '';
+  final Set<String> _favoriteMemoryIds = {};
 
   @override
   void initState() {
@@ -425,7 +428,66 @@ class _MemoriesScreenState extends ConsumerState<MemoriesScreen> with SingleTick
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 10),
+
+                      // Storage indicator
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFAF7FF),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFDACDF2)),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.cloud_done_rounded, color: AppColors.primary, size: 16),
+                            SizedBox(width: 8),
+                            Text('Storage: 28.4 MB / 5.0 GB Cloud Vault 🔒', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Search bar
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFFDACDF2), width: 1.2),
+                        ),
+                        child: TextField(
+                          decoration: const InputDecoration(
+                            hintText: 'Search memories by title or keyword...',
+                            hintStyle: TextStyle(fontSize: 13, color: AppColors.textHint),
+                            prefixIcon: Icon(Icons.search, size: 20, color: AppColors.textSecondary),
+                            border: InputBorder.none,
+                          ),
+                          onChanged: (v) => setState(() => _memorySearchQuery = v.trim().toLowerCase()),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+
+                      // Category filter chips
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: ['All', 'Date', 'Travel', 'Milestone', 'Trip'].map((tag) {
+                            final isSel = _selectedTagFilter == tag;
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: ChoiceChip(
+                                label: Text(tag, style: TextStyle(fontSize: 12, color: isSel ? Colors.white : AppColors.textPrimary)),
+                                selected: isSel,
+                                selectedColor: AppColors.primary,
+                                backgroundColor: const Color(0xFFFAF7FF),
+                                onSelected: (_) => setState(() => _selectedTagFilter = tag),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
                       if (_memories.isEmpty)
                         _buildDefaultMemoryCards()
                       else

@@ -20,6 +20,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   List<Map<String, dynamic>> _memories = [];
   bool _isLoadingMemories = false;
   Map<String, dynamic>? _coupleStatus;
+  Map<String, dynamic>? _streakData;
+  List<Map<String, dynamic>> _notifications = [];
 
   @override
   void initState() {
@@ -41,6 +43,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (coupleRes.statusCode == 200) {
         final data = jsonDecode(coupleRes.body) as Map<String, dynamic>;
         if (mounted) setState(() => _coupleStatus = data);
+      }
+
+      // Streaks
+      final streakRes = await http.get(
+        Uri.parse('${AuthNotifier.apiBaseUrl}/api/streaks?couple_id=${user.coupleId ?? "c_u5_u4"}'),
+      ).timeout(const Duration(seconds: 4));
+      if (streakRes.statusCode == 200) {
+        final sData = jsonDecode(streakRes.body) as Map<String, dynamic>;
+        if (mounted) setState(() => _streakData = sData['streak'] as Map<String, dynamic>?);
+      }
+
+      // Notifications
+      final notifRes = await http.get(
+        Uri.parse('${AuthNotifier.apiBaseUrl}/api/notifications?user_id=${user.id}'),
+      ).timeout(const Duration(seconds: 3));
+      if (notifRes.statusCode == 200) {
+        final nData = jsonDecode(notifRes.body) as Map<String, dynamic>;
+        final nList = (nData['notifications'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
+        if (mounted) setState(() => _notifications = nList);
       }
 
       // 2. Fetch memories
@@ -211,6 +232,126 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+
+  void _showNotificationsDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+        title: const Row(
+          children: [
+            Icon(Icons.notifications_active_rounded, color: AppColors.primary),
+            SizedBox(width: 8),
+            Text('Notifications 💌', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+          ],
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: _notifications.isEmpty
+              ? const Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Text('No new notifications right now. Everything is peaceful and sweet 💕', textAlign: TextAlign.center, style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                )
+              : ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _notifications.length,
+                  itemBuilder: (ctx, idx) {
+                    final n = _notifications[idx];
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: CircleAvatar(
+                        backgroundColor: AppColors.primary.withOpacity(0.1),
+                        child: const Icon(Icons.favorite, color: AppColors.accent, size: 18),
+                      ),
+                      title: Text(n['title'] ?? 'SoulSync Update', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      subtitle: Text(n['body'] ?? '', style: const TextStyle(fontSize: 12)),
+                      trailing: Text(n['created_at'] ?? '', style: const TextStyle(fontSize: 10, color: AppColors.textHint)),
+                    );
+                  },
+                ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              final user = ref.read(currentUserProvider);
+              await http.post(
+                Uri.parse('${AuthNotifier.apiBaseUrl}/api/notifications/read'),
+                headers: {'Content-Type': 'application/json'},
+                body: jsonEncode({'user_id': user?.id}),
+              );
+              setState(() => _notifications.clear());
+            },
+            child: const Text('Mark All Read'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showGiftShopModal() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Text('Virtual Gift Shop 🎁', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+              ],
+            ),
+            const SizedBox(height: 6),
+            const Text('Send a surprise digital token of affection straight to partner\'s chat:', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                _GiftItemCard(emoji: '🌹', name: 'Red Rose', desc: '10 Coins', onTap: () => _sendGiftFromShop('🌹', 'Digital Red Rose')),
+                _GiftItemCard(emoji: '🧸', name: 'Teddy Bear', desc: '25 Coins', onTap: () => _sendGiftFromShop('🧸', 'Cuddle Teddy')),
+                _GiftItemCard(emoji: '💛', name: 'Gold Locket', desc: '50 Coins', onTap: () => _sendGiftFromShop('💛', 'Golden Heart Locket')),
+                _GiftItemCard(emoji: '🎁', name: 'Surprise Box', desc: '30 Coins', onTap: () => _sendGiftFromShop('🎁', 'Starlight Box')),
+                _GiftItemCard(emoji: '💍', name: 'Diamond Ring', desc: '100 Coins', onTap: () => _sendGiftFromShop('💍', 'Eternal Diamond Ring')),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _sendGiftFromShop(String emoji, String giftName) async {
+    Navigator.pop(context);
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+    final coupleId = user.coupleId ?? 'c_u5_u4';
+
+    await http.post(
+      Uri.parse('${AuthNotifier.apiBaseUrl}/api/gifts/send'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'couple_id': coupleId,
+        'sender_id': user.id,
+        'sender_name': user.displayName,
+        'gift_name': giftName,
+        'emoji': emoji,
+        'message': 'Sent $giftName to you with all my love $emoji',
+      }),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('✨ Sent $giftName to ${user.partnerName ?? "partner"}!')));
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
@@ -220,6 +361,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => context.push(RouteNames.chat),
+        backgroundColor: const Color(0xFFE94057),
+        elevation: 4,
+        icon: const Icon(Icons.chat_bubble_rounded, color: Colors.white, size: 20),
+        label: const Text('Couple Chat', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _fetchHomeData,
@@ -257,10 +405,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                       ],
                     ),
-                    CircleAvatar(
-                      radius: 22,
-                      backgroundColor: AppColors.primaryLight.withOpacity(0.2),
-                      child: const Icon(Icons.notifications_none_rounded, color: AppColors.primary),
+                    GestureDetector(
+                      onTap: _showNotificationsDialog,
+                      child: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 22,
+                            backgroundColor: AppColors.primaryLight.withOpacity(0.2),
+                            child: const Icon(Icons.notifications_none_rounded, color: AppColors.primary),
+                          ),
+                          if (_notifications.isNotEmpty)
+                            Positioned(
+                              top: 2,
+                              right: 2,
+                              child: Container(
+                                width: 10,
+                                height: 10,
+                                decoration: const BoxDecoration(color: Color(0xFFE94057), shape: BoxShape.circle),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -320,6 +485,78 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           fontSize: 13,
                           color: Colors.white.withOpacity(0.9),
                           fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Long-Distance Clocks & Timezone Sync
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFDACDF2), width: 1.2),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Column(
+                        children: [
+                          const Text('Your Time ☀️', style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 2),
+                          Text('${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.primary)),
+                        ],
+                      ),
+                      Container(height: 26, width: 1, color: const Color(0xFFDACDF2)),
+                      Column(
+                        children: [
+                          Text('$partnerName\'s Time 🌙', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 2),
+                          Text('${((DateTime.now().hour + 6) % 24).toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFFE94057))),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Daily Connection Streak Banner (Section 5 PRD)
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFFFF3E0), Color(0xFFFFEBEE)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFFFFCC80), width: 1.2),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: const BoxDecoration(color: Color(0xFFFF9800), shape: BoxShape.circle),
+                        child: const Text('🔥', style: TextStyle(fontSize: 22)),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${_streakData?["current_streak"] ?? 7} Day Connection Streak!',
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFFE65100)),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Milestone: ${_streakData?["milestone"] ?? "Special Heart Badge 💖"}',
+                              style: const TextStyle(fontSize: 12, color: Color(0xFFBF360C)),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -416,20 +653,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     Expanded(
                       child: _QuickActionCard(
                         title: 'Love Pulse',
-                        subtitle: 'Tap to buzz partner',
+                        subtitle: 'Tap to buzz',
                         icon: Icons.favorite_rounded,
                         color: AppColors.pulseLove,
                         onTap: () => context.go(RouteNames.connect),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: _QuickActionCard(
                         title: 'Mood Sync',
-                        subtitle: 'Share how you feel',
+                        subtitle: 'Share feel',
                         icon: Icons.sentiment_very_satisfied_rounded,
                         color: AppColors.pulseKiss,
                         onTap: () => context.go(RouteNames.connect),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _QuickActionCard(
+                        title: 'Gift Shop',
+                        subtitle: 'Send surprise',
+                        icon: Icons.card_giftcard_rounded,
+                        color: const Color(0xFFFF9800),
+                        onTap: _showGiftShopModal,
                       ),
                     ),
                   ],
@@ -639,6 +886,40 @@ class _MemoryThumbnail extends StatelessWidget {
                 ),
               ],
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+class _GiftItemCard extends StatelessWidget {
+  final String emoji;
+  final String name;
+  final String desc;
+  final VoidCallback onTap;
+
+  const _GiftItemCard({required this.emoji, required this.name, required this.desc, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFAF7FF),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFFDACDF2), width: 1.2),
+        ),
+        child: Column(
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 28)),
+            const SizedBox(height: 4),
+            Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+            Text(desc, style: const TextStyle(fontSize: 10, color: AppColors.textHint)),
           ],
         ),
       ),

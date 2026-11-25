@@ -114,6 +114,17 @@ abstract final class AppTheme {
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
+    checkboxTheme: CheckboxThemeData(
+      side: const BorderSide(color: AppColors.primary, width: 2),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+      checkColor: const WidgetStatePropertyAll(Colors.white),
+      fillColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return AppColors.primary;
+        }
+        return const Color(0xFFFAF7FF);
+      }),
+    ),
   );
 
   static ThemeData get dark => ThemeData(

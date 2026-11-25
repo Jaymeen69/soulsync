@@ -1,0 +1,542 @@
+{
+  "users": [
+    {
+      "id": "u6",
+      "name": "jaymeen",
+      "email": "jaymeen@yopmail.com",
+      "partner": "Partner",
+      "role": "Verified App User",
+      "is_verified": true,
+      "is_active": true,
+      "invite_code": "SOUL-5543",
+      "password_hash": "179588aa09cff63f9230f9d80fb2d294159e3aababd22b3338e922a879f92eca",
+      "created_at": "2026-11-19T09:25:56.080974Z",
+      "last_active": "Just now",
+      "source": "Mobile App",
+      "couple_id": "c6"
+    },
+    {
+      "id": "u5",
+      "name": "Emma Watson",
+      "email": "emma.otp@example.com",
+      "partner": "Sarah Test",
+      "role": "Verified App User",
+      "is_verified": true,
+      "is_active": true,
+      "invite_code": "SOUL-1023",
+      "password_hash": "b926e929192ee30e047ab90fc9d1e0d811a4ccc5f0411da2047abfccc8cd8f60",
+      "created_at": "2026-11-18T10:26:39.148872Z",
+      "last_active": "Just now",
+      "source": "Mobile App",
+      "couple_id": "c_u5_u4"
+    },
+    {
+      "id": "u4",
+      "name": "Sarah Test",
+      "email": "sarah.test@example.com",
+      "partner": "Emma Watson",
+      "role": "Verified App User",
+      "is_verified": true,
+      "is_active": true,
+      "invite_code": "SOUL-1170",
+      "password_hash": "651ffc0cc65a1fdaa331d3e4fe56aea199af68cb8838a5fe53162d1566f74a7f",
+      "created_at": "2026-11-18T10:26:39.143046Z",
+      "last_active": "Just now",
+      "source": "Admin Panel",
+      "couple_id": "c_u5_u4"
+    },
+    {
+      "id": "u3",
+      "name": "kizay",
+      "email": "kizay@yopmail.com",
+      "partner": "Partner",
+      "role": "Verified App User",
+      "created_at": "2026-11-18T09:30:15.557765Z",
+      "last_active": "Just now",
+      "source": "Admin Panel"
+    },
+    {
+      "id": "u1",
+      "name": "Alex",
+      "email": "alex@example.com",
+      "partner": "Jordan",
+      "role": "Verified App User",
+      "created_at": "2024-11-10T10:00:00Z",
+      "last_active": "Just now",
+      "source": "Mobile App"
+    },
+    {
+      "id": "u2",
+      "name": "Jordan",
+      "email": "jordan@example.com",
+      "partner": "Alex",
+      "role": "Verified App User",
+      "created_at": "2024-11-10T10:05:00Z",
+      "last_active": "10m ago",
+      "source": "Mobile App"
+    }
+  ],
+  "couples": [
+    {
+      "id": "c6",
+      "name": "jaymeen & Partner \ud83d\udc9e",
+      "p1": "jaymeen",
+      "p2": "Partner",
+      "p1_id": "u6",
+      "p2_id": null,
+      "code": "SOUL-5543",
+      "days": 1,
+      "status": "Waiting for Partner \u23f3",
+      "created_at": "2026-11-19T09:25:56.080999Z"
+    },
+    {
+      "id": "c_u5_u4",
+      "name": "Emma Watson & Sarah Test \ud83d\udc9e",
+      "p1": "Emma Watson",
+      "p2": "Sarah Test",
+      "p1_id": "u5",
+      "p2_id": "u4",
+      "code": "SOUL-1023",
+      "days": 1,
+      "status": "Active \ud83d\udfe2",
+      "created_at": "2026-11-18T10:26:39.156979Z"
+    },
+    {
+      "id": "c4",
+      "name": "Emma Watson & Liam \ud83d\udc9e",
+      "p1": "Emma Watson",
+      "p2": "Liam",
+      "p1_id": "u5",
+      "p2_id": null,
+      "code": "SOUL-1023",
+      "days": 1,
+      "status": "Waiting for Partner \u23f3",
+      "created_at": "2026-11-18T10:26:39.148882Z"
+    },
+    {
+      "id": "c3",
+      "name": "Sarah Test & David \ud83d\udc9e",
+      "p1": "Sarah Test",
+      "p2": "David",
+      "p1_id": "u4",
+      "p2_id": null,
+      "code": "SOUL-1170",
+      "days": 1,
+      "status": "Active \ud83d\udfe2",
+      "created_at": "2026-11-18T10:26:39.143082Z"
+    },
+    {
+      "id": "c2",
+      "name": "kizay & Partner \ud83d\udc9e",
+      "p1": "kizay",
+      "p2": "Partner",
+      "code": "PAIR-2654",
+      "days": 1,
+      "status": "Active \ud83d\udfe2",
+      "created_at": "2026-11-18T09:30:15.557802Z"
+    },
+    {
+      "id": "c1",
+      "name": "Alex & Jordan \ud83d\udc9e",
+      "p1": "Alex",
+      "p2": "Jordan",
+      "code": "SOUL-8492",
+      "days": 342,
+      "status": "Active \ud83d\udfe2",
+      "created_at": "2023-12-12T00:00:00Z"
+    }
+  ],
+  "interactions": {
+    "Connect (Love Pulse)": 5845,
+    "Home Dashboard": 4921,
+    "Together (Activities)": 3181,
+    "Memories Vault": 2411,
+    "Profile & Settings": 890
+  },
+  "pulses": [
+    {
+      "id": "p7",
+      "sender": "Sarah Test",
+      "recipient": "Emma Watson",
+      "type": "Hug \ud83e\udec2",
+      "time": "Just now",
+      "created_at": "2026-11-18T10:26:39.158147Z"
+    },
+    {
+      "id": "p6",
+      "sender": "Emma Watson",
+      "recipient": "Sarah Test",
+      "type": "Love \u2764\ufe0f",
+      "time": "Just now",
+      "created_at": "2026-11-18T10:26:39.157595Z"
+    },
+    {
+      "id": "p5",
+      "sender": "Alex",
+      "recipient": "Jordan",
+      "type": "Thinking of You \ud83d\udcad",
+      "time": "Just now"
+    },
+    {
+      "id": "p4",
+      "sender": "Alex",
+      "recipient": "Jordan",
+      "type": "Thinking of You \ud83d\udcad",
+      "time": "Just now"
+    },
+    {
+      "id": "p3",
+      "sender": "Alex",
+      "recipient": "Jordan",
+      "type": "Hug \ud83e\udec2",
+      "time": "Just now"
+    },
+    {
+      "id": "p1",
+      "sender": "Alex",
+      "recipient": "Jordan",
+      "type": "Love \u2764\ufe0f",
+      "time": "5m ago"
+    },
+    {
+      "id": "p2",
+      "sender": "Jordan",
+      "recipient": "Alex",
+      "type": "Hug \ud83e\udec2",
+      "time": "2h ago"
+    }
+  ],
+  "questions": [
+    {
+      "id": "q4",
+      "date": "Scheduled",
+      "q": "\"haha\"",
+      "cat": "Romance \ud83e\udd70",
+      "rate": "Pending",
+      "status": "Active \ud83d\udfe2"
+    },
+    {
+      "id": "q1",
+      "date": "Today",
+      "q": "\"What is your favorite memory of us traveling together?\"",
+      "cat": "Travel",
+      "rate": "91% (194 pairs)",
+      "status": "Active \ud83d\udfe2"
+    },
+    {
+      "id": "q2",
+      "date": "Tomorrow",
+      "q": "\"What is one small habit of mine that makes you smile?\"",
+      "cat": "Romance",
+      "rate": "Scheduled",
+      "status": "Pending \u23f3"
+    },
+    {
+      "id": "q3",
+      "date": "Friday",
+      "q": "\"If we could teleport anywhere for 24 hours right now, where?\"",
+      "cat": "Fun",
+      "rate": "Scheduled",
+      "status": "Pending \u23f3"
+    }
+  ],
+  "unverified_users": {
+    "hel@yopmail.com": {
+      "name": "hel",
+      "email": "hel@yopmail.com",
+      "password_hash": "179588aa09cff63f9230f9d80fb2d294159e3aababd22b3338e922a879f92eca",
+      "partner_name": "Partner",
+      "otp": "602657",
+      "created_at": "2026-11-19T07:23:15.817727Z",
+      "expires_at": "2026-11-19T07:28:15.817727Z",
+      "attempts": 1
+    }
+  },
+  "otps": {},
+  "couple_requests": [
+    {
+      "id": "req_1",
+      "from_id": "u5",
+      "from_name": "Emma Watson",
+      "from_email": "emma.otp@example.com",
+      "target_id": "u4",
+      "target_name": "Sarah Test",
+      "target_code": "SOUL-1170",
+      "status": "accepted",
+      "created_at": "2026-11-18T10:26:39.155713Z"
+    }
+  ],
+  "moods": [
+    {
+      "id": "m_2",
+      "user_id": "u_sarah",
+      "couple_id": "c_emma_sarah",
+      "mood": "Stressed",
+      "emoji": "\ud83d\ude2b",
+      "note": "Work deadline is heavy today.",
+      "is_private": true,
+      "created_at": "2026-11-18T10:26:39.159881Z"
+    },
+    {
+      "id": "m_1",
+      "user_id": "u_emma",
+      "couple_id": "c_emma_sarah",
+      "mood": "Romantic",
+      "emoji": "\ud83e\udd70",
+      "note": "Thinking of our wonderful conversation earlier!",
+      "is_private": false,
+      "created_at": "2026-11-18T10:26:39.158863Z"
+    }
+  ],
+  "memories": [
+    {
+      "id": "mem_1",
+      "couple_id": "c_emma_sarah",
+      "user_id": "u_emma",
+      "title": "Sunset by the Harbor \ud83c\udf05",
+      "caption": "Watching the golden hour light reflect across the water.",
+      "date": "Today",
+      "tag": "Date",
+      "image_url": "https://images.unsplash.com/photo-1518199266791-5375a83190b7",
+      "created_at": "2026-11-18T10:26:39.161054Z"
+    }
+  ],
+  "letters": [
+    {
+      "id": "let_2",
+      "couple_id": "c_emma_sarah",
+      "sender_id": "u_emma",
+      "sender_name": "Emma",
+      "title": "Open on 2029 Anniversary \ud83c\udf82",
+      "content": "Happy 5th Anniversary my love!",
+      "unlock_date": "2029-12-31T00:00:00Z",
+      "unlock_condition": "Open Anytime",
+      "created_at": "2026-11-18T10:26:39.162835Z"
+    },
+    {
+      "id": "let_1",
+      "couple_id": "c_emma_sarah",
+      "sender_id": "u_emma",
+      "sender_name": "Emma",
+      "title": "Open When You Miss Me \ud83e\udd7a",
+      "content": "Distance means nothing when someone means everything.",
+      "unlock_date": null,
+      "unlock_condition": "Open Anytime",
+      "created_at": "2026-11-18T10:26:39.162119Z"
+    }
+  ],
+  "game_sessions": [
+    {
+      "id": "sess_1",
+      "couple_id": "c_emma_sarah",
+      "game_type": "would_you_rather",
+      "created_at": "2026-11-18T10:26:39.165971Z",
+      "status": "active",
+      "rounds": [
+        {
+          "question_id": "wyr_1",
+          "answers": {
+            "u_emma": {
+              "answer": "Surprise Getaway \ud83c\udf92",
+              "submitted_at": "2026-11-18T10:26:39.165989Z"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "audit_logs": [
+    {
+      "id": "aud_3",
+      "timestamp": "2026-11-18T10:26:39.154013Z",
+      "actor": "SuperAdmin",
+      "action": "ADMIN_PASSWORD_RESET",
+      "target": "sarah.test@example.com",
+      "details": "Administrative password reset performed"
+    },
+    {
+      "id": "aud_2",
+      "timestamp": "2026-11-18T10:26:39.152949Z",
+      "actor": "sarah.test@example.com",
+      "action": "USER_RESET_PASSWORD",
+      "target": "sarah.test@example.com",
+      "details": "Self-service password reset via OTP"
+    },
+    {
+      "id": "aud_1",
+      "timestamp": "2026-11-18T10:26:39.143101Z",
+      "actor": "Admin",
+      "action": "CREATE_USER",
+      "target": "sarah.test@example.com",
+      "details": "Created user Sarah Test with code SOUL-1170"
+    }
+  ],
+  "email_outbox": [
+    {
+      "id": "mail_1",
+      "to": "jaymeen@yopmail.com",
+      "code": "268075",
+      "purpose": "verification",
+      "subject": "Your SoulSync Verification Code: 268075 \ud83d\udc9e",
+      "status": "simulated_local",
+      "note": "Dispatched and saved to outbox (Configure SMTP in environment or admin to send via external mail server)",
+      "timestamp": "2026-11-19T09:25:53.125092Z"
+    }
+  ],
+  "smtp_config": {
+    "host": "",
+    "port": 587,
+    "user": "",
+    "password": "",
+    "from_address": "SoulSync <no-reply@soulsync.app>",
+    "enabled": true
+  },
+  "chat_messages": [
+    {
+      "id": "msg_seed_1",
+      "couple_id": "c_u5_u4",
+      "sender_id": "u4",
+      "sender_name": "Sarah Test",
+      "content": "Good morning my love! Hope you slept well \ud83e\udd70",
+      "media_type": "text",
+      "reactions": {
+        "\u2764\ufe0f": [
+          "u5"
+        ]
+      },
+      "is_read": true,
+      "delivered": true,
+      "created_at": "2026-11-25T08:30:00Z"
+    },
+    {
+      "id": "msg_seed_2",
+      "couple_id": "c_u5_u4",
+      "sender_id": "u5",
+      "sender_name": "Emma Watson",
+      "content": "Good morning sweetie! Just saw your pulse, my heart skipped a beat \u2728",
+      "media_type": "text",
+      "reactions": {
+        "\ud83e\udd70": [
+          "u4"
+        ]
+      },
+      "is_read": true,
+      "delivered": true,
+      "created_at": "2026-11-25T08:35:00Z"
+    },
+    {
+      "id": "msg_seed_3",
+      "couple_id": "c_u5_u4",
+      "sender_id": "u4",
+      "sender_name": "Sarah Test",
+      "content": "Listen to this morning whisper for you \ud83c\udf99\ufe0f",
+      "media_type": "voice",
+      "voice_duration": "0:14",
+      "reactions": {
+        "\ud83d\udd25": [
+          "u5"
+        ]
+      },
+      "is_read": true,
+      "delivered": true,
+      "created_at": "2026-11-25T08:42:00Z"
+    },
+    {
+      "id": "msg_seed_4",
+      "couple_id": "c_u5_u4",
+      "sender_id": "u5",
+      "sender_name": "Emma Watson",
+      "content": "That voice note melted me! Can't wait for our game tonight \ud83d\udc96",
+      "media_type": "text",
+      "reactions": {
+        "\u2764\ufe0f": [
+          "u4"
+        ]
+      },
+      "is_read": true,
+      "delivered": true,
+      "created_at": "2026-11-25T08:45:00Z"
+    }
+  ],
+  "streaks": {
+    "c_u5_u4": {
+      "couple_id": "c_u5_u4",
+      "current_streak": 7,
+      "longest_streak": 14,
+      "freeze_tokens": 2,
+      "last_active": "2026-11-25",
+      "milestone": "Special Heart Badge (7 Days) \ud83d\udc96",
+      "history": [
+        "2026-11-25",
+        "2026-11-24",
+        "2026-11-23",
+        "2026-11-22",
+        "2026-11-21",
+        "2026-11-20",
+        "2026-11-19"
+      ]
+    },
+    "c6": {
+      "couple_id": "c6",
+      "current_streak": 3,
+      "longest_streak": 5,
+      "freeze_tokens": 1,
+      "last_active": "2026-11-25",
+      "milestone": "Little Heart (3 Days) \u2764\ufe0f",
+      "history": [
+        "2026-11-25",
+        "2026-11-24",
+        "2026-11-23"
+      ]
+    }
+  },
+  "gifts": [
+    {
+      "id": "gift_1",
+      "couple_id": "c_u5_u4",
+      "sender_id": "u4",
+      "sender_name": "Sarah Test",
+      "gift_id": "gift_rose",
+      "gift_name": "Digital Red Rose",
+      "emoji": "\ud83c\udf39",
+      "message": "A red rose because you make every single day brighter \ud83c\udf39",
+      "created_at": "Nov 24, 2026 - 19:30",
+      "is_opened": true
+    }
+  ],
+  "reports": [
+    {
+      "id": "rep_101",
+      "reporter_id": "u1",
+      "reporter_name": "Alex",
+      "target_id": "u2",
+      "target_name": "Jordan",
+      "content_type": "profile",
+      "content_id": "prof_u2",
+      "reason": "Suspected Impersonation / Spam Profile",
+      "details": "Profile bio contains external advertising link",
+      "status": "Pending Review \ud83d\udfe1",
+      "created_at": "Nov 25, 2026 14:15 UTC"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif_1",
+      "user_id": "u5",
+      "title": "Love Pulse Received! \ud83d\udc8b",
+      "body": "Sarah sent you a passionate Kiss!",
+      "type": "pulse",
+      "is_read": false,
+      "created_at": "10m ago"
+    },
+    {
+      "id": "notif_2",
+      "user_id": "u5",
+      "title": "Streak Milestone Reached! \ud83c\udfc6",
+      "body": "You and Sarah hit a 7-Day Connection Streak! Special Heart Badge unlocked.",
+      "type": "streak",
+      "is_read": false,
+      "created_at": "2h ago"
+    }
+  ]
+}

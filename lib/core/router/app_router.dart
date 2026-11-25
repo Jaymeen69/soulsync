@@ -14,6 +14,7 @@ import '../../features/connect/presentation/screens/connect_screen.dart';
 import '../../features/together/presentation/screens/together_screen.dart';
 import '../../features/memories/presentation/screens/memories_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/chat/presentation/screens/chat_screen.dart';
 import '../../shared/widgets/main_scaffold.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 
@@ -87,6 +88,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.createProfile,
         builder: (context, state) => const CreateProfileScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.chat,
+        builder: (context, state) => const ChatScreen(),
       ),
       // Main shell with bottom navigation
       ShellRoute(

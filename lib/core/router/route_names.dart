@@ -11,6 +11,7 @@ abstract final class RouteNames {
 
   // Main shell
   static const String home = '/home';
+  static const String chat = '/chat';
   static const String connect = '/connect';
   static const String together = '/together';
   static const String memories = '/memories';

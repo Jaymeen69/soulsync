@@ -249,21 +249,47 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             ),
                             const SizedBox(height: 16),
 
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Checkbox(
-                                  value: _agreedToTerms,
-                                  activeColor: AppColors.primary,
-                                  onChanged: (v) => setState(() => _agreedToTerms = v ?? false),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    'I agree to the SoulSync Privacy Policy and Terms of Couple Data Security.',
-                                    style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
+                            InkWell(
+                              onTap: () => setState(() => _agreedToTerms = !_agreedToTerms),
+                              borderRadius: BorderRadius.circular(14),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: _agreedToTerms ? AppColors.primary.withOpacity(0.06) : const Color(0xFFFAF7FF),
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(
+                                    color: _agreedToTerms ? AppColors.primary : const Color(0xFFDACDF2),
+                                    width: 1.5,
                                   ),
                                 ),
-                              ],
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Transform.scale(
+                                      scale: 1.15,
+                                      child: Checkbox(
+                                        value: _agreedToTerms,
+                                        activeColor: AppColors.primary,
+                                        checkColor: Colors.white,
+                                        side: const BorderSide(color: AppColors.primary, width: 2),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                                        onChanged: (v) => setState(() => _agreedToTerms = v ?? false),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Expanded(
+                                      child: Text(
+                                        'I agree to the SoulSync Privacy Policy and Terms of Couple Data Security.',
+                                        style: AppTypography.bodySmall.copyWith(
+                                          color: AppColors.textPrimary,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 12.5,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                             const SizedBox(height: 22),
 
