@@ -533,6 +533,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         controller: _msgCtrl,
                         minLines: 1,
                         maxLines: 4,
+                        style: const TextStyle(color: Color(0xFF2D1F3D), fontSize: 14, fontWeight: FontWeight.w600),
                         decoration: const InputDecoration(
                           hintText: 'Whisper something sweet...',
                           hintStyle: TextStyle(color: Color(0xFF7E7399), fontSize: 14),
