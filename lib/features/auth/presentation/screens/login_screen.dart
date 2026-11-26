@@ -24,6 +24,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _passwordCtrl = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
+  String? _unverifiedEmail;
 
   @override
   void dispose() {
@@ -37,6 +38,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _unverifiedEmail = null;
     });
     try {
       final authRepo = ref.read(authRepositoryProvider);
@@ -45,6 +47,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         password: _passwordCtrl.text,
       );
       if (mounted) context.go(RouteNames.home);
+    } on UnverifiedEmailException catch (e) {
+      setState(() {
+        _errorMessage = e.message;
+        _unverifiedEmail = e.email;
+      });
     } catch (e) {
       setState(() {
         _errorMessage = _parseError(e.toString());
@@ -184,6 +191,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                       style: const TextStyle(color: AppColors.error, fontSize: 13, height: 1.3),
                                     ),
                                   ),
+                                  if (_unverifiedEmail != null)
+                                    TextButton(
+                                      onPressed: () => context.push(
+                                        RouteNames.emailVerification,
+                                        extra: {'email': _unverifiedEmail},
+                                      ),
+                                      child: const Text('Verify Now'),
+                                    ),
                                 ],
                               ),
                             ),

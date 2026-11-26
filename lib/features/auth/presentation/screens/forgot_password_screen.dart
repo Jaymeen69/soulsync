@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -33,15 +34,33 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   bool _isLoading = false;
   String? _errorMessage;
   String? _statusMessage;
-  String? _receivedDevOtp;
+  int _resendCooldown = 0;
+  Timer? _resendTimer;
 
   @override
   void dispose() {
+    _resendTimer?.cancel();
     _emailCtrl.dispose();
     _otpCtrl.dispose();
     _newPwCtrl.dispose();
     _confirmPwCtrl.dispose();
     super.dispose();
+  }
+
+  void _startResendCooldown() {
+    setState(() => _resendCooldown = 60);
+    _resendTimer?.cancel();
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) {
+        t.cancel();
+        return;
+      }
+      if (_resendCooldown > 0) {
+        setState(() => _resendCooldown--);
+      } else {
+        t.cancel();
+      }
+    });
   }
 
   void _handleBack() {
@@ -74,16 +93,15 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
     try {
       final email = _emailCtrl.text.trim().toLowerCase();
-      final res = await ref.read(authRepositoryProvider).forgotPassword(email);
-      final devOtp = res?['dev_otp'] as String?;
+      await ref.read(authRepositoryProvider).forgotPassword(email);
 
       setState(() {
         _currentStep = ForgotPasswordStep.enterOtp;
-        _receivedDevOtp = devOtp;
-        _statusMessage = 'A 6-digit password reset code has been sent to $email.';
+        _statusMessage = 'If an account exists for $email, a 6-digit password reset code has been sent (valid 5 min).';
       });
+      _startResendCooldown();
     } catch (e) {
-      setState(() => _errorMessage = 'Unable to send reset code. Please check your network and try again.');
+      setState(() => _errorMessage = e.toString().replaceFirst('Exception: ', ''));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -333,45 +351,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   Widget _buildOtpStep() {
     return Column(
       children: [
-        if (_receivedDevOtp != null) ...[
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: context.ssSurfaceVariant,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: context.ssAccent.withValues(alpha: 0.4)),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.auto_awesome_rounded, color: context.ssAccent, size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Direct OTP Code: $_receivedDevOtp',
-                    style: TextStyle(fontWeight: FontWeight.w700, color: context.ssTextPrimary, fontSize: 13),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _otpCtrl.text = _receivedDevOtp!;
-                    });
-                  },
-                  style: TextButton.styleFrom(
-                    visualDensity: VisualDensity.compact,
-                    foregroundColor: context.ssAccent,
-                  ),
-                  child: const Text('Auto-Fill', style: TextStyle(fontWeight: FontWeight.w700)),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
-
         SoulSyncTextField(
           label: '6-Digit Reset Code',
-          hint: 'e.g. 123456',
+          hint: 'Enter the code from your email',
           controller: _otpCtrl,
           keyboardType: TextInputType.number,
           prefixIcon: Icons.pin_outlined,
@@ -393,8 +375,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               child: const Text('Change Email'),
             ),
             TextButton(
-              onPressed: _sendResetOtp,
-              child: const Text('Resend Code'),
+              onPressed: (_resendCooldown > 0 || _isLoading) ? null : _sendResetOtp,
+              child: Text(_resendCooldown > 0 ? 'Resend (${_resendCooldown}s)' : 'Resend Code'),
             ),
           ],
         ),

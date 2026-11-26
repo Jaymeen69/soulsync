@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -14,72 +15,99 @@ class EmailVerificationScreen extends ConsumerStatefulWidget {
   const EmailVerificationScreen({
     super.key,
     this.email,
-    this.initialOtp,
   });
 
   final String? email;
-  final String? initialOtp;
 
   @override
-  ConsumerState<EmailVerificationScreen> createState() => _EmailVerificationScreenState();
+  ConsumerState<EmailVerificationScreen> createState() =>
+      _EmailVerificationScreenState();
 }
 
-class _EmailVerificationScreenState extends ConsumerState<EmailVerificationScreen> {
-  final List<TextEditingController> _otpControllers = List.generate(6, (_) => TextEditingController());
+class _EmailVerificationScreenState
+    extends ConsumerState<EmailVerificationScreen> {
+  final List<TextEditingController> _otpControllers =
+      List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
 
   bool _isVerifying = false;
+  bool _isResending = false;
   String? _errorMessage;
   String? _successMessage;
-  String? _devOtp;
 
   int _resendCountdown = 60;
+  int _expiryCountdown = 300; // 5 minutes
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _devOtp = widget.initialOtp;
-    _startCountdown();
+    _startTimers(resetExpiry: true);
   }
 
-  void _startCountdown() {
-    setState(() => _resendCountdown = 60);
+  void _startTimers({bool resetExpiry = false}) {
+    setState(() {
+      _resendCountdown = 60;
+      if (resetExpiry) _expiryCountdown = 300;
+    });
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_resendCountdown > 0) {
-        setState(() => _resendCountdown--);
-      } else {
-        _timer?.cancel();
-      }
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
+      setState(() {
+        if (_resendCountdown > 0) _resendCountdown--;
+        if (_expiryCountdown > 0) _expiryCountdown--;
+      });
     });
   }
 
   @override
   void dispose() {
     _timer?.cancel();
-    for (var c in _otpControllers) {
+    for (final c in _otpControllers) {
       c.dispose();
     }
-    for (var f in _focusNodes) {
+    for (final f in _focusNodes) {
       f.dispose();
     }
     super.dispose();
   }
 
-  String _getOtp() {
-    return _otpControllers.map((c) => c.text).join();
+  String _getOtp() => _otpControllers.map((c) => c.text.trim()).join();
+
+  String _formatClock(int seconds) {
+    final m = seconds ~/ 60;
+    final s = seconds % 60;
+    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
-  void _fillOtp(String code) {
-    final clean = code.trim();
-    for (int i = 0; i < 6; i++) {
-      if (i < clean.length) {
-        _otpControllers[i].text = clean[i];
+  void _handlePasteOrInput(int index, String val) {
+    final digits = val.replaceAll(RegExp(r'\D'), '');
+    if (digits.length > 1) {
+      for (int i = 0; i < 6; i++) {
+        _otpControllers[i].text = i < digits.length ? digits[i] : '';
       }
+      final nextIdx = digits.length.clamp(0, 5);
+      _focusNodes[nextIdx].requestFocus();
+      if (digits.length >= 6) {
+        _verifyOtp();
+      }
+      return;
     }
-    setState(() {});
-    _verifyOtp();
+
+    if (digits.isNotEmpty) {
+      _otpControllers[index].text = digits[0];
+      _otpControllers[index].selection =
+          const TextSelection.collapsed(offset: 1);
+      if (index < 5) {
+        _focusNodes[index + 1].requestFocus();
+      }
+    } else if (index > 0) {
+      _focusNodes[index - 1].requestFocus();
+    }
+
+    if (_getOtp().length == 6) {
+      _verifyOtp();
+    }
   }
 
   void _handleBack() {
@@ -93,13 +121,16 @@ class _EmailVerificationScreenState extends ConsumerState<EmailVerificationScree
   Future<void> _verifyOtp() async {
     final otp = _getOtp();
     if (otp.length < 6) {
-      setState(() => _errorMessage = 'Please enter the complete 6-digit verification code.');
+      setState(() => _errorMessage =
+          'Please enter the complete 6-digit verification code.');
       return;
     }
 
-    final targetEmail = widget.email ?? ref.read(currentUserProvider)?.email ?? '';
+    final targetEmail =
+        widget.email ?? ref.read(currentUserProvider)?.email ?? '';
     if (targetEmail.isEmpty) {
-      setState(() => _errorMessage = 'Email address not found. Please register again.');
+      setState(() => _errorMessage =
+          'Email address not found. Please register again.');
       return;
     }
 
@@ -117,7 +148,8 @@ class _EmailVerificationScreenState extends ConsumerState<EmailVerificationScree
 
       if (mounted) {
         setState(() {
-          _successMessage = 'Email verified successfully! 🎉 Redirecting to Sign In...';
+          _successMessage =
+              'Email verified and account activated! 🎉 Redirecting to Sign In...';
         });
         await Future.delayed(const Duration(milliseconds: 1200));
         if (mounted) {
@@ -134,33 +166,43 @@ class _EmailVerificationScreenState extends ConsumerState<EmailVerificationScree
   }
 
   Future<void> _resend() async {
-    if (_resendCountdown > 0) return;
-    final targetEmail = widget.email ?? ref.read(currentUserProvider)?.email ?? '';
+    if (_resendCountdown > 0 || _isResending) return;
+    final targetEmail =
+        widget.email ?? ref.read(currentUserProvider)?.email ?? '';
     if (targetEmail.isEmpty) return;
 
     setState(() {
+      _isResending = true;
       _errorMessage = null;
       _successMessage = null;
     });
 
     try {
-      final res = await ref.read(authRepositoryProvider).resendOtp(targetEmail);
+      await ref.read(authRepositoryProvider).resendOtp(targetEmail);
       if (mounted) {
-        final newOtp = res?['dev_otp'] as String?;
+        for (final c in _otpControllers) {
+          c.clear();
+        }
+        _focusNodes[0].requestFocus();
         setState(() {
-          _devOtp = newOtp;
-          _successMessage = 'A new 6-digit verification code has been sent to $targetEmail.';
+          _successMessage =
+              'A new 6-digit verification code has been emailed to $targetEmail.';
         });
-        _startCountdown();
+        _startTimers(resetExpiry: true);
       }
     } catch (e) {
-      setState(() => _errorMessage = 'Failed to resend code. Please try again.');
+      if (mounted) {
+        setState(() => _errorMessage = e.toString().replaceFirst('Exception: ', ''));
+      }
+    } finally {
+      if (mounted) setState(() => _isResending = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final displayEmail = widget.email ?? ref.watch(currentUserProvider)?.email ?? 'your email';
+    final displayEmail =
+        widget.email ?? ref.watch(currentUserProvider)?.email ?? 'your email';
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -183,7 +225,8 @@ class _EmailVerificationScreenState extends ConsumerState<EmailVerificationScree
               ],
             ),
             child: IconButton(
-              icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: context.ssPrimary),
+              icon: Icon(Icons.arrow_back_ios_new_rounded,
+                  size: 18, color: context.ssPrimary),
               tooltip: 'Back',
               onPressed: _handleBack,
             ),
@@ -200,7 +243,6 @@ class _EmailVerificationScreenState extends ConsumerState<EmailVerificationScree
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Romantic Badge Icon
                     Container(
                       width: 80,
                       height: 80,
@@ -209,16 +251,16 @@ class _EmailVerificationScreenState extends ConsumerState<EmailVerificationScree
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.romanticRose.withOpacity(0.35),
+                            color: AppColors.romanticRose.withValues(alpha: 0.35),
                             blurRadius: 24,
                             offset: const Offset(0, 8),
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.mark_email_read_rounded, size: 42, color: Colors.white),
+                      child: const Icon(Icons.mark_email_read_rounded,
+                          size: 42, color: Colors.white),
                     ),
                     const SizedBox(height: 20),
-
                     Text(
                       'Verify Your Email 🔒',
                       style: AppTypography.displayMedium.copyWith(
@@ -229,91 +271,91 @@ class _EmailVerificationScreenState extends ConsumerState<EmailVerificationScree
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Enter the 6-digit code sent to\n$displayEmail',
-                      style: AppTypography.bodyMedium.copyWith(color: context.ssTextSecondary),
+                      'Check your inbox at $displayEmail for the 6-digit SoulSync code.',
+                      style: AppTypography.bodyMedium
+                          .copyWith(color: context.ssTextSecondary),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 24),
-
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: _expiryCountdown == 0
+                            ? AppColors.error.withValues(alpha: 0.12)
+                            : context.ssSurfaceVariant,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        _expiryCountdown == 0
+                            ? 'Code expired — please resend a fresh code'
+                            : 'Code valid for ${_formatClock(_expiryCountdown)}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: _expiryCountdown == 0
+                              ? AppColors.error
+                              : context.ssPrimary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
                     RomanticGlassCard(
                       padding: const EdgeInsets.all(22),
                       child: Column(
                         children: [
-                          if (_devOtp != null) ...[
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: context.ssSurfaceVariant,
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: context.ssAccent.withValues(alpha: 0.4)),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.auto_awesome_rounded, color: context.ssAccent, size: 20),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      'Direct Code: $_devOtp',
-                                      style: TextStyle(fontWeight: FontWeight.w700, color: context.ssTextPrimary, fontSize: 13),
-                                    ),
-                                  ),
-                                  TextButton(
-                                    onPressed: () => _fillOtp(_devOtp!),
-                                    style: TextButton.styleFrom(
-                                      visualDensity: VisualDensity.compact,
-                                      foregroundColor: context.ssAccent,
-                                    ),
-                                    child: const Text('Auto-Fill', style: TextStyle(fontWeight: FontWeight.w700)),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                          ],
-
                           if (_errorMessage != null) ...[
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: AppColors.error.withOpacity(0.08),
+                                color: AppColors.error.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.error.withOpacity(0.2)),
+                                border: Border.all(
+                                    color:
+                                        AppColors.error.withValues(alpha: 0.25)),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.error_outline, color: AppColors.error, size: 18),
+                                  const Icon(Icons.error_outline,
+                                      color: AppColors.error, size: 18),
                                   const SizedBox(width: 8),
                                   Expanded(
-                                    child: Text(_errorMessage!, style: const TextStyle(color: AppColors.error, fontSize: 13)),
+                                    child: Text(_errorMessage!,
+                                        style: const TextStyle(
+                                            color: AppColors.error,
+                                            fontSize: 13)),
                                   ),
                                 ],
                               ),
                             ),
                             const SizedBox(height: 16),
                           ],
-
                           if (_successMessage != null) ...[
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: AppColors.success.withOpacity(0.08),
+                                color: AppColors.success.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: AppColors.success.withOpacity(0.2)),
+                                border: Border.all(
+                                    color: AppColors.success
+                                        .withValues(alpha: 0.25)),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 18),
+                                  const Icon(Icons.check_circle_rounded,
+                                      color: AppColors.success, size: 18),
                                   const SizedBox(width: 8),
                                   Expanded(
-                                    child: Text(_successMessage!, style: const TextStyle(color: AppColors.success, fontSize: 13)),
+                                    child: Text(_successMessage!,
+                                        style: const TextStyle(
+                                            color: AppColors.success,
+                                            fontSize: 13)),
                                   ),
                                 ],
                               ),
                             ),
                             const SizedBox(height: 16),
                           ],
-
-                          // 6-digit OTP input boxes
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: List.generate(6, (index) {
@@ -325,8 +367,13 @@ class _EmailVerificationScreenState extends ConsumerState<EmailVerificationScree
                                   focusNode: _focusNodes[index],
                                   keyboardType: TextInputType.number,
                                   textAlign: TextAlign.center,
-                                  maxLength: 1,
-                                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: context.ssPrimary),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                  ],
+                                  style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w800,
+                                      color: context.ssPrimary),
                                   decoration: InputDecoration(
                                     counterText: '',
                                     filled: true,
@@ -334,56 +381,50 @@ class _EmailVerificationScreenState extends ConsumerState<EmailVerificationScree
                                     contentPadding: EdgeInsets.zero,
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
-                                      borderSide: BorderSide(color: context.ssBorder, width: 1.5),
+                                      borderSide: BorderSide(
+                                          color: context.ssBorder, width: 1.5),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
-                                      borderSide: BorderSide(color: context.ssBorder, width: 1.5),
+                                      borderSide: BorderSide(
+                                          color: context.ssBorder, width: 1.5),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
-                                      borderSide: BorderSide(color: context.ssPrimary, width: 2),
+                                      borderSide: BorderSide(
+                                          color: context.ssPrimary, width: 2),
                                     ),
                                   ),
-                                  onChanged: (val) {
-                                    if (val.isNotEmpty && index < 5) {
-                                      _focusNodes[index + 1].requestFocus();
-                                    } else if (val.isEmpty && index > 0) {
-                                      _focusNodes[index - 1].requestFocus();
-                                    }
-                                    if (_getOtp().length == 6) {
-                                      _verifyOtp();
-                                    }
-                                  },
+                                  onChanged: (val) =>
+                                      _handlePasteOrInput(index, val),
                                 ),
                               );
                             }),
                           ),
-                          const SizedBox(height: 26),
-
+                          const SizedBox(height: 24),
                           SoulSyncButton(
-                            label: 'Verify Code & Sign In 💞',
+                            label: 'Verify OTP & Activate Account 💞',
                             onPressed: _verifyOtp,
                             isLoading: _isVerifying,
                           ),
                           const SizedBox(height: 16),
-
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                _resendCountdown > 0 ? 'Resend code in ${_resendCountdown}s' : 'Didn\'t receive the code? ',
-                                style: AppTypography.bodySmall.copyWith(color: context.ssTextSecondary),
+                                _resendCountdown > 0
+                                    ? 'Resend code in ${_resendCountdown}s'
+                                    : 'Didn\'t receive the email? ',
+                                style: AppTypography.bodySmall
+                                    .copyWith(color: context.ssTextSecondary),
                               ),
                               if (_resendCountdown == 0)
-                                GestureDetector(
-                                  onTap: _resend,
+                                TextButton(
+                                  onPressed: _isResending ? null : _resend,
                                   child: Text(
-                                    'Resend OTP',
-                                    style: AppTypography.bodySmall.copyWith(
-                                      color: context.ssPrimary,
-                                      fontWeight: FontWeight.w700,
-                                    ),
+                                    _isResending ? 'Sending...' : 'Resend OTP',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w700),
                                   ),
                                 ),
                             ],
@@ -391,12 +432,13 @@ class _EmailVerificationScreenState extends ConsumerState<EmailVerificationScree
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
-
+                    const SizedBox(height: 20),
                     TextButton(
                       onPressed: () => context.go(RouteNames.login),
-                      style: TextButton.styleFrom(foregroundColor: context.ssPrimary),
-                      child: const Text('Back to Sign In', style: TextStyle(fontWeight: FontWeight.w600)),
+                      style: TextButton.styleFrom(
+                          foregroundColor: context.ssPrimary),
+                      child: const Text('Back to Sign In',
+                          style: TextStyle(fontWeight: FontWeight.w600)),
                     ),
                   ],
                 ),

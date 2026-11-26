@@ -61,7 +61,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     try {
       final authRepo = ref.read(authRepositoryProvider);
       final email = _emailCtrl.text.trim().toLowerCase();
-      final res = await authRepo.register(
+      await authRepo.register(
         email: email,
         password: _passwordCtrl.text,
         displayName: _nameCtrl.text.trim(),
@@ -69,13 +69,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       );
 
       if (mounted) {
-        // Enforce mandatory OTP verification flow before login
+        // Enforce mandatory real email OTP verification before login/activation
         context.push(
           RouteNames.emailVerification,
-          extra: {
-            'email': email,
-            'dev_otp': res['dev_otp'] as String?,
-          },
+          extra: {'email': email},
         );
       }
     } catch (e) {

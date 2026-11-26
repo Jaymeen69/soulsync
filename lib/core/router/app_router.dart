@@ -28,7 +28,8 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: RouteNames.splash,
     debugLogDiagnostics: false, // Set true only during debug
     redirect: (context, state) {
-      final isAuthenticated = authState.valueOrNull != null;
+      final user = authState.valueOrNull;
+      final isAuthenticated = user != null && user.isEmailVerified;
       final isAuthRoute = [
         RouteNames.login,
         RouteNames.register,
@@ -39,12 +40,17 @@ final routerProvider = Provider<GoRouter>((ref) {
         RouteNames.splash,
       ].contains(state.matchedLocation);
 
+      // Block unverified users strictly from accessing any protected route
+      if (user != null && !user.isEmailVerified && state.matchedLocation != RouteNames.emailVerification) {
+        return RouteNames.emailVerification;
+      }
+
       // Not logged in and trying to access protected route
       if (!isAuthenticated && !isAuthRoute) {
         return RouteNames.login;
       }
 
-      // Logged in but on auth route (except splash/create-profile)
+      // Logged in + verified, but on auth route (except splash/create-profile)
       if (isAuthenticated &&
           isAuthRoute &&
           state.matchedLocation != RouteNames.splash &&
@@ -78,7 +84,6 @@ final routerProvider = Provider<GoRouter>((ref) {
             final map = state.extra as Map<String, dynamic>;
             return EmailVerificationScreen(
               email: map['email'] as String?,
-              initialOtp: map['dev_otp'] as String?,
             );
           }
           return EmailVerificationScreen(email: state.extra as String?);

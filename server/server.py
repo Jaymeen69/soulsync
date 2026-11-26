@@ -4,12 +4,11 @@ import random
 import string
 import re
 import hashlib
-import smtplib
 import threading
+import time
 import music_module
 import safesync_module
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import email_otp_module
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs, urlencode
 import urllib.request
@@ -198,15 +197,6 @@ def _ensure_db_structure(db):
         db["audit_logs"] = []
     if "email_outbox" not in db:
         db["email_outbox"] = []
-    if "smtp_config" not in db:
-        db["smtp_config"] = {
-            "host": os.environ.get("SOULSYNC_SMTP_HOST", os.environ.get("SMTP_HOST", "")),
-            "port": int(os.environ.get("SOULSYNC_SMTP_PORT", os.environ.get("SMTP_PORT", 587))),
-            "user": os.environ.get("SOULSYNC_SMTP_USER", os.environ.get("SMTP_USER", "")),
-            "password": os.environ.get("SOULSYNC_SMTP_PASS", os.environ.get("SMTP_PASS", "")),
-            "from_address": os.environ.get("SOULSYNC_SMTP_FROM", os.environ.get("SMTP_FROM", "SoulSync <no-reply@soulsync.app>")),
-            "enabled": True
-        }
     if "admins" not in db:
         db["admins"] = [
             {
@@ -277,132 +267,17 @@ def gen_code(prefix="SOUL"):
     return f"{prefix}-{digits}"
 
 def gen_otp():
-    return ''.join(random.choices(string.digits, k=6))
+    return email_otp_module.generate_secure_otp()
+
 
 def send_email_otp(db, to_email, code, purpose="verification", recipient_name="Partner"):
-    """
-    Sends an actual email OTP to the recipient with an attractive SoulSync HTML template.
-    If SMTP server credentials are provided (via environment or admin panel smtp_config),
-    it connects and sends the email via STARTTLS or SSL.
-    Records every attempt in db['email_outbox'] for audit, test verification, and admin display.
-    """
-    now_iso = datetime.utcnow().isoformat() + "Z"
-    if purpose == "verification":
-        subject = f"Your SoulSync Verification Code: {code} 💞"
-        heading = "Verify Your SoulSync Account"
-        subtitle = "Welcome to SoulSync! Use the 6-digit verification code below to confirm your email and enter your shared couple space."
-    elif purpose == "password_reset":
-        subject = f"SoulSync Password Reset Code: {code} 🔑"
-        heading = "Reset Your SoulSync Password"
-        subtitle = "We received a request to reset your password. Use the 6-digit code below to securely verify your identity and set a new password."
-    elif purpose == "welcome_credentials":
-        subject = f"Welcome to SoulSync! Your Partner Code: {code} 💞"
-        heading = "Your SoulSync Account Is Ready!"
-        subtitle = f"Your couple account has been prepared by the administrator. Use your registered email to log in and share your unique partner code: {code}"
-    else:
-        subject = f"SoulSync Security Notice: {code}"
-        heading = "SoulSync Account Update"
-        subtitle = f"Important update regarding your account security: {code}"
-
-    html_content = f"""<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <style>
-    body {{ font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #FAF8FF; margin: 0; padding: 24px; color: #1A1033; }}
-    .container {{ max-width: 480px; margin: 0 auto; background: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 12px 32px rgba(108, 62, 188, 0.12); border: 1px solid #F3EEFF; }}
-    .header {{ background: linear-gradient(135deg, #6C3EBC 0%, #E8498A 100%); padding: 36px 24px; text-align: center; color: #ffffff; }}
-    .logo {{ font-size: 30px; font-weight: 800; letter-spacing: -0.5px; margin: 0; }}
-    .tagline {{ font-size: 13px; opacity: 0.95; margin-top: 6px; font-weight: 500; }}
-    .content {{ padding: 36px 28px; text-align: center; }}
-    .heading {{ font-size: 20px; font-weight: 700; color: #1A1033; margin-bottom: 12px; }}
-    .text {{ font-size: 14px; color: #6B6480; line-height: 1.6; margin-bottom: 24px; }}
-    .code-box {{ background: #FFF5F8; border: 2px dashed #FF5286; border-radius: 16px; padding: 20px; margin: 20px 0; display: inline-block; min-width: 240px; }}
-    .code {{ font-size: 38px; font-weight: 800; letter-spacing: 8px; color: #6C3EBC; margin: 0; font-family: monospace; }}
-    .expiry {{ font-size: 13px; color: #E8498A; font-weight: 600; margin-top: 8px; }}
-    .footer {{ background: #FAF8FF; padding: 20px; text-align: center; font-size: 12px; color: #B0A8C8; border-top: 1px solid #F3EEFF; }}
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <div class="logo">SoulSync 💞</div>
-      <div class="tagline">Connect • Share • Grow Together</div>
-    </div>
-    <div class="content">
-      <div class="heading">{heading}</div>
-      <div class="text">{subtitle}</div>
-      <div class="code-box">
-        <div class="code">{code}</div>
-        <div class="expiry">⏰ Valid for 5 minutes</div>
-      </div>
-      <div class="text" style="font-size: 12px; margin-top: 20px;">
-        If you did not request this code, no action is needed. Your couple space remains safe.
-      </div>
-    </div>
-    <div class="footer">
-      © 2026 SoulSync Inc. All rights reserved.
-    </div>
-  </div>
-</body>
-</html>"""
-
-    text_content = f"{heading}\n\n{subtitle}\n\nCode: {code}\n\n(Valid for 5 minutes)\n\nSoulSync Team"
-
-    cfg = db.get("smtp_config", {})
-    host = cfg.get("host") or os.environ.get("SMTP_HOST", "")
-    port = int(cfg.get("port") or os.environ.get("SMTP_PORT", 587))
-    user = cfg.get("user") or os.environ.get("SMTP_USER", "")
-    password = cfg.get("password") or os.environ.get("SMTP_PASS", "")
-    from_addr = cfg.get("from_address") or os.environ.get("SMTP_FROM", "SoulSync <no-reply@soulsync.app>")
-
-    status = "dispatched"
-    delivery_note = ""
-
-    if host and user and password:
-        try:
-            msg = MIMEMultipart("alternative")
-            msg["Subject"] = subject
-            msg["From"] = from_addr
-            msg["To"] = to_email
-            msg.attach(MIMEText(text_content, "plain"))
-            msg.attach(MIMEText(html_content, "html"))
-
-            if port == 465:
-                with smtplib.SMTP_SSL(host, port, timeout=8) as server:
-                    server.login(user, password)
-                    server.sendmail(from_addr, [to_email], msg.as_string())
-            else:
-                with smtplib.SMTP(host, port, timeout=8) as server:
-                    server.starttls()
-                    server.login(user, password)
-                    server.sendmail(from_addr, [to_email], msg.as_string())
-            status = "delivered"
-            delivery_note = f"Sent successfully via SMTP {host}:{port}"
-            print(f"✅ [SoulSync Mailer] Real email sent to {to_email} via SMTP!")
-        except Exception as err:
-            status = "smtp_error"
-            delivery_note = f"SMTP error: {str(err)}"
-            print(f"⚠️ [SoulSync Mailer] SMTP delivery to {to_email} failed: {err}")
-    else:
-        status = "simulated_local"
-        delivery_note = "Dispatched and saved to outbox (Configure SMTP in environment or admin to send via external mail server)"
-        print(f"📧 [SoulSync Mailer] Verification email dispatched for {to_email}: OTP = {code}")
-
-    outbox_entry = {
-        "id": f"mail_{len(db.get('email_outbox', [])) + 1}",
-        "to": to_email,
-        "code": code,
-        "purpose": purpose,
-        "subject": subject,
-        "status": status,
-        "note": delivery_note,
-        "timestamp": now_iso
-    }
-    db.setdefault("email_outbox", []).insert(0, outbox_entry)
-    if len(db["email_outbox"]) > 100:
-        db["email_outbox"] = db["email_outbox"][:100]
-    return outbox_entry
+    return email_otp_module.send_real_otp_email(
+        db,
+        to_email=to_email,
+        otp=code,
+        purpose=purpose,
+        recipient_name=recipient_name,
+    )
 
 def verify_admin_session(handler, db, required_role=None):
     """
@@ -482,11 +357,32 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(sanitized).encode("utf-8"))
 
         elif path == "/api/email-outbox":
+            admin, err = verify_admin_session(self, db)
+            if not admin:
+                self._set_headers(401)
+                self.wfile.write(json.dumps({"error": err}).encode("utf-8"))
+                return
+            sanitized = email_otp_module.sanitize_outbox_entries(db.get("email_outbox", []))
             self._set_headers(200)
             self.wfile.write(json.dumps({
                 "status": "success",
-                "total": len(db.get("email_outbox", [])),
-                "outbox": db.get("email_outbox", [])[:50]
+                "total": len(sanitized),
+                "outbox": sanitized[:50]
+            }).encode("utf-8"))
+
+        elif path == "/api/admin/email-status":
+            admin, err = verify_admin_session(self, db)
+            if not admin:
+                self._set_headers(401)
+                self.wfile.write(json.dumps({"error": err}).encode("utf-8"))
+                return
+            status_payload = email_otp_module.get_public_service_status(db)
+            self._set_headers(200)
+            self.wfile.write(json.dumps({
+                "status": "success",
+                "service": {k: v for k, v in status_payload.items() if k not in ("stats", "logs")},
+                "stats": status_payload["stats"],
+                "logs": status_payload["logs"],
             }).encode("utf-8"))
 
         elif path == "/api/couples":
@@ -990,11 +886,16 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
             email = (data.get("email") or "").strip().lower()
             matching = next((a for a in db.get("admins", []) if a.get("email") == email), None)
             if matching:
+                cfg = email_otp_module.get_otp_settings()
                 otp = gen_otp()
-                expires_at = (datetime.utcnow() + timedelta(minutes=10)).isoformat() + "Z"
+                salt, digest = email_otp_module.hash_otp(otp)
+                expires_at = (datetime.utcnow() + timedelta(minutes=cfg["otp_expiry_minutes"])).isoformat() + "Z"
                 db.setdefault("otps", {})[f"admin_reset_{email}"] = {
-                    "otp": otp,
+                    "otp_salt": salt,
+                    "otp_hash": digest,
                     "expires_at": expires_at,
+                    "attempts": 0,
+                    "last_sent_ts": time.time(),
                     "admin_id": matching["id"]
                 }
                 send_email_otp(db, email, otp, purpose="password_reset", recipient_name=matching["name"])
@@ -1006,19 +907,20 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
             }).encode("utf-8"))
             return
 
-        # 1. REGISTRATION WITH OTP VERIFICATION
+        # 1. REGISTRATION WITH REAL EMAIL OTP VERIFICATION
         elif path == "/api/register":
             name = (data.get("name") or data.get("displayName") or "").strip()
             email = (data.get("email") or "").strip().lower()
             password = data.get("password") or ""
             partner_name = (data.get("partner") or data.get("partnerName") or "Partner").strip()
+            ip = self.client_address[0] if self.client_address else "127.0.0.1"
 
-            if not name or not email or not password:
+            if not name or not email or not password or "@" not in email:
                 self._set_headers(400)
-                self.wfile.write(json.dumps({"error": "Name, email, and password are required"}).encode("utf-8"))
+                self.wfile.write(json.dumps({"error": "Valid name, email, and password are required"}).encode("utf-8"))
                 return
 
-            # Check if email already registered and active
+            # Check if email already registered and verified
             existing = [u for u in db["users"] if u.get("email") == email]
             if existing:
                 self._set_headers(409)
@@ -1032,33 +934,63 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({"error": pw_err}).encode("utf-8"))
                 return
 
-            # Generate 6-digit OTP with 5-minute expiry
-            otp = gen_otp()
-            now = datetime.utcnow()
-            expires_at = (now + timedelta(minutes=5)).isoformat() + "Z"
+            cfg = email_otp_module.get_otp_settings()
+            prev_pending = db["unverified_users"].get(email)
+            if prev_pending:
+                ok_cd, wait_s = email_otp_module.check_resend_cooldown(prev_pending.get("last_sent_ts"), cfg["otp_resend_seconds"])
+                if not ok_cd:
+                    self._set_headers(429)
+                    self.wfile.write(json.dumps({
+                        "error": f"Please wait {wait_s} seconds before requesting another verification code.",
+                        "retry_after_seconds": wait_s
+                    }).encode("utf-8"))
+                    return
 
-            # Store pending registration in unverified_users
+            ok_rl, rl_wait = email_otp_module.check_rate_limit(f"reg:{email}:{ip}", max_requests=6, window_seconds=900)
+            if not ok_rl:
+                self._set_headers(429)
+                self.wfile.write(json.dumps({
+                    "error": f"Too many OTP requests. Please try again in {rl_wait} seconds.",
+                    "retry_after_seconds": rl_wait
+                }).encode("utf-8"))
+                return
+
+            otp = gen_otp()
+            salt, digest = email_otp_module.hash_otp(otp)
+            now = datetime.utcnow()
+            expires_at = (now + timedelta(minutes=cfg["otp_expiry_minutes"])).isoformat() + "Z"
+
             db["unverified_users"][email] = {
                 "name": name,
                 "email": email,
                 "password_hash": hash_pw(password),
                 "partner_name": partner_name,
-                "otp": otp,
+                "otp_salt": salt,
+                "otp_hash": digest,
                 "created_at": now.isoformat() + "Z",
                 "expires_at": expires_at,
+                "last_sent_ts": time.time(),
                 "attempts": 0
             }
 
-            # Dispatch real email with SoulSync romantic template
-            outbox_entry = send_email_otp(db, email, otp, purpose="verification", recipient_name=name)
+            delivered, outbox_entry, mail_err = send_email_otp(db, email, otp, purpose="verification", recipient_name=name)
             save_db(db)
+            if not delivered:
+                self._set_headers(503)
+                self.wfile.write(json.dumps({
+                    "error": mail_err or "Failed to send verification email.",
+                    "delivery_status": outbox_entry.get("status")
+                }).encode("utf-8"))
+                return
 
             self._set_headers(200)
             self.wfile.write(json.dumps({
                 "status": "pending_verification",
-                "message": f"Verification code sent to {email}. Valid for 5 minutes.",
+                "message": f"A 6-digit verification code has been emailed to {email}. Valid for {cfg['otp_expiry_minutes']} minutes.",
                 "email": email,
-                "dev_otp": otp, # Provided for direct test automation and fallback display
+                "expires_in_seconds": cfg["otp_expiry_minutes"] * 60,
+                "resend_cooldown_seconds": cfg["otp_resend_seconds"],
+                "max_attempts": cfg["otp_max_attempts"],
                 "delivery_status": outbox_entry.get("status")
             }).encode("utf-8"))
 
@@ -1066,28 +998,44 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
         elif path == "/api/verify-otp":
             email = (data.get("email") or "").strip().lower()
             otp = (data.get("otp") or "").strip()
+            cfg = email_otp_module.get_otp_settings()
 
             pending = db["unverified_users"].get(email)
             if not pending:
                 self._set_headers(400)
-                self.wfile.write(json.dumps({"error": "No pending registration found for this email. Please register."}).encode("utf-8"))
+                self.wfile.write(json.dumps({"error": "No pending registration found for this email. Please register again."}).encode("utf-8"))
                 return
 
-            # Check expiry
             now_iso = datetime.utcnow().isoformat() + "Z"
             if now_iso > pending.get("expires_at", ""):
                 self._set_headers(400)
-                self.wfile.write(json.dumps({"error": "OTP has expired. Please tap 'Resend OTP'."}).encode("utf-8"))
+                self.wfile.write(json.dumps({"error": "Verification code has expired. Please tap 'Resend OTP'."}).encode("utf-8"))
                 return
 
-            if pending.get("otp") != otp:
+            max_attempts = cfg["otp_max_attempts"]
+            if pending.get("attempts", 0) >= max_attempts:
+                self._set_headers(429)
+                self.wfile.write(json.dumps({"error": "Maximum verification attempts exceeded. Please request a new code via 'Resend OTP'."}).encode("utf-8"))
+                return
+
+            is_match = email_otp_module.verify_otp_hash(otp, pending.get("otp_salt"), pending.get("otp_hash"))
+            if not is_match:
                 pending["attempts"] = pending.get("attempts", 0) + 1
+                remaining = max(0, max_attempts - pending["attempts"])
+                if remaining == 0:
+                    # Invalidate challenge hash after exhausting max attempts
+                    pending["otp_hash"] = ""
                 save_db(db)
-                self._set_headers(400)
-                self.wfile.write(json.dumps({"error": "Incorrect verification code. Please check and try again."}).encode("utf-8"))
+                self._set_headers(429 if remaining == 0 else 400)
+                msg = (
+                    "Maximum verification attempts reached. This code is now locked; please request a new OTP."
+                    if remaining == 0
+                    else f"Incorrect verification code. {remaining} attempt(s) remaining."
+                )
+                self.wfile.write(json.dumps({"error": msg, "attempts_remaining": remaining}).encode("utf-8"))
                 return
 
-            # OTP Valid! Promote to verified active user
+            # OTP Valid! Activate verified account
             user_id = f"u{len(db['users']) + 1}"
             invite_code = gen_code("SOUL")
             new_user = {
@@ -1106,35 +1054,33 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
             }
             db["users"].insert(0, new_user)
 
-            # Create personal initial couple space
             couple_id = f"c{len(db['couples']) + 1}"
             new_couple = {
                 "id": couple_id,
-                "name": f"{pending['name']} & {pending['partner_name']} 💞",
+                "name": f"{pending['name']} & {pending['partner_name']}",
                 "p1": pending['name'],
                 "p2": pending['partner_name'],
                 "p1_id": user_id,
                 "p2_id": None,
                 "code": invite_code,
                 "days": 1,
-                "status": "Waiting for Partner ⏳",
+                "status": "Waiting for Partner",
                 "created_at": datetime.utcnow().isoformat() + "Z"
             }
             new_user["couple_id"] = couple_id
             db["couples"].insert(0, new_couple)
 
-            # Clean up pending
             del db["unverified_users"][email]
+            self.log_audit(db, email, "EMAIL_VERIFIED", email, "User email verified via OTP and account activated")
             save_db(db)
 
-            # Return sanitized user
             safe_user = dict(new_user)
             safe_user.pop("password_hash", None)
 
             self._set_headers(200)
             self.wfile.write(json.dumps({
                 "status": "success",
-                "message": "Email successfully verified! You may now sign in.",
+                "message": "Email verified and account activated! You may now sign in.",
                 "user": safe_user,
                 "couple": new_couple
             }).encode("utf-8"))
@@ -1142,27 +1088,56 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
         # 3. RESEND REGISTRATION OTP
         elif path == "/api/resend-otp":
             email = (data.get("email") or "").strip().lower()
+            ip = self.client_address[0] if self.client_address else "127.0.0.1"
+            cfg = email_otp_module.get_otp_settings()
+
             pending = db["unverified_users"].get(email)
             if not pending:
                 self._set_headers(400)
                 self.wfile.write(json.dumps({"error": "No pending registration found for this email."}).encode("utf-8"))
                 return
 
-            # Rate limit: at least 30 seconds between resends
-            otp = gen_otp()
-            now = datetime.utcnow()
-            expires_at = (now + timedelta(minutes=5)).isoformat() + "Z"
-            pending["otp"] = otp
-            pending["expires_at"] = expires_at
+            ok_cd, wait_s = email_otp_module.check_resend_cooldown(pending.get("last_sent_ts"), cfg["otp_resend_seconds"])
+            if not ok_cd:
+                self._set_headers(429)
+                self.wfile.write(json.dumps({
+                    "error": f"Please wait {wait_s} seconds before resending OTP.",
+                    "retry_after_seconds": wait_s
+                }).encode("utf-8"))
+                return
 
-            outbox_entry = send_email_otp(db, email, otp, purpose="verification", recipient_name=pending.get("name", "Partner"))
+            ok_rl, rl_wait = email_otp_module.check_rate_limit(f"reg:{email}:{ip}", max_requests=6, window_seconds=900)
+            if not ok_rl:
+                self._set_headers(429)
+                self.wfile.write(json.dumps({
+                    "error": f"Too many OTP requests. Please try again in {rl_wait} seconds.",
+                    "retry_after_seconds": rl_wait
+                }).encode("utf-8"))
+                return
+
+            otp = gen_otp()
+            salt, digest = email_otp_module.hash_otp(otp)
+            now = datetime.utcnow()
+            expires_at = (now + timedelta(minutes=cfg["otp_expiry_minutes"])).isoformat() + "Z"
+            pending["otp_salt"] = salt
+            pending["otp_hash"] = digest
+            pending["expires_at"] = expires_at
+            pending["last_sent_ts"] = time.time()
+            pending["attempts"] = 0
+
+            delivered, outbox_entry, mail_err = send_email_otp(db, email, otp, purpose="verification", recipient_name=pending.get("name", "Partner"))
             save_db(db)
+            if not delivered:
+                self._set_headers(503)
+                self.wfile.write(json.dumps({"error": mail_err or "Failed to resend email OTP."}).encode("utf-8"))
+                return
 
             self._set_headers(200)
             self.wfile.write(json.dumps({
                 "status": "success",
-                "message": "New OTP has been sent to your email.",
-                "dev_otp": otp,
+                "message": f"A new 6-digit OTP has been emailed to {email}.",
+                "resend_cooldown_seconds": cfg["otp_resend_seconds"],
+                "expires_in_seconds": cfg["otp_expiry_minutes"] * 60,
                 "delivery_status": outbox_entry.get("status")
             }).encode("utf-8"))
 
@@ -1171,6 +1146,15 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
             email = (data.get("email") or "").strip().lower()
             password = data.get("password") or ""
 
+            if email in db.get("unverified_users", {}):
+                self._set_headers(403)
+                self.wfile.write(json.dumps({
+                    "error": "Email not verified yet. Please verify your 6-digit OTP first.",
+                    "needs_verification": True,
+                    "email": email
+                }).encode("utf-8"))
+                return
+
             matching = [u for u in db["users"] if u.get("email") == email]
             if not matching:
                 self._set_headers(401)
@@ -1178,13 +1162,20 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
                 return
 
             u = matching[0]
-            # Check active status
+            if not u.get("is_verified", True):
+                self._set_headers(403)
+                self.wfile.write(json.dumps({
+                    "error": "Email not verified yet. Please verify your email address first.",
+                    "needs_verification": True,
+                    "email": email
+                }).encode("utf-8"))
+                return
+
             if not u.get("is_active", True):
                 self._set_headers(403)
                 self.wfile.write(json.dumps({"error": "Account is disabled. Please contact administrator."}).encode("utf-8"))
                 return
 
-            # Verify password if user has password_hash
             if "password_hash" in u and u["password_hash"]:
                 if u["password_hash"] != hash_pw(password):
                     self._set_headers(401)
@@ -1192,7 +1183,6 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
                     return
 
             u["last_active"] = "Just now"
-            # Ensure user has invite_code
             if not u.get("invite_code"):
                 u["invite_code"] = gen_code("SOUL")
             save_db(db)
@@ -1207,56 +1197,109 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
                 "user": safe_u
             }).encode("utf-8"))
 
-        # 5. FORGOT PASSWORD REQUEST OTP
+        # 5. FORGOT PASSWORD REQUEST OTP (Separate verification challenge)
         elif path == "/api/auth/forgot-password":
             email = (data.get("email") or "").strip().lower()
-            matching = [u for u in db["users"] if u.get("email") == email]
-            dev_otp = None
+            ip = self.client_address[0] if self.client_address else "127.0.0.1"
+            cfg = email_otp_module.get_otp_settings()
 
-            # Security: Always acknowledge request without leaking account existence
+            if not email or "@" not in email:
+                self._set_headers(400)
+                self.wfile.write(json.dumps({"error": "Please enter a valid email address."}).encode("utf-8"))
+                return
+
+            # Enforce cooldown & rate limit consistently per email+ip (avoids account enumeration + abuse)
+            existing_challenge = db["otps"].get(f"reset_{email}")
+            if existing_challenge:
+                ok_cd, wait_s = email_otp_module.check_resend_cooldown(existing_challenge.get("last_sent_ts"), cfg["otp_resend_seconds"])
+                if not ok_cd:
+                    self._set_headers(429)
+                    self.wfile.write(json.dumps({
+                        "error": f"Please wait {wait_s} seconds before requesting another reset code.",
+                        "retry_after_seconds": wait_s
+                    }).encode("utf-8"))
+                    return
+
+            ok_rl, rl_wait = email_otp_module.check_rate_limit(f"reset:{email}:{ip}", max_requests=6, window_seconds=900)
+            if not ok_rl:
+                self._set_headers(429)
+                self.wfile.write(json.dumps({
+                    "error": f"Too many password reset requests. Please try again in {rl_wait} seconds.",
+                    "retry_after_seconds": rl_wait
+                }).encode("utf-8"))
+                return
+
+            matching = [u for u in db["users"] if u.get("email") == email]
             if matching:
                 u = matching[0]
                 otp = gen_otp()
-                now = datetime.utcnow()
-                expires_at = (now + timedelta(minutes=5)).isoformat() + "Z"
+                salt, digest = email_otp_module.hash_otp(otp)
+                expires_at = (datetime.utcnow() + timedelta(minutes=cfg["otp_expiry_minutes"])).isoformat() + "Z"
                 db["otps"][f"reset_{email}"] = {
-                    "otp": otp,
+                    "purpose": "password_reset",
+                    "otp_salt": salt,
+                    "otp_hash": digest,
                     "expires_at": expires_at,
+                    "last_sent_ts": time.time(),
+                    "attempts": 0,
                     "user_id": u["id"]
                 }
-                outbox_entry = send_email_otp(db, email, otp, purpose="password_reset", recipient_name=u.get("name", "Partner"))
-                dev_otp = otp
+                delivered, _, mail_err = send_email_otp(db, email, otp, purpose="password_reset", recipient_name=u.get("name", "Partner"))
                 save_db(db)
+                if not delivered:
+                    self._set_headers(503)
+                    self.wfile.write(json.dumps({"error": mail_err or "Failed to send password reset email."}).encode("utf-8"))
+                    return
 
             self._set_headers(200)
             self.wfile.write(json.dumps({
                 "status": "success",
-                "message": "If an account exists with this email, a 6-digit reset code has been sent.",
-                "dev_otp": dev_otp
+                "message": "If an account exists with this email, a 6-digit password reset code has been sent.",
+                "resend_cooldown_seconds": cfg["otp_resend_seconds"],
+                "expires_in_seconds": cfg["otp_expiry_minutes"] * 60
             }).encode("utf-8"))
 
         # 6. VERIFY RESET PASSWORD OTP
         elif path == "/api/auth/verify-reset-otp":
             email = (data.get("email") or "").strip().lower()
             otp = (data.get("otp") or "").strip()
+            cfg = email_otp_module.get_otp_settings()
             record = db["otps"].get(f"reset_{email}")
 
             if not record:
                 self._set_headers(400)
-                self.wfile.write(json.dumps({"error": "No password reset requested for this email."}).encode("utf-8"))
+                self.wfile.write(json.dumps({"error": "No password reset challenge found for this email."}).encode("utf-8"))
                 return
 
             now_iso = datetime.utcnow().isoformat() + "Z"
             if now_iso > record.get("expires_at", ""):
                 self._set_headers(400)
-                self.wfile.write(json.dumps({"error": "Reset OTP has expired. Please request a new one."}).encode("utf-8"))
+                self.wfile.write(json.dumps({"error": "Reset code has expired. Please request a new one."}).encode("utf-8"))
                 return
 
-            if record.get("otp") != otp:
-                self._set_headers(400)
-                self.wfile.write(json.dumps({"error": "Invalid reset code. Please check and try again."}).encode("utf-8"))
+            max_attempts = cfg["otp_max_attempts"]
+            if record.get("attempts", 0) >= max_attempts:
+                self._set_headers(429)
+                self.wfile.write(json.dumps({"error": "Maximum verification attempts exceeded. Please request a new reset code."}).encode("utf-8"))
                 return
 
+            if not email_otp_module.verify_otp_hash(otp, record.get("otp_salt"), record.get("otp_hash")):
+                record["attempts"] = record.get("attempts", 0) + 1
+                remaining = max(0, max_attempts - record["attempts"])
+                if remaining == 0:
+                    record["otp_hash"] = ""
+                save_db(db)
+                self._set_headers(429 if remaining == 0 else 400)
+                msg = (
+                    "Maximum attempts reached. Please request a new password reset code."
+                    if remaining == 0
+                    else f"Invalid reset code. {remaining} attempt(s) remaining."
+                )
+                self.wfile.write(json.dumps({"error": msg, "attempts_remaining": remaining}).encode("utf-8"))
+                return
+
+            record["verified"] = True
+            save_db(db)
             self._set_headers(200)
             self.wfile.write(json.dumps({
                 "status": "success",
@@ -1268,9 +1311,18 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
             email = (data.get("email") or "").strip().lower()
             otp = (data.get("otp") or "").strip()
             new_password = data.get("new_password") or ""
+            cfg = email_otp_module.get_otp_settings()
             record = db["otps"].get(f"reset_{email}")
 
-            if not record or record.get("otp") != otp:
+            now_iso = datetime.utcnow().isoformat() + "Z"
+            if not record or now_iso > record.get("expires_at", "") or record.get("attempts", 0) >= cfg["otp_max_attempts"]:
+                self._set_headers(400)
+                self.wfile.write(json.dumps({"error": "Invalid or expired reset challenge. Please request a new code."}).encode("utf-8"))
+                return
+
+            if not email_otp_module.verify_otp_hash(otp, record.get("otp_salt"), record.get("otp_hash")):
+                record["attempts"] = record.get("attempts", 0) + 1
+                save_db(db)
                 self._set_headers(400)
                 self.wfile.write(json.dumps({"error": "Invalid or expired reset session."}).encode("utf-8"))
                 return
@@ -1285,8 +1337,7 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
             if matching:
                 matching[0]["password_hash"] = hash_pw(new_password)
                 del db["otps"][f"reset_{email}"]
-                save_db(db)
-                self.log_audit(db, email, "USER_RESET_PASSWORD", email, "Self-service password reset via OTP")
+                self.log_audit(db, email, "USER_RESET_PASSWORD", email, "Self-service password reset via verified OTP")
                 save_db(db)
 
             self._set_headers(200)
@@ -1939,6 +1990,136 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
             safe_u.pop("password_hash", None)
             self._set_headers(200)
             self.wfile.write(json.dumps({"status": "success", "user": safe_u}).encode("utf-8"))
+
+        # ACCOUNT: REQUEST EMAIL CHANGE OTP (Separate verification challenge)
+        elif path == "/api/account/change-email/request":
+            user_id = data.get("user_id")
+            new_email = (data.get("new_email") or "").strip().lower()
+            ip = self.client_address[0] if self.client_address else "127.0.0.1"
+            cfg = email_otp_module.get_otp_settings()
+
+            user = next((u for u in db.get("users", []) if u.get("id") == user_id), None)
+            if not user or not user.get("is_verified", True):
+                self._set_headers(403)
+                self.wfile.write(json.dumps({"error": "Verified user session required."}).encode("utf-8"))
+                return
+            if not new_email or "@" not in new_email:
+                self._set_headers(400)
+                self.wfile.write(json.dumps({"error": "Please enter a valid new email address."}).encode("utf-8"))
+                return
+            if any(u.get("email") == new_email and u.get("id") != user_id for u in db.get("users", [])):
+                self._set_headers(409)
+                self.wfile.write(json.dumps({"error": "That email address is already registered to another account."}).encode("utf-8"))
+                return
+
+            chal_key = f"email_change_{user_id}"
+            existing_ch = db["otps"].get(chal_key)
+            if existing_ch:
+                ok_cd, wait_s = email_otp_module.check_resend_cooldown(existing_ch.get("last_sent_ts"), cfg["otp_resend_seconds"])
+                if not ok_cd:
+                    self._set_headers(429)
+                    self.wfile.write(json.dumps({
+                        "error": f"Please wait {wait_s} seconds before requesting another email change code.",
+                        "retry_after_seconds": wait_s
+                    }).encode("utf-8"))
+                    return
+
+            ok_rl, rl_wait = email_otp_module.check_rate_limit(f"chg:{user_id}:{ip}", max_requests=6, window_seconds=900)
+            if not ok_rl:
+                self._set_headers(429)
+                self.wfile.write(json.dumps({
+                    "error": f"Too many email change requests. Try again in {rl_wait} seconds.",
+                    "retry_after_seconds": rl_wait
+                }).encode("utf-8"))
+                return
+
+            otp = gen_otp()
+            salt, digest = email_otp_module.hash_otp(otp)
+            expires_at = (datetime.utcnow() + timedelta(minutes=cfg["otp_expiry_minutes"])).isoformat() + "Z"
+            db["otps"][chal_key] = {
+                "purpose": "email_change",
+                "user_id": user_id,
+                "new_email": new_email,
+                "otp_salt": salt,
+                "otp_hash": digest,
+                "expires_at": expires_at,
+                "last_sent_ts": time.time(),
+                "attempts": 0
+            }
+            delivered, _, mail_err = send_email_otp(db, new_email, otp, purpose="email_change", recipient_name=user.get("name", "Partner"))
+            save_db(db)
+            if not delivered:
+                self._set_headers(503)
+                self.wfile.write(json.dumps({"error": mail_err or "Unable to send verification code to new email."}).encode("utf-8"))
+                return
+
+            self._set_headers(200)
+            self.wfile.write(json.dumps({
+                "status": "success",
+                "message": f"A 6-digit verification code has been emailed to {new_email}.",
+                "resend_cooldown_seconds": cfg["otp_resend_seconds"],
+                "expires_in_seconds": cfg["otp_expiry_minutes"] * 60
+            }).encode("utf-8"))
+
+        # ACCOUNT: VERIFY EMAIL CHANGE OTP
+        elif path == "/api/account/change-email/verify":
+            user_id = data.get("user_id")
+            new_email = (data.get("new_email") or "").strip().lower()
+            otp = (data.get("otp") or "").strip()
+            cfg = email_otp_module.get_otp_settings()
+
+            chal_key = f"email_change_{user_id}"
+            record = db["otps"].get(chal_key)
+            if not record or record.get("new_email") != new_email:
+                self._set_headers(400)
+                self.wfile.write(json.dumps({"error": "No matching email change request found."}).encode("utf-8"))
+                return
+
+            now_iso = datetime.utcnow().isoformat() + "Z"
+            if now_iso > record.get("expires_at", ""):
+                self._set_headers(400)
+                self.wfile.write(json.dumps({"error": "Verification code has expired. Please request a new code."}).encode("utf-8"))
+                return
+
+            max_attempts = cfg["otp_max_attempts"]
+            if record.get("attempts", 0) >= max_attempts:
+                self._set_headers(429)
+                self.wfile.write(json.dumps({"error": "Maximum verification attempts exceeded. Request a new code."}).encode("utf-8"))
+                return
+
+            if not email_otp_module.verify_otp_hash(otp, record.get("otp_salt"), record.get("otp_hash")):
+                record["attempts"] = record.get("attempts", 0) + 1
+                remaining = max(0, max_attempts - record["attempts"])
+                if remaining == 0:
+                    record["otp_hash"] = ""
+                save_db(db)
+                self._set_headers(429 if remaining == 0 else 400)
+                self.wfile.write(json.dumps({
+                    "error": "Maximum attempts reached. Request a new code." if remaining == 0 else f"Incorrect OTP. {remaining} attempt(s) left.",
+                    "attempts_remaining": remaining
+                }).encode("utf-8"))
+                return
+
+            user = next((u for u in db.get("users", []) if u.get("id") == user_id), None)
+            if not user:
+                self._set_headers(404)
+                self.wfile.write(json.dumps({"error": "User not found."}).encode("utf-8"))
+                return
+
+            old_email = user.get("email", "")
+            user["email"] = new_email
+            del db["otps"][chal_key]
+            self.log_audit(db, user_id, "EMAIL_CHANGED", new_email, f"Verified email update from {email_otp_module.mask_email(old_email)}")
+            save_db(db)
+
+            safe_u = dict(user)
+            safe_u.pop("password_hash", None)
+            self._set_headers(200)
+            self.wfile.write(json.dumps({
+                "status": "success",
+                "message": "Email updated and verified successfully!",
+                "user": safe_u
+            }).encode("utf-8"))
 
         # ACCOUNT: CHANGE PASSWORD
         elif path == "/api/account/change-password":

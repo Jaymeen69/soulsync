@@ -6,6 +6,16 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
+/// Exception thrown when an account tries to sign in before completing email verification.
+class UnverifiedEmailException implements Exception {
+  UnverifiedEmailException(this.message, this.email);
+  final String message;
+  final String email;
+
+  @override
+  String toString() => message;
+}
+
 /// User profile model for SoulSync
 class SoulSyncUser {
   const SoulSyncUser({
@@ -55,10 +65,11 @@ class SoulSyncUser {
         relationshipStartDate: json['relationshipStartDate'] != null
             ? DateTime.tryParse(json['relationshipStartDate'] as String)
             : null,
-        isEmailVerified: json['isEmailVerified'] as bool? ?? json['is_verified'] as bool? ?? true,
+        isEmailVerified: json['isEmailVerified'] as bool? ?? json['is_verified'] as bool? ?? false,
       );
 
   SoulSyncUser copyWith({
+    String? email,
     String? displayName,
     String? avatarUrl,
     String? coupleId,
@@ -69,7 +80,7 @@ class SoulSyncUser {
   }) {
     return SoulSyncUser(
       id: id,
-      email: email,
+      email: email ?? this.email,
       displayName: displayName ?? this.displayName,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       coupleId: coupleId ?? this.coupleId,
@@ -81,21 +92,19 @@ class SoulSyncUser {
   }
 }
 
-/// State notifier for reactive authentication state
+/// State notifier for reactive authentication & email verification state
 class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
   AuthNotifier() : super(const AsyncValue.loading()) {
     _loadInitialUser();
   }
 
   static const String _userPrefsKey = 'soulsync_current_user';
-  static const String _usersDbKey = 'soulsync_registered_users';
 
-  /// Primary API URL for central backend
+  /// Primary API URL for central backend shared by Mobile App and Admin Panel
   static String get apiBaseUrl {
     if (kIsWeb) return 'http://127.0.0.1:8089';
     try {
       if (Platform.isAndroid) {
-        // adb reverse tcp:8089 tcp:8089 maps 127.0.0.1:8089 on device to host!
         return 'http://127.0.0.1:8089';
       }
     } catch (_) {}
@@ -118,7 +127,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
     }
   }
 
-  /// 1. Register with OTP requirement
+  /// 1. Register with real Gmail SMTP OTP verification (never returns or simulates OTPs)
   Future<Map<String, dynamic>> register({
     required String email,
     required String password,
@@ -128,173 +137,130 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
     final cleanEmail = email.trim().toLowerCase();
     final cleanName = displayName.trim();
 
-    try {
-      final res = await http.post(
-        Uri.parse('$apiBaseUrl/api/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'name': cleanName,
-          'email': cleanEmail,
-          'password': password,
-          'partner': partnerName,
-        }),
-      ).timeout(const Duration(seconds: 5));
+    final res = await http
+        .post(
+          Uri.parse('$apiBaseUrl/api/register'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'name': cleanName,
+            'email': cleanEmail,
+            'password': password,
+            'partner': partnerName,
+          }),
+        )
+        .timeout(const Duration(seconds: 15));
 
-      final body = jsonDecode(res.body) as Map<String, dynamic>;
-      if (res.statusCode == 200 || res.statusCode == 201) {
-        return body;
-      } else {
-        throw Exception(body['error'] ?? 'Registration failed.');
-      }
-    } catch (e) {
-      // Offline fallback: save as pending local user
-      if (e.toString().contains('already exists')) rethrow;
-      final prefs = await SharedPreferences.getInstance();
-      final usersMapStr = prefs.getString(_usersDbKey) ?? '{}';
-      final usersMap = jsonDecode(usersMapStr) as Map<String, dynamic>;
-      if (usersMap.containsKey(cleanEmail)) {
-        throw Exception('An account with this email already exists.');
-      }
-      return {
-        'status': 'pending_verification',
-        'message': 'Verification code sent to $cleanEmail',
-        'email': cleanEmail,
-      };
+    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    if (res.statusCode == 200 || res.statusCode == 201) {
+      return body;
     }
+    throw Exception(body['error'] ?? 'Registration failed (${res.statusCode}).');
   }
 
-  /// 2. Verify 6-digit Email OTP
+  /// 2. Verify 6-digit Email OTP against authoritative backend challenge
   Future<SoulSyncUser> verifyOtp({
     required String email,
     required String otp,
   }) async {
     final cleanEmail = email.trim().toLowerCase();
-    try {
-      final res = await http.post(
-        Uri.parse('$apiBaseUrl/api/verify-otp'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': cleanEmail, 'otp': otp.trim()}),
-      ).timeout(const Duration(seconds: 5));
+    final res = await http
+        .post(
+          Uri.parse('$apiBaseUrl/api/verify-otp'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'email': cleanEmail, 'otp': otp.trim()}),
+        )
+        .timeout(const Duration(seconds: 10));
 
-      final body = jsonDecode(res.body) as Map<String, dynamic>;
-      if (res.statusCode == 200) {
-        final userData = body['user'] as Map<String, dynamic>;
-        final user = SoulSyncUser.fromJson(userData);
-        return user;
-      } else {
-        throw Exception(body['error'] ?? 'Invalid OTP code.');
-      }
-    } catch (e) {
-      if (e.toString().contains('Invalid OTP') || e.toString().contains('Incorrect') || e.toString().contains('expired')) {
-        rethrow;
-      }
-      // Offline test simulation
-      if (otp.length == 6) {
-        return SoulSyncUser(
-          id: const Uuid().v4(),
-          email: cleanEmail,
-          displayName: cleanEmail.split('@')[0],
-          isEmailVerified: true,
-        );
-      }
-      throw Exception('Invalid OTP code.');
+    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    if (res.statusCode == 200 && body['user'] is Map<String, dynamic>) {
+      return SoulSyncUser.fromJson(body['user'] as Map<String, dynamic>);
     }
+    throw Exception(body['error'] ?? 'Invalid or expired verification code.');
   }
 
-  /// 3. Resend OTP
-  Future<Map<String, dynamic>?> resendOtp(String email) async {
+  /// 3. Resend registration OTP (server enforces 60s cooldown & rate limits)
+  Future<Map<String, dynamic>> resendOtp(String email) async {
     final cleanEmail = email.trim().toLowerCase();
-    try {
-      final res = await http.post(
-        Uri.parse('$apiBaseUrl/api/resend-otp'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': cleanEmail}),
-      ).timeout(const Duration(seconds: 5));
+    final res = await http
+        .post(
+          Uri.parse('$apiBaseUrl/api/resend-otp'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'email': cleanEmail}),
+        )
+        .timeout(const Duration(seconds: 15));
 
-      final body = jsonDecode(res.body) as Map<String, dynamic>;
-      if (res.statusCode == 200) {
-        return body;
-      } else {
-        throw Exception(body['error'] ?? 'Failed to resend OTP.');
-      }
-    } catch (e) {
-      debugPrint('Resend OTP notice: $e');
-      rethrow;
+    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    if (res.statusCode == 200) {
+      return body;
     }
+    throw Exception(body['error'] ?? 'Unable to resend OTP right now.');
   }
 
-  /// 4. Sign in
+  /// 4. Sign in (blocks unverified users strictly)
   Future<SoulSyncUser> signIn({
     required String email,
     required String password,
   }) async {
     final cleanEmail = email.trim().toLowerCase();
 
-    try {
-      final res = await http.post(
-        Uri.parse('$apiBaseUrl/api/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': cleanEmail, 'password': password}),
-      ).timeout(const Duration(seconds: 5));
+    final res = await http
+        .post(
+          Uri.parse('$apiBaseUrl/api/login'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'email': cleanEmail, 'password': password}),
+        )
+        .timeout(const Duration(seconds: 10));
 
-      final body = jsonDecode(res.body) as Map<String, dynamic>;
-      if (res.statusCode == 200) {
-        final userData = body['user'] as Map<String, dynamic>;
-        final user = SoulSyncUser.fromJson(userData);
-
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString(_userPrefsKey, jsonEncode(user.toJson()));
-        state = AsyncValue.data(user);
-        return user;
-      } else {
-        throw Exception(body['error'] ?? 'Invalid email or password.');
+    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    if (res.statusCode == 200 && body['user'] is Map<String, dynamic>) {
+      final user = SoulSyncUser.fromJson(body['user'] as Map<String, dynamic>);
+      if (!user.isEmailVerified) {
+        throw UnverifiedEmailException(
+          'Please verify your email address before signing in.',
+          cleanEmail,
+        );
       }
-    } catch (e) {
-      if (e.toString().contains('Invalid') || e.toString().contains('disabled')) {
-        rethrow;
-      }
-      // Offline fallback
       final prefs = await SharedPreferences.getInstance();
-      final usersMapStr = prefs.getString(_usersDbKey) ?? '{}';
-      final usersMap = jsonDecode(usersMapStr) as Map<String, dynamic>;
-
-      if (usersMap.containsKey(cleanEmail)) {
-        final rec = usersMap[cleanEmail] as Map<String, dynamic>;
-        if (rec['password'] == password) {
-          final user = SoulSyncUser.fromJson(rec['user'] as Map<String, dynamic>);
-          await prefs.setString(_userPrefsKey, jsonEncode(user.toJson()));
-          state = AsyncValue.data(user);
-          return user;
-        }
-      }
-      throw Exception('Invalid email or password.');
+      await prefs.setString(_userPrefsKey, jsonEncode(user.toJson()));
+      state = AsyncValue.data(user);
+      return user;
     }
+    if (body['needs_verification'] == true) {
+      throw UnverifiedEmailException(
+        body['error']?.toString() ?? 'Email not verified yet.',
+        cleanEmail,
+      );
+    }
+    throw Exception(body['error'] ?? 'Invalid email or password.');
   }
 
-  /// 5. Forgot Password Request
-  Future<Map<String, dynamic>?> forgotPassword(String email) async {
+  /// 5. Forgot Password Request (separate reset challenge)
+  Future<Map<String, dynamic>> forgotPassword(String email) async {
     final cleanEmail = email.trim().toLowerCase();
-    try {
-      final res = await http.post(
-        Uri.parse('$apiBaseUrl/api/auth/forgot-password'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': cleanEmail}),
-      ).timeout(const Duration(seconds: 5));
-      if (res.statusCode == 200) {
-        return jsonDecode(res.body) as Map<String, dynamic>;
-      }
-    } catch (_) {}
-    return null;
+    final res = await http
+        .post(
+          Uri.parse('$apiBaseUrl/api/auth/forgot-password'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'email': cleanEmail}),
+        )
+        .timeout(const Duration(seconds: 15));
+    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    if (res.statusCode == 200) {
+      return body;
+    }
+    throw Exception(body['error'] ?? 'Unable to send reset code.');
   }
 
   /// 6. Verify Reset Password OTP
   Future<void> verifyResetOtp({required String email, required String otp}) async {
     final cleanEmail = email.trim().toLowerCase();
-    final res = await http.post(
-      Uri.parse('$apiBaseUrl/api/auth/verify-reset-otp'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': cleanEmail, 'otp': otp.trim()}),
-    ).timeout(const Duration(seconds: 5));
+    final res = await http
+        .post(
+          Uri.parse('$apiBaseUrl/api/auth/verify-reset-otp'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'email': cleanEmail, 'otp': otp.trim()}),
+        )
+        .timeout(const Duration(seconds: 10));
 
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode != 200) {
@@ -302,22 +268,24 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
     }
   }
 
-  /// 7. Reset Password with new password
+  /// 7. Reset Password with verified OTP
   Future<void> resetPassword({
     required String email,
     required String otp,
     required String newPassword,
   }) async {
     final cleanEmail = email.trim().toLowerCase();
-    final res = await http.post(
-      Uri.parse('$apiBaseUrl/api/auth/reset-password'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'email': cleanEmail,
-        'otp': otp.trim(),
-        'new_password': newPassword,
-      }),
-    ).timeout(const Duration(seconds: 5));
+    final res = await http
+        .post(
+          Uri.parse('$apiBaseUrl/api/auth/reset-password'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'email': cleanEmail,
+            'otp': otp.trim(),
+            'new_password': newPassword,
+          }),
+        )
+        .timeout(const Duration(seconds: 10));
 
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode != 200) {
@@ -325,8 +293,62 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
     }
   }
 
-  /// 8. Update Profile
+  /// 8. Request Email Change OTP (separate email_change challenge)
+  Future<Map<String, dynamic>> requestChangeEmail(String newEmail) async {
+    final user = state.valueOrNull;
+    if (user == null) throw Exception('User not authenticated.');
+    final cleanEmail = newEmail.trim().toLowerCase();
+
+    final res = await http
+        .post(
+          Uri.parse('$apiBaseUrl/api/account/change-email/request'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'user_id': user.id, 'new_email': cleanEmail}),
+        )
+        .timeout(const Duration(seconds: 15));
+
+    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    if (res.statusCode == 200) {
+      return body;
+    }
+    throw Exception(body['error'] ?? 'Unable to send email change code.');
+  }
+
+  /// 9. Verify Email Change OTP & persist verified new email
+  Future<SoulSyncUser> verifyChangeEmail({
+    required String newEmail,
+    required String otp,
+  }) async {
+    final user = state.valueOrNull;
+    if (user == null) throw Exception('User not authenticated.');
+    final cleanEmail = newEmail.trim().toLowerCase();
+
+    final res = await http
+        .post(
+          Uri.parse('$apiBaseUrl/api/account/change-email/verify'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'user_id': user.id,
+            'new_email': cleanEmail,
+            'otp': otp.trim(),
+          }),
+        )
+        .timeout(const Duration(seconds: 10));
+
+    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    if (res.statusCode == 200) {
+      final updated = user.copyWith(email: cleanEmail, isEmailVerified: true);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_userPrefsKey, jsonEncode(updated.toJson()));
+      state = AsyncValue.data(updated);
+      return updated;
+    }
+    throw Exception(body['error'] ?? 'Invalid email change code.');
+  }
+
+  /// 10. Update Profile
   Future<void> updateProfile({
+    String? email,
     String? displayName,
     String? avatarUrl,
     String? coupleId,
@@ -336,6 +358,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
     if (currentUser == null) return;
 
     final updated = currentUser.copyWith(
+      email: email,
       displayName: displayName,
       avatarUrl: avatarUrl,
       coupleId: coupleId,
@@ -347,20 +370,22 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
     state = AsyncValue.data(updated);
   }
 
-  /// 9. Connect Partner with Invite Code
+  /// 11. Connect Partner with Invite Code
   Future<Map<String, dynamic>> connectPartner(String inviteCode) async {
     final user = state.valueOrNull;
     if (user == null) throw Exception('User not authenticated.');
 
-    final res = await http.post(
-      Uri.parse('$apiBaseUrl/api/couple/request'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'user_id': user.id,
-        'email': user.email,
-        'invite_code': inviteCode.trim().toUpperCase(),
-      }),
-    ).timeout(const Duration(seconds: 5));
+    final res = await http
+        .post(
+          Uri.parse('$apiBaseUrl/api/couple/request'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'user_id': user.id,
+            'email': user.email,
+            'invite_code': inviteCode.trim().toUpperCase(),
+          }),
+        )
+        .timeout(const Duration(seconds: 5));
 
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode == 200 || res.statusCode == 201) {
@@ -370,20 +395,21 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
     }
   }
 
-  /// 10. Sign out
+  /// 12. Sign out
   Future<void> signOut() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_userPrefsKey);
     state = const AsyncValue.data(null);
   }
 
-  /// 11. Delete Account
+  /// 13. Delete Account
   Future<void> deleteAccount() async {
     await signOut();
   }
 }
 
-final authProvider = StateNotifierProvider<AuthNotifier, AsyncValue<SoulSyncUser?>>((ref) {
+final authProvider =
+    StateNotifierProvider<AuthNotifier, AsyncValue<SoulSyncUser?>>((ref) {
   return AuthNotifier();
 });
 

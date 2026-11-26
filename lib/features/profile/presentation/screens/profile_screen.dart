@@ -172,6 +172,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final emailCtrl = TextEditingController();
     final otpCtrl = TextEditingController();
     bool otpSent = false;
+    bool isSubmitting = false;
+    String? dlgError;
 
     showDialog(
       context: context,
@@ -181,12 +183,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           title: const Text('Change Email ✉️', style: TextStyle(fontWeight: FontWeight.bold)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (dlgError != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.error.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(dlgError!, style: const TextStyle(color: AppColors.error, fontSize: 12)),
+                ),
+              ],
               if (!otpSent) ...[
-                Text('Enter your new email address. We will send a 6-digit verification code.', style: TextStyle(fontSize: 12, color: context.ssTextSecondary)),
+                Text('Enter your new email address. We will email a 6-digit verification code (valid 5 min).', style: TextStyle(fontSize: 12, color: context.ssTextSecondary)),
                 const SizedBox(height: 14),
                 TextField(
                   controller: emailCtrl,
+                  keyboardType: TextInputType.emailAddress,
                   style: TextStyle(color: context.ssTextPrimary),
                   decoration: InputDecoration(
                     labelText: 'New Email',
@@ -196,7 +211,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                 ),
               ] else ...[
-                Text('Verification code sent to ${emailCtrl.text}. Enter the 6-digit OTP below:', style: TextStyle(fontSize: 12, color: context.ssTextSecondary)),
+                Text('Verification code sent to ${emailCtrl.text.trim()}. Enter the 6-digit OTP below:', style: TextStyle(fontSize: 12, color: context.ssTextSecondary)),
                 const SizedBox(height: 14),
                 TextField(
                   controller: otpCtrl,
@@ -214,21 +229,64 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+            TextButton(onPressed: isSubmitting ? null : () => Navigator.pop(ctx), child: const Text('Cancel')),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
-              onPressed: () async {
-                if (!otpSent) {
-                  final newEmail = emailCtrl.text.trim();
-                  if (newEmail.isEmpty || !newEmail.contains('@')) return;
-                  setDlgState(() => otpSent = true);
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Verification code sent to $newEmail')));
-                } else {
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✨ Email changed and verified successfully!')));
-                }
-              },
-              child: Text(otpSent ? 'Verify & Change' : 'Send Code'),
+              onPressed: isSubmitting
+                  ? null
+                  : () async {
+                      final newEmail = emailCtrl.text.trim().toLowerCase();
+                      if (!otpSent) {
+                        if (newEmail.isEmpty || !newEmail.contains('@')) {
+                          setDlgState(() => dlgError = 'Please enter a valid email address.');
+                          return;
+                        }
+                        setDlgState(() {
+                          isSubmitting = true;
+                          dlgError = null;
+                        });
+                        try {
+                          await ref.read(authRepositoryProvider).requestChangeEmail(newEmail);
+                          setDlgState(() {
+                            otpSent = true;
+                            isSubmitting = false;
+                          });
+                        } catch (e) {
+                          setDlgState(() {
+                            isSubmitting = false;
+                            dlgError = e.toString().replaceFirst('Exception: ', '');
+                          });
+                        }
+                      } else {
+                        final code = otpCtrl.text.trim();
+                        if (code.length < 6) {
+                          setDlgState(() => dlgError = 'Enter the 6-digit OTP.');
+                          return;
+                        }
+                        setDlgState(() {
+                          isSubmitting = true;
+                          dlgError = null;
+                        });
+                        try {
+                          await ref.read(authRepositoryProvider).verifyChangeEmail(
+                                newEmail: newEmail,
+                                otp: code,
+                              );
+                          if (ctx.mounted) Navigator.pop(ctx);
+                          if (mounted) {
+                            ScaffoldMessenger.of(this.context).showSnackBar(
+                              SnackBar(content: Text('✨ Email changed to $newEmail and verified!')),
+                            );
+                          }
+                        } catch (e) {
+                          setDlgState(() {
+                            isSubmitting = false;
+                            dlgError = e.toString().replaceFirst('Exception: ', '');
+                          });
+                        }
+                      }
+                    },
+              child: Text(isSubmitting ? 'Please wait...' : (otpSent ? 'Verify & Change' : 'Send Code')),
             ),
           ],
         ),
