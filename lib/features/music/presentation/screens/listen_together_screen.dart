@@ -1071,38 +1071,44 @@ class _ListenTogetherScreenState extends ConsumerState<ListenTogetherScreen>
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: pb.videoId == null
-                      ? Container(
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Color(0xFF321754), Color(0xFF7B2869)],
-                            ),
-                          ),
-                          child: const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.music_note_rounded,
-                                    color: Colors.white70, size: 42),
-                                SizedBox(height: 8),
-                                Text(
-                                  'Search & pick a song below to start listening together 🎶',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600),
-                                  textAlign: TextAlign.center,
+                child: SizedBox(
+                  height: 195,
+                  width: double.infinity,
+                  child: Center(
+                    child: AspectRatio(
+                      aspectRatio: 16 / 9,
+                      child: pb.videoId == null
+                          ? Container(
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [Color(0xFF321754), Color(0xFF7B2869)],
                                 ),
-                              ],
+                              ),
+                              child: const Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.music_note_rounded,
+                                        color: Colors.white70, size: 38),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'Search & pick a song below to start listening together 🎶',
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                          : YoutubePlayer(
+                              controller: _ytController,
+                              aspectRatio: 16 / 9,
                             ),
-                          ),
-                        )
-                      : YoutubePlayer(
-                          controller: _ytController,
-                          aspectRatio: 16 / 9,
-                        ),
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
@@ -1341,8 +1347,15 @@ class _ListenTogetherScreenState extends ConsumerState<ListenTogetherScreen>
                 .map((tag) => Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: ActionChip(
-                        label: Text(tag, style: const TextStyle(fontSize: 11)),
-                        backgroundColor: const Color(0xFFFAF7FF),
+                        label: Text(
+                          tag,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        backgroundColor: const Color(0xFFF3ECFF),
                         side: const BorderSide(color: Color(0xFFDACDF2)),
                         onPressed: () => _runSearch(tag),
                       ),
