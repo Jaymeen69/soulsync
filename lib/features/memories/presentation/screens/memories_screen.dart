@@ -88,11 +88,12 @@ class _MemoriesScreenState extends ConsumerState<MemoriesScreen> with SingleTick
               children: [
                 TextField(
                   controller: titleCtrl,
+                  style: TextStyle(color: ctx.ssTextPrimary),
                   decoration: InputDecoration(
                     labelText: 'Memory Title',
                     hintText: 'e.g. Sunset Picnic at the Park 🌅',
                     filled: true,
-                    fillColor: AppColors.surfaceVariant,
+                    fillColor: ctx.ssSurfaceVariant,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                   ),
                 ),
@@ -100,11 +101,12 @@ class _MemoriesScreenState extends ConsumerState<MemoriesScreen> with SingleTick
                 TextField(
                   controller: captionCtrl,
                   maxLines: 3,
+                  style: TextStyle(color: ctx.ssTextPrimary),
                   decoration: InputDecoration(
                     labelText: 'Story / Caption',
                     hintText: 'What made this moment unforgettable?',
                     filled: true,
-                    fillColor: AppColors.surfaceVariant,
+                    fillColor: ctx.ssSurfaceVariant,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                   ),
                 ),
@@ -119,7 +121,8 @@ class _MemoriesScreenState extends ConsumerState<MemoriesScreen> with SingleTick
                       label: Text(tag),
                       selected: isSel,
                       selectedColor: AppColors.primary,
-                      labelStyle: TextStyle(color: isSel ? Colors.white : AppColors.textPrimary, fontSize: 12),
+                      backgroundColor: ctx.ssSurfaceVariant,
+                      labelStyle: TextStyle(color: isSel ? Colors.white : ctx.ssTextPrimary, fontSize: 12),
                       onSelected: (_) => setDlgState(() => selectedTag = tag),
                     );
                   }).toList(),
@@ -188,11 +191,12 @@ class _MemoriesScreenState extends ConsumerState<MemoriesScreen> with SingleTick
             children: [
               TextField(
                 controller: titleCtrl,
+                style: TextStyle(color: ctx.ssTextPrimary),
                 decoration: InputDecoration(
                   labelText: 'Prompt / Occasion',
                   hintText: 'e.g. Open when you need reassurance 🥺',
                   filled: true,
-                  fillColor: AppColors.surfaceVariant,
+                  fillColor: ctx.ssSurfaceVariant,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                 ),
               ),
@@ -200,11 +204,12 @@ class _MemoriesScreenState extends ConsumerState<MemoriesScreen> with SingleTick
               TextField(
                 controller: contentCtrl,
                 maxLines: 5,
+                style: TextStyle(color: ctx.ssTextPrimary),
                 decoration: InputDecoration(
                   labelText: 'Letter Message (Sealed for Partner)',
                   hintText: 'Pour your heart out. Only your partner will ever see this.',
                   filled: true,
-                  fillColor: AppColors.surfaceVariant,
+                  fillColor: ctx.ssSurfaceVariant,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                 ),
               ),
@@ -311,7 +316,7 @@ class _MemoriesScreenState extends ConsumerState<MemoriesScreen> with SingleTick
                     const SizedBox(height: 8),
                     Text(
                       memory['caption'] ?? 'A special moment saved in your shared couple vault.',
-                      style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+                      style: AppTypography.bodyMedium.copyWith(color: ctx.ssTextSecondary),
                     ),
                     const SizedBox(height: 20),
                     Align(
@@ -359,9 +364,9 @@ class _MemoriesScreenState extends ConsumerState<MemoriesScreen> with SingleTick
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isLocked ? AppColors.surfaceVariant : const Color(0xFFFFF9FA),
+                  color: ctx.ssSurfaceVariant,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.accent.withOpacity(0.2)),
+                  border: Border.all(color: ctx.ssAccent.withValues(alpha: 0.25)),
                 ),
                 child: Text(
                   letter['content'] ?? 'No message body.',
@@ -369,7 +374,7 @@ class _MemoriesScreenState extends ConsumerState<MemoriesScreen> with SingleTick
                     fontSize: 14,
                     height: 1.5,
                     fontStyle: isLocked ? FontStyle.italic : FontStyle.normal,
-                    color: isLocked ? AppColors.textSecondary : AppColors.textPrimary,
+                    color: isLocked ? ctx.ssTextSecondary : ctx.ssTextPrimary,
                   ),
                 ),
               ),
@@ -389,15 +394,15 @@ class _MemoriesScreenState extends ConsumerState<MemoriesScreen> with SingleTick
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.ssBg,
       appBar: AppBar(
         title: const Text('Memories 📸'),
         centerTitle: true,
         bottom: TabBar(
           controller: _tabController,
-          labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.textHint,
-          indicatorColor: AppColors.primary,
+          labelColor: context.ssPrimary,
+          unselectedLabelColor: context.ssTextSecondary,
+          indicatorColor: context.ssPrimary,
           indicatorWeight: 3,
           tabs: const [
             Tab(text: 'Memory Vault 🖼️'),
@@ -434,15 +439,15 @@ class _MemoriesScreenState extends ConsumerState<MemoriesScreen> with SingleTick
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFAF7FF),
+                          color: context.ssInputFill,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFDACDF2)),
+                          border: Border.all(color: context.ssBorder),
                         ),
-                        child: const Row(
+                        child: Row(
                           children: [
-                            Icon(Icons.cloud_done_rounded, color: AppColors.primary, size: 16),
-                            SizedBox(width: 8),
-                            Text('Storage: 28.4 MB / 5.0 GB Cloud Vault 🔒', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+                            Icon(Icons.cloud_done_rounded, color: context.ssPrimary, size: 16),
+                            const SizedBox(width: 8),
+                            Text('Storage: 28.4 MB / 5.0 GB Cloud Vault 🔒', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: context.ssTextSecondary)),
                           ],
                         ),
                       ),
@@ -452,16 +457,20 @@ class _MemoriesScreenState extends ConsumerState<MemoriesScreen> with SingleTick
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.ssSurface,
                           borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: const Color(0xFFDACDF2), width: 1.2),
+                          border: Border.all(color: context.ssBorder, width: 1.2),
                         ),
                         child: TextField(
-                          decoration: const InputDecoration(
+                          style: TextStyle(color: context.ssTextPrimary),
+                          decoration: InputDecoration(
                             hintText: 'Search memories by title or keyword...',
-                            hintStyle: TextStyle(fontSize: 13, color: AppColors.textHint),
-                            prefixIcon: Icon(Icons.search, size: 20, color: AppColors.textSecondary),
+                            hintStyle: TextStyle(fontSize: 13, color: context.ssTextHint),
+                            prefixIcon: Icon(Icons.search, size: 20, color: context.ssTextSecondary),
+                            filled: false,
                             border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
                           ),
                           onChanged: (v) => setState(() => _memorySearchQuery = v.trim().toLowerCase()),
                         ),
@@ -477,10 +486,10 @@ class _MemoriesScreenState extends ConsumerState<MemoriesScreen> with SingleTick
                             return Padding(
                               padding: const EdgeInsets.only(right: 8),
                               child: ChoiceChip(
-                                label: Text(tag, style: TextStyle(fontSize: 12, color: isSel ? Colors.white : AppColors.textPrimary)),
+                                label: Text(tag, style: TextStyle(fontSize: 12, color: isSel ? Colors.white : context.ssTextPrimary)),
                                 selected: isSel,
                                 selectedColor: AppColors.primary,
-                                backgroundColor: const Color(0xFFFAF7FF),
+                                backgroundColor: context.ssSurfaceVariant,
                                 onSelected: (_) => setState(() => _selectedTagFilter = tag),
                               ),
                             );
@@ -564,11 +573,11 @@ class _MemoryItemCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 14),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.ssSurface,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.primary.withOpacity(0.12)),
+          border: Border.all(color: context.ssBorder),
           boxShadow: [
-            BoxShadow(color: AppColors.primary.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4)),
+            BoxShadow(color: AppColors.primary.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4)),
           ],
         ),
         child: Row(
@@ -577,10 +586,10 @@ class _MemoryItemCard extends StatelessWidget {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.12),
+                color: context.ssPrimary.withValues(alpha: 0.14),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: const Icon(Icons.photo_library_rounded, color: AppColors.primary),
+              child: Icon(Icons.photo_library_rounded, color: context.ssPrimary),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -589,13 +598,13 @@ class _MemoryItemCard extends StatelessWidget {
                 children: [
                   Text(item['title'] ?? 'Memory', style: AppTypography.titleLarge),
                   const SizedBox(height: 2),
-                  Text(item['caption'] ?? '', style: AppTypography.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  Text(item['caption'] ?? '', style: AppTypography.bodySmall.copyWith(color: context.ssTextSecondary), maxLines: 1, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 6),
-                  Text(item['date'] ?? '', style: const TextStyle(fontSize: 11, color: AppColors.textHint)),
+                  Text(item['date'] ?? '', style: TextStyle(fontSize: 11, color: context.ssTextHint)),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: AppColors.textHint),
+            Icon(Icons.chevron_right_rounded, color: context.ssTextHint),
           ],
         ),
       ),
@@ -617,9 +626,9 @@ class _LetterItemCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 14),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.ssSurface,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.accent.withOpacity(0.15)),
+          border: Border.all(color: context.ssAccent.withValues(alpha: 0.25)),
         ),
         child: Row(
           children: [
@@ -627,12 +636,12 @@ class _LetterItemCard extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: isLocked ? AppColors.surfaceVariant : AppColors.accent.withOpacity(0.12),
+                color: isLocked ? context.ssSurfaceVariant : context.ssAccent.withValues(alpha: 0.14),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 isLocked ? Icons.lock_clock_rounded : Icons.mark_email_read_rounded,
-                color: isLocked ? AppColors.textHint : AppColors.accent,
+                color: isLocked ? context.ssTextHint : context.ssAccent,
                 size: 22,
               ),
             ),
@@ -646,7 +655,7 @@ class _LetterItemCard extends StatelessWidget {
                   Text(
                     isLocked ? 'Sealed & Locked' : (letter['content'] ?? ''),
                     style: AppTypography.bodySmall.copyWith(
-                      color: isLocked ? AppColors.warning : AppColors.textSecondary,
+                      color: isLocked ? AppColors.warning : context.ssTextSecondary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -654,7 +663,7 @@ class _LetterItemCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: AppColors.textHint),
+            Icon(Icons.chevron_right_rounded, color: context.ssTextHint),
           ],
         ),
       ),

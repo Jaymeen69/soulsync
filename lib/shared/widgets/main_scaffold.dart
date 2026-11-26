@@ -33,10 +33,11 @@ class MainScaffold extends StatelessWidget {
       body: child,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.ssSurface,
+          border: Border(top: BorderSide(color: context.ssBorder.withValues(alpha: 0.6))),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withOpacity(0.08),
+              color: AppColors.primary.withValues(alpha: context.ssIsDark ? 0.2 : 0.08),
               blurRadius: 20,
               offset: const Offset(0, -4),
             ),
@@ -90,6 +91,8 @@ class _NavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final activeColor = context.ssPrimary;
+    final inactiveColor = context.ssTextSecondary;
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -98,7 +101,7 @@ class _NavButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: isActive
             ? BoxDecoration(
-                color: AppColors.primary.withOpacity(0.12),
+                color: activeColor.withValues(alpha: 0.14),
                 borderRadius: BorderRadius.circular(16),
               )
             : null,
@@ -107,7 +110,7 @@ class _NavButton extends StatelessWidget {
           children: [
             Icon(
               isActive ? item.activeIcon : item.icon,
-              color: isActive ? AppColors.primary : AppColors.textHint,
+              color: isActive ? activeColor : inactiveColor,
               size: 24,
             ),
             const SizedBox(height: 2),
@@ -115,8 +118,8 @@ class _NavButton extends StatelessWidget {
               item.label,
               style: TextStyle(
                 fontSize: 10,
-                fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
-                color: isActive ? AppColors.primary : AppColors.textHint,
+                fontWeight: isActive ? FontWeight.w700 : FontWeight.w600,
+                color: isActive ? activeColor : inactiveColor,
               ),
             ),
           ],

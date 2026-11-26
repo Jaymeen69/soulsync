@@ -187,7 +187,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void _showMediaAttachmentSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.ssSurface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (ctx) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -195,7 +195,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Share with Partner 💖', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+            Text('Share with Partner 💖', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: ctx.ssTextPrimary)),
             const SizedBox(height: 18),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -320,10 +320,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: ctx.ssSurface,
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 15, offset: const Offset(0, 4)),
+            BoxShadow(color: Colors.black.withValues(alpha: 0.18), blurRadius: 15, offset: const Offset(0, 4)),
           ],
         ),
         child: Row(
@@ -351,24 +351,28 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final partnerName = user?.partnerName ?? 'Soulmate';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFBF8FD),
+      backgroundColor: context.ssBg,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.ssSurface,
         elevation: 0.5,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textPrimary, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.ssTextPrimary, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: _isSearching
             ? TextField(
                 controller: _searchCtrl,
                 autofocus: true,
+                style: TextStyle(color: context.ssTextPrimary),
                 decoration: InputDecoration(
                   hintText: 'Search chat messages...',
+                  filled: false,
                   border: InputBorder.none,
-                  hintStyle: const TextStyle(color: AppColors.textHint, fontSize: 14),
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  hintStyle: TextStyle(color: context.ssTextHint, fontSize: 14),
                   suffixIcon: IconButton(
-                    icon: const Icon(Icons.close, size: 18),
+                    icon: Icon(Icons.close, size: 18, color: context.ssTextSecondary),
                     onPressed: () {
                       setState(() {
                         _isSearching = false;
@@ -390,10 +394,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     children: [
                       CircleAvatar(
                         radius: 18,
-                        backgroundColor: AppColors.primary.withOpacity(0.15),
+                        backgroundColor: context.ssPrimary.withValues(alpha: 0.16),
                         child: Text(
                           partnerName.isNotEmpty ? partnerName[0].toUpperCase() : 'P',
-                          style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: context.ssPrimary, fontWeight: FontWeight.bold),
                         ),
                       ),
                       Positioned(
@@ -405,7 +409,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           decoration: BoxDecoration(
                             color: const Color(0xFF00C853),
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
+                            border: Border.all(color: context.ssSurface, width: 2),
                           ),
                         ),
                       ),
@@ -416,13 +420,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(partnerName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                        Text(partnerName, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.ssTextPrimary)),
                         Text(
                           _partnerTyping ? 'typing... ✨' : 'Online & in love 🔒',
                           style: TextStyle(
                             fontSize: 11,
-                            color: _partnerTyping ? AppColors.accent : const Color(0xFF00C853),
-                            fontWeight: FontWeight.w500,
+                            color: _partnerTyping ? context.ssAccent : AppColors.success,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -433,11 +437,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         actions: [
           if (!_isSearching)
             IconButton(
-              icon: const Icon(Icons.search_rounded, color: AppColors.textPrimary),
+              icon: Icon(Icons.search_rounded, color: context.ssTextPrimary),
               onPressed: () => setState(() => _isSearching = true),
             ),
           IconButton(
-            icon: const Icon(Icons.more_vert_rounded, color: AppColors.textPrimary),
+            icon: Icon(Icons.more_vert_rounded, color: context.ssTextPrimary),
             onPressed: () => _showChatOptions(context),
           ),
         ],
@@ -511,35 +515,38 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border(top: BorderSide(color: AppColors.primary.withOpacity(0.08))),
+              color: context.ssSurface,
+              border: Border(top: BorderSide(color: context.ssBorder)),
             ),
             child: SafeArea(
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.add_circle_outline_rounded, color: AppColors.primary, size: 26),
+                    icon: Icon(Icons.add_circle_outline_rounded, color: context.ssPrimary, size: 26),
                     onPressed: _showMediaAttachmentSheet,
                   ),
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFAF7FF),
+                        color: context.ssInputFill,
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: const Color(0xFFDACDF2), width: 1.2),
+                        border: Border.all(color: context.ssBorder, width: 1.2),
                       ),
                       child: TextField(
                         controller: _msgCtrl,
                         minLines: 1,
                         maxLines: 4,
-                        style: const TextStyle(color: Color(0xFF2D1F3D), fontSize: 14, fontWeight: FontWeight.w600),
-                        decoration: const InputDecoration(
+                        style: TextStyle(color: context.ssTextPrimary, fontSize: 14, fontWeight: FontWeight.w600),
+                        decoration: InputDecoration(
                           hintText: 'Whisper something sweet...',
-                          hintStyle: TextStyle(color: Color(0xFF7E7399), fontSize: 14),
+                          hintStyle: TextStyle(color: context.ssTextHint, fontSize: 14),
+                          filled: false,
                           border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
                           isDense: true,
-                          contentPadding: EdgeInsets.symmetric(vertical: 10),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 10),
                         ),
                         onSubmitted: (_) => _sendMessage(),
                       ),
@@ -574,13 +581,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void _showChatOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.ssSurface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            leading: const Icon(Icons.volume_off_outlined, color: AppColors.textPrimary),
+            leading: Icon(Icons.volume_off_outlined, color: ctx.ssTextPrimary),
             title: const Text('Mute Chat Notifications'),
             onTap: () {
               Navigator.pop(ctx);
@@ -617,11 +624,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             const SizedBox(height: 12),
             TextField(
               controller: reasonCtrl,
+              style: TextStyle(color: ctx.ssTextPrimary),
               decoration: InputDecoration(
                 hintText: 'e.g. Inappropriate language or spam',
                 filled: true,
-                fillColor: const Color(0xFFFAF7FF),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFDACDF2))),
+                fillColor: ctx.ssInputFill,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: ctx.ssBorder)),
               ),
             ),
           ],
@@ -704,16 +712,16 @@ class _MessageBubble extends StatelessWidget {
                         end: Alignment.bottomRight,
                       )
                     : null,
-                color: isMe ? null : Colors.white,
+                color: isMe ? null : context.ssSurface,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(18),
                   topRight: const Radius.circular(18),
                   bottomLeft: Radius.circular(isMe ? 18 : 4),
                   bottomRight: Radius.circular(isMe ? 4 : 18),
                 ),
-                border: isMe ? null : Border.all(color: const Color(0xFFDACDF2), width: 1.2),
+                border: isMe ? null : Border.all(color: context.ssBorder, width: 1.2),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 6, offset: const Offset(0, 2)),
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 6, offset: const Offset(0, 2)),
                 ],
               ),
               child: Column(
@@ -734,12 +742,12 @@ class _MessageBubble extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.play_circle_filled_rounded, color: isMe ? Colors.white : AppColors.primary, size: 28),
+                        Icon(Icons.play_circle_filled_rounded, color: isMe ? Colors.white : context.ssPrimary, size: 28),
                         const SizedBox(width: 8),
                         Text(
                           'Voice Whisper (${message.voiceDuration ?? "0:15"})',
                           style: TextStyle(
-                            color: isMe ? Colors.white : AppColors.textPrimary,
+                            color: isMe ? Colors.white : context.ssTextPrimary,
                             fontWeight: FontWeight.w600,
                             fontSize: 13,
                           ),
@@ -750,7 +758,7 @@ class _MessageBubble extends StatelessWidget {
                     Text(
                       message.content,
                       style: TextStyle(
-                        color: isMe ? Colors.white : AppColors.textPrimary,
+                        color: isMe ? Colors.white : context.ssTextPrimary,
                         fontSize: 14,
                         height: 1.3,
                       ),
@@ -763,7 +771,7 @@ class _MessageBubble extends StatelessWidget {
                         '${message.createdAt.hour.toString().padLeft(2, '0')}:${message.createdAt.minute.toString().padLeft(2, '0')}',
                         style: TextStyle(
                           fontSize: 10,
-                          color: isMe ? Colors.white.withOpacity(0.7) : AppColors.textHint,
+                          color: isMe ? Colors.white.withValues(alpha: 0.8) : context.ssTextHint,
                         ),
                       ),
                       if (isMe) ...[
@@ -787,11 +795,11 @@ class _MessageBubble extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.ssSurface,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFDACDF2), width: 1),
+                    border: Border.all(color: context.ssBorder, width: 1),
                     boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 4),
+                      BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4),
                     ],
                   ),
                   child: Row(
@@ -837,7 +845,7 @@ class _AttachmentAction extends StatelessWidget {
             child: Icon(icon, color: color, size: 24),
           ),
           const SizedBox(height: 6),
-          Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+          Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.ssTextPrimary)),
         ],
       ),
     );
@@ -859,15 +867,15 @@ class _GiftChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: const Color(0xFFFAF7FF),
+          color: context.ssInputFill,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFDACDF2)),
+          border: Border.all(color: context.ssBorder),
         ),
         child: Column(
           children: [
             Text(emoji, style: const TextStyle(fontSize: 24)),
             const SizedBox(height: 4),
-            Text(name, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+            Text(name, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: context.ssTextPrimary)),
           ],
         ),
       ),

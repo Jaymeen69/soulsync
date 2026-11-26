@@ -7,6 +7,7 @@ import hashlib
 import smtplib
 import threading
 import music_module
+import safesync_module
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
@@ -236,6 +237,7 @@ def _ensure_db_structure(db):
     if "admin_login_logs" not in db:
         db["admin_login_logs"] = []
     music_module.ensure_music_db(db)
+    safesync_module.ensure_safety_db(db)
 
 DB_LOCK = threading.RLock()
 
@@ -777,6 +779,19 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
                 "active_conversations": len(db.get("couples", [])),
                 "delivery_success_rate": "99.8%"
             }).encode("utf-8"))
+
+        elif path.startswith("/api/safety/") or path.startswith("/api/admin/safety/"):
+            if safesync_module.handle_safety_get(
+                self,
+                path,
+                query,
+                load_db,
+                save_db,
+                verify_admin_session,
+            ):
+                return
+            self._set_headers(404)
+            self.wfile.write(json.dumps({"error": "Endpoint not found"}).encode("utf-8"))
 
         elif path.startswith("/api/music/") or path.startswith("/api/admin/music/"):
             if music_module.handle_music_get(
@@ -1961,6 +1976,14 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
                 if couple:
                     couple["status"] = "Archived (Disconnected)"
                     couple["unlinked_at"] = datetime.utcnow().isoformat() + "Z"
+                # Revoke SoulSafe location sharing & agreements on unlink
+                for uid, s in db.get("safety_sessions", {}).items():
+                    if s.get("couple_id") == couple_id:
+                        s["status"] = "stopped"
+                        s["consents"]["location"] = False
+                        db.get("safety_locations", {}).pop(uid, None)
+                if couple_id:
+                    safesync_module.broadcast_safety_update(couple_id, "consent_changed", {"status": "unlinked"})
                 save_db(db)
                 self._set_headers(200)
                 self.wfile.write(json.dumps({"status": "success", "message": "Couple unlinked safely. Shared memories remain preserved in secure archive."}).encode("utf-8"))
@@ -1979,6 +2002,19 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
             save_db(db)
             self._set_headers(200)
             self.wfile.write(json.dumps({"status": "success"}).encode("utf-8"))
+
+        elif (path.startswith("/api/safety/") and path not in ("/api/safety/report", "/api/safety/block")) or path.startswith("/api/admin/safety/"):
+            if safesync_module.handle_safety_post(
+                self,
+                path,
+                data,
+                load_db,
+                save_db,
+                verify_admin_session,
+            ):
+                return
+            self._set_headers(404)
+            self.wfile.write(json.dumps({"error": "Unknown POST route"}).encode("utf-8"))
 
         elif path.startswith("/api/music/") or path.startswith("/api/admin/music/"):
             if music_module.handle_music_post(

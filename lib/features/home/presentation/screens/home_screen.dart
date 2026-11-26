@@ -98,18 +98,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Enter your partner\'s 8-character invitation code to link your accounts:',
-              style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 13, color: ctx.ssTextSecondary),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: codeCtrl,
               textCapitalization: TextCapitalization.characters,
+              style: TextStyle(color: ctx.ssTextPrimary),
               decoration: InputDecoration(
                 hintText: 'e.g. SOUL-1234',
                 filled: true,
-                fillColor: AppColors.surfaceVariant,
+                fillColor: ctx.ssSurfaceVariant,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
               ),
             ),
@@ -212,7 +213,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     const SizedBox(height: 8),
                     Text(
                       memory['caption'] ?? 'A special moment saved in your shared couple vault.',
-                      style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+                      style: AppTypography.bodyMedium.copyWith(color: ctx.ssTextSecondary),
                     ),
                     const SizedBox(height: 20),
                     Align(
@@ -297,7 +298,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   void _showGiftShopModal() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.ssSurface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (ctx) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
@@ -305,13 +306,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
-                Text('Virtual Gift Shop 🎁', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                Text('Virtual Gift Shop 🎁', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: ctx.ssTextPrimary)),
               ],
             ),
             const SizedBox(height: 6),
-            const Text('Send a surprise digital token of affection straight to partner\'s chat:', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+            Text('Send a surprise digital token of affection straight to partner\'s chat:', style: TextStyle(fontSize: 12, color: ctx.ssTextSecondary)),
             const SizedBox(height: 16),
             Wrap(
               spacing: 12,
@@ -360,7 +361,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final userInviteCode = user?.inviteCode ?? 'SOUL-8492';
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.ssBg,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push(RouteNames.chat),
         backgroundColor: const Color(0xFFE94057),
@@ -496,24 +497,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.ssSurface,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFDACDF2), width: 1.2),
+                    border: Border.all(color: context.ssBorder, width: 1.2),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       Column(
                         children: [
-                          const Text('Your Time ☀️', style: TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
+                          Text('Your Time ☀️', style: TextStyle(fontSize: 11, color: context.ssTextSecondary, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 2),
-                          Text('${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.primary)),
+                          Text('${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: context.ssPrimary)),
                         ],
                       ),
-                      Container(height: 26, width: 1, color: const Color(0xFFDACDF2)),
+                      Container(height: 26, width: 1, color: context.ssBorder),
                       Column(
                         children: [
-                          Text('$partnerName\'s Time 🌙', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
+                          Text('$partnerName\'s Time 🌙', style: TextStyle(fontSize: 11, color: context.ssTextSecondary, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 2),
                           Text('${((DateTime.now().hour + 6) % 24).toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFFE94057))),
                         ],
@@ -568,9 +569,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: context.ssSurface,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.primary.withOpacity(0.12)),
+                    border: Border.all(color: context.ssBorder),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -580,7 +581,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.qr_code_2_rounded, color: AppColors.primary, size: 22),
+                              Icon(Icons.qr_code_2_rounded, color: context.ssPrimary, size: 22),
                               const SizedBox(width: 8),
                               Text('Quick Connection', style: AppTypography.titleLarge),
                             ],
@@ -596,13 +597,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       const SizedBox(height: 6),
                       Text(
                         'Share your code with your partner to pair devices:',
-                        style: AppTypography.bodySmall,
+                        style: AppTypography.bodySmall.copyWith(color: context.ssTextSecondary),
                       ),
                       const SizedBox(height: 12),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                         decoration: BoxDecoration(
-                          color: AppColors.surfaceVariant,
+                          color: context.ssSurfaceVariant,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -610,12 +611,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           children: [
                             Text(
                               userInviteCode,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: 'Nunito',
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 2,
-                                color: AppColors.primary,
+                                color: context.ssPrimary,
                               ),
                             ),
                             InkWell(
@@ -721,6 +722,56 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               ),
                               Text(
                                 'Two Hearts, One Song • Sync music live with $partnerName',
+                                style: TextStyle(color: Colors.white.withOpacity(0.88), fontSize: 11),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 16),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Distance Between Us / SoulSafe Card
+                InkWell(
+                  onTap: () => context.push(RouteNames.safety),
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF1D1036), Color(0xFF6C3EBC)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(color: AppColors.primary.withOpacity(0.22), blurRadius: 12, offset: const Offset(0, 5)),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.18),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.shield_rounded, color: Colors.white, size: 24),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Distance Between Us 🛡️',
+                                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800),
+                              ),
+                              Text(
+                                'Live location consent, travel speed & safety alerts with $partnerName',
                                 style: TextStyle(color: Colors.white.withOpacity(0.88), fontSize: 11),
                               ),
                             ],
@@ -849,12 +900,12 @@ class _QuickActionCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.ssSurface,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: color.withOpacity(0.18)),
+          border: Border.all(color: color.withValues(alpha: 0.25)),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.08),
+              color: color.withValues(alpha: 0.08),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -866,7 +917,7 @@ class _QuickActionCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
+                color: color.withValues(alpha: 0.14),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color, size: 22),
@@ -874,7 +925,7 @@ class _QuickActionCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(title, style: AppTypography.titleLarge),
             const SizedBox(height: 2),
-            Text(subtitle, style: AppTypography.bodySmall),
+            Text(subtitle, style: AppTypography.bodySmall.copyWith(color: context.ssTextSecondary)),
           ],
         ),
       ),
@@ -932,7 +983,7 @@ class _MemoryThumbnail extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   date,
-                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                  style: TextStyle(color: context.ssTextSecondary, fontSize: 11),
                 ),
               ],
             ),
@@ -960,16 +1011,16 @@ class _GiftItemCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: const Color(0xFFFAF7FF),
+          color: context.ssInputFill,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFFDACDF2), width: 1.2),
+          border: Border.all(color: context.ssBorder, width: 1.2),
         ),
         child: Column(
           children: [
             Text(emoji, style: const TextStyle(fontSize: 28)),
             const SizedBox(height: 4),
-            Text(name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-            Text(desc, style: const TextStyle(fontSize: 10, color: AppColors.textHint)),
+            Text(name, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: context.ssTextPrimary)),
+            Text(desc, style: TextStyle(fontSize: 10, color: context.ssTextHint)),
           ],
         ),
       ),

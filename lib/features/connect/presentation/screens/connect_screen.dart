@@ -175,7 +175,7 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
     final partnerName = user?.partnerName ?? 'Partner';
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.ssBg,
       appBar: AppBar(
         title: const Text('Connect 💌'),
         centerTitle: true,
@@ -190,7 +190,7 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(22),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.ssSurface,
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
@@ -261,7 +261,7 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
                             margin: const EdgeInsets.symmetric(horizontal: 4),
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                             decoration: BoxDecoration(
-                              color: isSel ? p.color : AppColors.surfaceVariant,
+                              color: isSel ? p.color : context.ssSurfaceVariant,
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Row(
@@ -271,8 +271,8 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
                                 Text(
                                   p.name,
                                   style: TextStyle(
-                                    color: isSel ? Colors.white : AppColors.textPrimary,
-                                    fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
+                                    color: isSel ? Colors.white : context.ssTextPrimary,
+                                    fontWeight: isSel ? FontWeight.w700 : FontWeight.w600,
                                     fontSize: 12,
                                   ),
                                 ),
@@ -363,10 +363,10 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      color: isSel ? m.color.withOpacity(0.18) : AppColors.surface,
+                      color: isSel ? m.color.withValues(alpha: 0.2) : context.ssSurface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: isSel ? m.color : AppColors.primary.withOpacity(0.08),
+                        color: isSel ? m.color : context.ssBorder,
                         width: isSel ? 2 : 1,
                       ),
                     ),
@@ -379,8 +379,8 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
                           m.label,
                           style: TextStyle(
                             fontSize: 12,
-                            fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
-                            color: isSel ? m.color : AppColors.textPrimary,
+                            fontWeight: isSel ? FontWeight.w700 : FontWeight.w600,
+                            color: isSel ? m.color : context.ssTextPrimary,
                           ),
                         ),
                       ],
@@ -394,14 +394,15 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
             // Optional Personal Note TextField
             TextField(
               controller: _moodNoteCtrl,
+              style: TextStyle(color: context.ssTextPrimary),
               decoration: InputDecoration(
                 hintText: 'Add an optional note for $partnerName...',
                 filled: true,
-                fillColor: AppColors.surface,
-                prefixIcon: const Icon(Icons.edit_note_rounded, color: AppColors.primary),
+                fillColor: context.ssInputFill,
+                prefixIcon: Icon(Icons.edit_note_rounded, color: context.ssPrimary),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: AppColors.primary.withOpacity(0.1)),
+                  borderSide: BorderSide(color: context.ssBorder),
                 ),
               ),
             ),
@@ -439,9 +440,9 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
             const SizedBox(height: 12),
             Container(
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.ssSurface,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.primary.withOpacity(0.1)),
+                border: Border.all(color: context.ssBorder),
               ),
               child: ListView.separated(
                 shrinkWrap: true,

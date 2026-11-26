@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../core/router/route_names.dart';
+import '../../../../core/theme/theme_provider.dart';
 import '../../../../shared/utils/validators.dart';
 import '../../../../shared/widgets/soulsync_text_field.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
@@ -43,7 +44,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   void _showAvatarPicker(SoulSyncUser user) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.ssSurface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (ctx) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -51,7 +52,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Choose Your Profile Picture ✨', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+            Text('Choose Your Profile Picture ✨', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: ctx.ssTextPrimary)),
             const SizedBox(height: 16),
             Wrap(
               spacing: 16,
@@ -98,31 +99,34 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             children: [
               TextField(
                 controller: nameCtrl,
+                style: TextStyle(color: ctx.ssTextPrimary),
                 decoration: InputDecoration(
                   labelText: 'Your Name',
                   filled: true,
-                  fillColor: const Color(0xFFFAF7FF),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFDACDF2))),
+                  fillColor: ctx.ssInputFill,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: ctx.ssBorder)),
                 ),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: partnerCtrl,
+                style: TextStyle(color: ctx.ssTextPrimary),
                 decoration: InputDecoration(
                   labelText: 'Partner Nickname',
                   filled: true,
-                  fillColor: const Color(0xFFFAF7FF),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFDACDF2))),
+                  fillColor: ctx.ssInputFill,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: ctx.ssBorder)),
                 ),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: bioCtrl,
+                style: TextStyle(color: ctx.ssTextPrimary),
                 decoration: InputDecoration(
                   labelText: 'Love Bio / Status',
                   filled: true,
-                  fillColor: const Color(0xFFFAF7FF),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFDACDF2))),
+                  fillColor: ctx.ssInputFill,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: ctx.ssBorder)),
                 ),
               ),
             ],
@@ -179,29 +183,31 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (!otpSent) ...[
-                const Text('Enter your new email address. We will send a 6-digit verification code.', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                Text('Enter your new email address. We will send a 6-digit verification code.', style: TextStyle(fontSize: 12, color: context.ssTextSecondary)),
                 const SizedBox(height: 14),
                 TextField(
                   controller: emailCtrl,
+                  style: TextStyle(color: context.ssTextPrimary),
                   decoration: InputDecoration(
                     labelText: 'New Email',
                     filled: true,
-                    fillColor: const Color(0xFFFAF7FF),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFDACDF2))),
+                    fillColor: context.ssInputFill,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.ssBorder)),
                   ),
                 ),
               ] else ...[
-                Text('Verification code sent to ${emailCtrl.text}. Enter the 6-digit OTP below:', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                Text('Verification code sent to ${emailCtrl.text}. Enter the 6-digit OTP below:', style: TextStyle(fontSize: 12, color: context.ssTextSecondary)),
                 const SizedBox(height: 14),
                 TextField(
                   controller: otpCtrl,
                   maxLength: 6,
                   keyboardType: TextInputType.number,
+                  style: TextStyle(color: context.ssTextPrimary),
                   decoration: InputDecoration(
                     labelText: '6-digit OTP',
                     filled: true,
-                    fillColor: const Color(0xFFFAF7FF),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFDACDF2))),
+                    fillColor: context.ssInputFill,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.ssBorder)),
                   ),
                 ),
               ],
@@ -431,7 +437,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Devices currently authenticated in your SoulSync account:', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+            Text('Devices currently authenticated in your SoulSync account:', style: TextStyle(fontSize: 12, color: ctx.ssTextSecondary)),
             const SizedBox(height: 14),
             ListTile(
               contentPadding: EdgeInsets.zero,
@@ -441,7 +447,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.laptop_chromebook_rounded, color: AppColors.textSecondary),
+              leading: Icon(Icons.laptop_chromebook_rounded, color: ctx.ssTextSecondary),
               title: const Text('Chrome Web Simulator', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
               subtitle: const Text('Last seen yesterday • IP: 127.0.0.1', style: TextStyle(fontSize: 11)),
             ),
@@ -468,9 +474,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Download Personal Data 📦', style: TextStyle(fontWeight: FontWeight.bold)),
-        content: const Text(
+        content: Text(
           'In accordance with SoulSync Privacy & Data Protection, you can export all your personal data, pulses, logs, and memories in portable JSON format.',
-          style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 13, color: ctx.ssTextSecondary),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
@@ -500,9 +506,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Disconnect from Partner? 💔', style: TextStyle(fontWeight: FontWeight.bold)),
-        content: const Text(
+        content: Text(
           'This will unlink your couple space. Your shared memories and letters will be safely preserved in your private archive. You can reconnect anytime with an invitation code.',
-          style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 13, color: ctx.ssTextSecondary),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Keep Connected')),
@@ -531,9 +537,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Delete Account? ⚠️', style: TextStyle(fontWeight: FontWeight.bold)),
-        content: const Text(
+        content: Text(
           'Are you sure you want to permanently delete your SoulSync account? All personal data, private keys, and profile records will be permanently removed. Shared couple memories will be archived according to your couple retention settings.',
-          style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 13, color: ctx.ssTextSecondary),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
@@ -554,6 +560,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
+    final themeMode = ref.watch(themeModeProvider);
     final userName = user?.displayName ?? 'You';
     final userEmail = user?.email ?? 'you@example.com';
     final partnerName = user?.partnerName ?? 'Partner';
@@ -561,7 +568,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final avatarUrl = user?.avatarUrl;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.ssBg,
       appBar: AppBar(
         title: const Text('Profile & Settings 👤'),
         centerTitle: true,
@@ -574,11 +581,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.ssSurface,
                 borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: const Color(0xFFDACDF2), width: 1.2),
+                border: Border.all(color: context.ssBorder, width: 1.2),
                 boxShadow: [
-                  BoxShadow(color: AppColors.primary.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4)),
+                  BoxShadow(color: AppColors.primary.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4)),
                 ],
               ),
               child: Row(
@@ -650,9 +657,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.ssSurface,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFDACDF2), width: 1.2),
+                border: Border.all(color: context.ssBorder, width: 1.2),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -662,7 +669,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.favorite_rounded, color: AppColors.accent, size: 20),
+                          Icon(Icons.favorite_rounded, color: context.ssAccent, size: 20),
                           const SizedBox(width: 8),
                           Text('Space with $partnerName', style: AppTypography.titleLarge),
                         ],
@@ -676,29 +683,29 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Your private invitation code:',
-                    style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: TextStyle(fontSize: 12, color: context.ssTextSecondary),
                   ),
                   const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFAF7FF),
+                      color: context.ssInputFill,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFFDACDF2)),
+                      border: Border.all(color: context.ssBorder),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           inviteCode,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: 'Nunito',
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
                             letterSpacing: 2,
-                            color: AppColors.primary,
+                            color: context.ssPrimary,
                           ),
                         ),
                         InkWell(
@@ -726,7 +733,44 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
+
+            // Appearance / Theme Switcher (Light / Dark / System)
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: context.ssSurface,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: context.ssBorder, width: 1.2),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.palette_outlined, color: context.ssPrimary, size: 20),
+                      const SizedBox(width: 8),
+                      Text('App Appearance & Contrast', style: AppTypography.titleLarge),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  SegmentedButton<ThemeMode>(
+                    segments: const [
+                      ButtonSegment(value: ThemeMode.system, icon: Icon(Icons.brightness_auto_rounded, size: 16), label: Text('System')),
+                      ButtonSegment(value: ThemeMode.light, icon: Icon(Icons.light_mode_rounded, size: 16), label: Text('Light')),
+                      ButtonSegment(value: ThemeMode.dark, icon: Icon(Icons.dark_mode_rounded, size: 16), label: Text('Dark')),
+                    ],
+                    selected: {themeMode},
+                    onSelectionChanged: (sel) {
+                      if (sel.isNotEmpty) {
+                        ref.read(themeModeProvider.notifier).setThemeMode(sel.first);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
 
             // Settings Tiles & Actions
             _SettingsTile(
@@ -831,19 +875,19 @@ class _SettingsTile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.ssSurface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFDACDF2), width: 1.2),
+        border: Border.all(color: context.ssBorder, width: 1.2),
       ),
       child: ListTile(
         onTap: onTap,
         leading: CircleAvatar(
-          backgroundColor: AppColors.primary.withOpacity(0.08),
-          child: Icon(icon, color: AppColors.primary, size: 20),
+          backgroundColor: context.ssPrimary.withValues(alpha: 0.12),
+          child: Icon(icon, color: context.ssPrimary, size: 20),
         ),
         title: Text(title, style: AppTypography.titleMedium),
-        subtitle: Text(subtitle, style: AppTypography.bodySmall),
-        trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.textHint),
+        subtitle: Text(subtitle, style: AppTypography.bodySmall.copyWith(color: context.ssTextSecondary)),
+        trailing: Icon(Icons.arrow_forward_ios_rounded, size: 14, color: context.ssTextHint),
       ),
     );
   }

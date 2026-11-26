@@ -81,41 +81,43 @@ class _SoulSyncTextFieldState extends State<SoulSyncTextField> {
       enabled: widget.enabled,
       autofillHints: widget.autofillHints,
       focusNode: widget.focusNode,
-      style: const TextStyle(
-        color: AppColors.textPrimary,
+      style: TextStyle(
+        color: context.ssTextPrimary,
         fontSize: 15,
         fontWeight: FontWeight.w600,
       ),
       decoration: InputDecoration(
         labelText: widget.label,
-        labelStyle: const TextStyle(
-          color: Color(0xFF4A3E6B),
+        labelStyle: TextStyle(
+          color: context.ssIsDark
+              ? AppColors.darkTextSecondary
+              : const Color(0xFF4A3E6B),
           fontSize: 14,
           fontWeight: FontWeight.w600,
         ),
-        floatingLabelStyle: const TextStyle(
-          color: AppColors.primary,
+        floatingLabelStyle: TextStyle(
+          color: context.ssPrimary,
           fontSize: 14,
           fontWeight: FontWeight.w700,
         ),
         hintText: widget.hint,
-        hintStyle: const TextStyle(
-          color: Color(0xFF9E96B8),
+        hintStyle: TextStyle(
+          color: context.ssTextHint,
           fontSize: 14,
         ),
         filled: true,
-        fillColor: const Color(0xFFFAF7FF),
+        fillColor: context.ssInputFill,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFDACDF2), width: 1.5),
+          borderSide: BorderSide(color: context.ssBorder, width: 1.5),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color(0xFFDACDF2), width: 1.5),
+          borderSide: BorderSide(color: context.ssBorder, width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.primary, width: 2.0),
+          borderSide: BorderSide(color: context.ssPrimary, width: 2.0),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -123,13 +125,13 @@ class _SoulSyncTextFieldState extends State<SoulSyncTextField> {
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         prefixIcon: widget.prefixIcon != null
-            ? Icon(widget.prefixIcon, color: AppColors.primary, size: 22)
+            ? Icon(widget.prefixIcon, color: context.ssPrimary, size: 22)
             : null,
         suffixIcon: widget.obscureText
             ? IconButton(
                 icon: Icon(
                   _obscure ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                  color: _obscure ? const Color(0xFF8A7FA8) : AppColors.primary,
+                  color: _obscure ? context.ssTextHint : context.ssPrimary,
                   size: 22,
                 ),
                 tooltip: _obscure ? 'Show password' : 'Hide password',

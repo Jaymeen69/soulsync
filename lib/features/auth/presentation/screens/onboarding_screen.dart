@@ -61,15 +61,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Text('App Permissions 🛡️', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
           ],
         ),
-        content: const Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('To provide an intimate, real-time experience, SoulSync uses:', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
-            SizedBox(height: 12),
-            _PermissionItem(icon: Icons.notifications_active, title: 'Notifications', desc: 'Real-time love pulses, chat whispers, and daily questions.'),
-            _PermissionItem(icon: Icons.mic, title: 'Microphone', desc: 'Sending cozy voice whispers to your partner.'),
-            _PermissionItem(icon: Icons.photo_library, title: 'Photos & Vault', desc: 'Preserving relationship memories in your private vault.'),
+            Text('To provide an intimate, real-time experience, SoulSync uses:', style: TextStyle(fontSize: 13, color: ctx.ssTextSecondary)),
+            const SizedBox(height: 12),
+            const _PermissionItem(icon: Icons.notifications_active, title: 'Notifications', desc: 'Real-time love pulses, chat whispers, and daily questions.'),
+            const _PermissionItem(icon: Icons.mic, title: 'Microphone', desc: 'Sending cozy voice whispers to your partner.'),
+            const _PermissionItem(icon: Icons.photo_library, title: 'Photos & Vault', desc: 'Preserving relationship memories in your private vault.'),
           ],
         ),
         actions: [
@@ -194,15 +194,15 @@ class _OnboardingPage extends StatelessWidget {
             Text('App Permissions 🛡️', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
           ],
         ),
-        content: const Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('To provide an intimate, real-time experience, SoulSync uses:', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
-            SizedBox(height: 12),
-            _PermissionItem(icon: Icons.notifications_active, title: 'Notifications', desc: 'Real-time love pulses, chat whispers, and daily questions.'),
-            _PermissionItem(icon: Icons.mic, title: 'Microphone', desc: 'Sending cozy voice whispers to your partner.'),
-            _PermissionItem(icon: Icons.photo_library, title: 'Photos & Vault', desc: 'Preserving relationship memories in your private vault.'),
+            Text('To provide an intimate, real-time experience, SoulSync uses:', style: TextStyle(fontSize: 13, color: ctx.ssTextSecondary)),
+            const SizedBox(height: 12),
+            const _PermissionItem(icon: Icons.notifications_active, title: 'Notifications', desc: 'Real-time love pulses, chat whispers, and daily questions.'),
+            const _PermissionItem(icon: Icons.mic, title: 'Microphone', desc: 'Sending cozy voice whispers to your partner.'),
+            const _PermissionItem(icon: Icons.photo_library, title: 'Photos & Vault', desc: 'Preserving relationship memories in your private vault.'),
           ],
         ),
         actions: [
@@ -240,7 +240,7 @@ class _OnboardingPage extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             description,
-            style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary),
+            style: AppTypography.bodyLarge.copyWith(color: context.ssTextSecondary),
             textAlign: TextAlign.center,
           ),
         ],
@@ -273,8 +273,8 @@ class _PermissionItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.textPrimary)),
-                Text(desc, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: context.ssTextPrimary)),
+                Text(desc, style: TextStyle(fontSize: 11, color: context.ssTextSecondary)),
               ],
             ),
           ),

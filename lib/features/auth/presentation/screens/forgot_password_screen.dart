@@ -152,18 +152,18 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           padding: const EdgeInsets.only(left: 14, top: 8),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.92),
+              color: context.ssSurface.withValues(alpha: 0.94),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.12),
+                  color: context.ssPrimary.withValues(alpha: 0.14),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
               ],
             ),
             child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.primary),
+              icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: context.ssPrimary),
               tooltip: 'Back',
               onPressed: _handleBack,
             ),
@@ -214,7 +214,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                       Text(
                         _getStepSubtitle(),
                         style: AppTypography.bodyMedium.copyWith(
-                          color: AppColors.textSecondary,
+                          color: context.ssTextSecondary,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -337,18 +337,18 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              gradient: AppColors.softRomanceGradient,
+              color: context.ssSurfaceVariant,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.romanticRose.withOpacity(0.3)),
+              border: Border.all(color: context.ssAccent.withValues(alpha: 0.4)),
             ),
             child: Row(
               children: [
-                const Icon(Icons.auto_awesome_rounded, color: AppColors.romanticRose, size: 20),
+                Icon(Icons.auto_awesome_rounded, color: context.ssAccent, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Direct OTP Code: $_receivedDevOtp',
-                    style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.textPrimary, fontSize: 13),
+                    style: TextStyle(fontWeight: FontWeight.w700, color: context.ssTextPrimary, fontSize: 13),
                   ),
                 ),
                 TextButton(
@@ -359,7 +359,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                   },
                   style: TextButton.styleFrom(
                     visualDensity: VisualDensity.compact,
-                    foregroundColor: AppColors.romanticRose,
+                    foregroundColor: context.ssAccent,
                   ),
                   child: const Text('Auto-Fill', style: TextStyle(fontWeight: FontWeight.w700)),
                 ),
@@ -458,7 +458,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           const SizedBox(height: 10),
           Text(
             'Your password has been securely updated. You can now log in with your new credentials.',
-            style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+            style: AppTypography.bodyMedium.copyWith(color: context.ssTextSecondary),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 30),

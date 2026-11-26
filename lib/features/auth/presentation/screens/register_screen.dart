@@ -97,18 +97,18 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           padding: const EdgeInsets.only(left: 14, top: 8),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.92),
+              color: context.ssSurface.withValues(alpha: 0.94),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.12),
+                  color: context.ssPrimary.withValues(alpha: 0.14),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
               ],
             ),
             child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.primary),
+              icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: context.ssPrimary),
               tooltip: 'Back',
               onPressed: _handleBack,
             ),
@@ -162,7 +162,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       Text(
                         'Start your shared journey together',
                         style: AppTypography.bodyMedium.copyWith(
-                          color: AppColors.textSecondary,
+                          color: context.ssTextSecondary,
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -255,10 +255,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                                 decoration: BoxDecoration(
-                                  color: _agreedToTerms ? AppColors.primary.withOpacity(0.06) : const Color(0xFFFAF7FF),
+                                  color: _agreedToTerms
+                                      ? context.ssPrimary.withValues(alpha: 0.1)
+                                      : context.ssInputFill,
                                   borderRadius: BorderRadius.circular(14),
                                   border: Border.all(
-                                    color: _agreedToTerms ? AppColors.primary : const Color(0xFFDACDF2),
+                                    color: _agreedToTerms ? context.ssPrimary : context.ssBorder,
                                     width: 1.5,
                                   ),
                                 ),
@@ -271,7 +273,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                         value: _agreedToTerms,
                                         activeColor: AppColors.primary,
                                         checkColor: Colors.white,
-                                        side: const BorderSide(color: AppColors.primary, width: 2),
+                                        side: BorderSide(color: context.ssPrimary, width: 2),
                                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                         onChanged: (v) => setState(() => _agreedToTerms = v ?? false),
                                       ),
@@ -281,7 +283,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                       child: Text(
                                         'I agree to the SoulSync Privacy Policy and Terms of Couple Data Security.',
                                         style: AppTypography.bodySmall.copyWith(
-                                          color: AppColors.textPrimary,
+                                          color: context.ssTextPrimary,
                                           fontWeight: FontWeight.w600,
                                           fontSize: 12.5,
                                         ),
@@ -309,11 +311,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           children: [
                             Text(
                               'Already have an account? ',
-                              style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+                              style: AppTypography.bodyMedium.copyWith(color: context.ssTextSecondary),
                             ),
                             TextButton(
                               onPressed: () => context.go(RouteNames.login),
-                              style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+                              style: TextButton.styleFrom(foregroundColor: context.ssPrimary),
                               child: const Text(
                                 'Sign In',
                                 style: TextStyle(fontWeight: FontWeight.w700),

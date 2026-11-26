@@ -13,6 +13,8 @@ abstract final class RouteNames {
   static const String home = '/home';
   static const String chat = '/chat';
   static const String music = '/music';
+  static const String safety = '/safety';
+  static const String drivingMode = '/safety/driving';
   static const String connect = '/connect';
   static const String together = '/together';
   static const String memories = '/memories';

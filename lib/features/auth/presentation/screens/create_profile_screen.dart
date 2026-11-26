@@ -61,15 +61,15 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                 const SizedBox(height: 32),
                 Text('Set up your profile 💞', style: AppTypography.displayMedium),
                 const SizedBox(height: 8),
-                Text('This is how your partner will see you.', style: AppTypography.bodyLarge.copyWith(color: AppColors.textSecondary)),
+                Text('This is how your partner will see you.', style: AppTypography.bodyLarge.copyWith(color: context.ssTextSecondary)),
                 const SizedBox(height: 40),
                 Center(
                   child: Stack(
                     children: [
                       CircleAvatar(
                         radius: 52,
-                        backgroundColor: AppColors.surfaceVariant,
-                        child: const Icon(Icons.person_rounded, size: 56, color: AppColors.textHint),
+                        backgroundColor: context.ssSurfaceVariant,
+                        child: Icon(Icons.person_rounded, size: 56, color: context.ssTextHint),
                       ),
                       Positioned(
                         bottom: 0,

@@ -26,13 +26,18 @@ class SoulSyncButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final spinnerColor = (variant == SoulSyncButtonVariant.outlined ||
+            variant == SoulSyncButtonVariant.ghost)
+        ? context.ssPrimary
+        : Colors.white;
+
     final child = isLoading
-        ? const SizedBox(
+        ? SizedBox(
             width: 22,
             height: 22,
             child: CircularProgressIndicator(
               strokeWidth: 2.5,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              valueColor: AlwaysStoppedAnimation<Color>(spinnerColor),
             ),
           )
         : Row(
@@ -42,7 +47,14 @@ class SoulSyncButton extends StatelessWidget {
                 Icon(icon, size: 20),
                 const SizedBox(width: 8),
               ],
-              Text(label, style: AppTypography.labelLarge),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.labelLarge,
+                ),
+              ),
             ],
           );
 

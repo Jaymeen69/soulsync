@@ -43,21 +43,29 @@ class _RomanticBackgroundState extends State<RomanticBackground>
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = widget.primaryGlowColor ?? AppColors.romanticRose;
+    final isDark = context.ssIsDark;
+    final primaryColor = widget.primaryGlowColor ??
+        (isDark ? AppColors.primaryLight : AppColors.romanticRose);
     final secondaryColor = widget.secondaryGlowColor ?? AppColors.primary;
 
     return Stack(
       children: [
-        // 1. Soft romantic multi-tone base gradient
+        // 1. Soft romantic multi-tone base gradient (adapts cleanly to Light/Dark)
         Positioned.fill(
           child: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  Color(0xFFFFF6F9),
-                  Color(0xFFF9F3FF),
-                  Color(0xFFF6F9FF),
-                ],
+                colors: isDark
+                    ? const [
+                        Color(0xFF0F0A1E),
+                        Color(0xFF170F2E),
+                        Color(0xFF1E1138),
+                      ]
+                    : const [
+                        Color(0xFFFFF6F9),
+                        Color(0xFFF9F3FF),
+                        Color(0xFFF6F9FF),
+                      ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),

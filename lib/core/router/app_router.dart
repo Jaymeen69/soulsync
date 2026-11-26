@@ -16,6 +16,8 @@ import '../../features/memories/presentation/screens/memories_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/chat/presentation/screens/chat_screen.dart';
 import '../../features/music/presentation/screens/listen_together_screen.dart';
+import '../../features/safety/presentation/screens/distance_between_us_screen.dart';
+import '../../features/safety/presentation/screens/driving_mode_screen.dart';
 import '../../shared/widgets/main_scaffold.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 
@@ -97,6 +99,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RouteNames.music,
         builder: (context, state) => const ListenTogetherScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.safety,
+        builder: (context, state) => const DistanceBetweenUsScreen(),
+      ),
+      GoRoute(
+        path: RouteNames.drivingMode,
+        builder: (context, state) => const DrivingModeScreen(),
       ),
       // Main shell with bottom navigation
       ShellRoute(

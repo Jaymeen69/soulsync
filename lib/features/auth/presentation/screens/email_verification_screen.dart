@@ -172,18 +172,18 @@ class _EmailVerificationScreenState extends ConsumerState<EmailVerificationScree
           padding: const EdgeInsets.only(left: 14, top: 8),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.92),
+              color: context.ssSurface.withValues(alpha: 0.94),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.12),
+                  color: context.ssPrimary.withValues(alpha: 0.14),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
               ],
             ),
             child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.primary),
+              icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: context.ssPrimary),
               tooltip: 'Back',
               onPressed: _handleBack,
             ),
@@ -230,7 +230,7 @@ class _EmailVerificationScreenState extends ConsumerState<EmailVerificationScree
                     const SizedBox(height: 8),
                     Text(
                       'Enter the 6-digit code sent to\n$displayEmail',
-                      style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+                      style: AppTypography.bodyMedium.copyWith(color: context.ssTextSecondary),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 24),
@@ -243,25 +243,25 @@ class _EmailVerificationScreenState extends ConsumerState<EmailVerificationScree
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                               decoration: BoxDecoration(
-                                gradient: AppColors.softRomanceGradient,
+                                color: context.ssSurfaceVariant,
                                 borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: AppColors.romanticRose.withOpacity(0.3)),
+                                border: Border.all(color: context.ssAccent.withValues(alpha: 0.4)),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.auto_awesome_rounded, color: AppColors.romanticRose, size: 20),
+                                  Icon(Icons.auto_awesome_rounded, color: context.ssAccent, size: 20),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
                                       'Direct Code: $_devOtp',
-                                      style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.textPrimary, fontSize: 13),
+                                      style: TextStyle(fontWeight: FontWeight.w700, color: context.ssTextPrimary, fontSize: 13),
                                     ),
                                   ),
                                   TextButton(
                                     onPressed: () => _fillOtp(_devOtp!),
                                     style: TextButton.styleFrom(
                                       visualDensity: VisualDensity.compact,
-                                      foregroundColor: AppColors.romanticRose,
+                                      foregroundColor: context.ssAccent,
                                     ),
                                     child: const Text('Auto-Fill', style: TextStyle(fontWeight: FontWeight.w700)),
                                   ),
@@ -326,23 +326,23 @@ class _EmailVerificationScreenState extends ConsumerState<EmailVerificationScree
                                   keyboardType: TextInputType.number,
                                   textAlign: TextAlign.center,
                                   maxLength: 1,
-                                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.primary),
+                                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: context.ssPrimary),
                                   decoration: InputDecoration(
                                     counterText: '',
                                     filled: true,
-                                    fillColor: const Color(0xFFFAF7FF),
+                                    fillColor: context.ssInputFill,
                                     contentPadding: EdgeInsets.zero,
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
-                                      borderSide: const BorderSide(color: Color(0xFFDACDF2), width: 1.5),
+                                      borderSide: BorderSide(color: context.ssBorder, width: 1.5),
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
-                                      borderSide: const BorderSide(color: Color(0xFFDACDF2), width: 1.5),
+                                      borderSide: BorderSide(color: context.ssBorder, width: 1.5),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
-                                      borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                                      borderSide: BorderSide(color: context.ssPrimary, width: 2),
                                     ),
                                   ),
                                   onChanged: (val) {
@@ -373,7 +373,7 @@ class _EmailVerificationScreenState extends ConsumerState<EmailVerificationScree
                             children: [
                               Text(
                                 _resendCountdown > 0 ? 'Resend code in ${_resendCountdown}s' : 'Didn\'t receive the code? ',
-                                style: AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
+                                style: AppTypography.bodySmall.copyWith(color: context.ssTextSecondary),
                               ),
                               if (_resendCountdown == 0)
                                 GestureDetector(
@@ -381,7 +381,7 @@ class _EmailVerificationScreenState extends ConsumerState<EmailVerificationScree
                                   child: Text(
                                     'Resend OTP',
                                     style: AppTypography.bodySmall.copyWith(
-                                      color: AppColors.primary,
+                                      color: context.ssPrimary,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
@@ -395,7 +395,7 @@ class _EmailVerificationScreenState extends ConsumerState<EmailVerificationScree
 
                     TextButton(
                       onPressed: () => context.go(RouteNames.login),
-                      style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+                      style: TextButton.styleFrom(foregroundColor: context.ssPrimary),
                       child: const Text('Back to Sign In', style: TextStyle(fontWeight: FontWeight.w600)),
                     ),
                   ],

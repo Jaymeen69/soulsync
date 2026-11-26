@@ -102,7 +102,7 @@ class _TogetherScreenState extends ConsumerState<TogetherScreen> {
     final partnerName = user?.partnerName ?? 'Partner';
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.ssBg,
       appBar: AppBar(
         title: const Text('Together 🎮'),
         centerTitle: true,
@@ -260,9 +260,9 @@ class _TogetherScreenState extends ConsumerState<TogetherScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.ssSurface,
                 borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: AppColors.primary.withOpacity(0.1)),
+                border: Border.all(color: context.ssBorder),
               ),
               child: Column(
                 children: [
@@ -273,13 +273,13 @@ class _TogetherScreenState extends ConsumerState<TogetherScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: _isTimerRunning ? AppColors.success.withOpacity(0.15) : AppColors.surfaceVariant,
+                          color: _isTimerRunning ? AppColors.success.withValues(alpha: 0.15) : context.ssSurfaceVariant,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           _isTimerRunning ? '$partnerName Connected 🟢' : 'Idle',
                           style: TextStyle(
-                            color: _isTimerRunning ? AppColors.success : AppColors.textSecondary,
+                            color: _isTimerRunning ? AppColors.success : context.ssTextSecondary,
                             fontWeight: FontWeight.w600,
                             fontSize: 11,
                           ),
@@ -404,11 +404,11 @@ class _GameTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.ssSurface,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: color.withValues(alpha: 0.25)),
           boxShadow: [
-            BoxShadow(color: color.withOpacity(0.06), blurRadius: 8, offset: const Offset(0, 3)),
+            BoxShadow(color: color.withValues(alpha: 0.06), blurRadius: 8, offset: const Offset(0, 3)),
           ],
         ),
         child: Column(
@@ -598,10 +598,11 @@ class _PlayGameDialogState extends ConsumerState<_PlayGameDialog> {
             else ...[
               TextField(
                 controller: _customAnsCtrl,
+                style: TextStyle(color: context.ssTextPrimary),
                 decoration: InputDecoration(
                   hintText: 'Enter your answer...',
                   filled: true,
-                  fillColor: AppColors.surfaceVariant,
+                  fillColor: context.ssSurfaceVariant,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                 ),
               ),
@@ -674,15 +675,15 @@ class _PlayGameDialogState extends ConsumerState<_PlayGameDialog> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isSel ? AppColors.primary : AppColors.surfaceVariant,
+          color: isSel ? AppColors.primary : context.ssSurfaceVariant,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: isSel ? AppColors.primary : Colors.transparent),
+          border: Border.all(color: isSel ? AppColors.primary : context.ssBorder),
         ),
         child: Text(
           text,
           style: TextStyle(
-            color: isSel ? Colors.white : AppColors.textPrimary,
-            fontWeight: isSel ? FontWeight.bold : FontWeight.w500,
+            color: isSel ? Colors.white : context.ssTextPrimary,
+            fontWeight: isSel ? FontWeight.bold : FontWeight.w600,
             fontSize: 13,
           ),
         ),
