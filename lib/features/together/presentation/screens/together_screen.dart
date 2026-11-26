@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/router/route_names.dart';
 import '../../../../shared/widgets/soulsync_button.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 
@@ -205,7 +207,49 @@ class _TogetherScreenState extends ConsumerState<TogetherScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 20),
+
+            // Listen Together Music Room Card
+            InkWell(
+              onTap: () => context.push(RouteNames.music),
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF3E1866), Color(0xFFE94057)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(color: const Color(0xFFE94057).withOpacity(0.25), blurRadius: 14, offset: const Offset(0, 6)),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    const CircleAvatar(
+                      radius: 22,
+                      backgroundColor: Colors.white24,
+                      child: Icon(Icons.music_note_rounded, color: Colors.white, size: 24),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Listen Together Music Room 🎧', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w800)),
+                          const SizedBox(height: 2),
+                          Text('Open private synchronized YouTube room with $partnerName', style: TextStyle(color: Colors.white.withOpacity(0.88), fontSize: 11)),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.play_circle_fill_rounded, color: Colors.white, size: 28),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
 
             // Together Mode Live Session Timer
             Text('Together Mode (Synchronized)', style: AppTypography.headlineSmall),

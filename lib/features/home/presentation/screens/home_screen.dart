@@ -681,6 +681,56 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 16),
+
+                // Listen Together Music Shortcut Card
+                InkWell(
+                  onTap: () => context.push(RouteNames.music),
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF2B144D), Color(0xFF8A2387), Color(0xFFE94057)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(color: const Color(0xFF8A2387).withOpacity(0.25), blurRadius: 12, offset: const Offset(0, 5)),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.headphones_rounded, color: Colors.white, size: 24),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Listen Together 🎵',
+                                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800),
+                              ),
+                              Text(
+                                'Two Hearts, One Song • Sync music live with $partnerName',
+                                style: TextStyle(color: Colors.white.withOpacity(0.88), fontSize: 11),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 16),
+                      ],
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 24),
 
                 // Recent Memories Section (Section 7 Fix: Clickable & Fully Functional)

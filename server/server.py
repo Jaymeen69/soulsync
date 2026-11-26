@@ -5,13 +5,92 @@ import string
 import re
 import hashlib
 import smtplib
+import threading
+import music_module
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from urllib.parse import urlparse, parse_qs
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
+from urllib.parse import urlparse, parse_qs, urlencode
+import urllib.request
+import urllib.error
 from datetime import datetime, timedelta
 
-DB_FILE = os.path.join(os.path.dirname(__file__), "database.json")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_FILE = os.path.join(BASE_DIR, "database.json")
+ENV_FILE = os.path.join(BASE_DIR, ".env")
+
+def _load_local_env():
+    """Load key=value pairs from backend .env file into process env without logging secrets."""
+    if not os.path.exists(ENV_FILE):
+        return
+    try:
+        with open(ENV_FILE, "r", encoding="utf-8") as f:
+            for raw_line in f:
+                line = raw_line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                k, v = line.split("=", 1)
+                k = k.strip()
+                v = v.strip().strip('"').strip("'")
+                if k and v:
+                    os.environ[k] = v
+    except Exception:
+        pass
+
+_load_local_env()
+
+def get_youtube_api_key():
+    """Return configured YouTube Data API v3 key from env/.env, or None if missing/placeholder."""
+    _load_local_env()
+    key = (os.environ.get("YOUTUBE_API_KEY") or "").strip()
+    if not key or key == "PASTE_YOUR_YOUTUBE_API_KEY_HERE":
+        return None
+    return key
+
+def verify_youtube_api_connection():
+    """Test YouTube Data API v3 connectivity (1 quota unit) without returning or logging the secret."""
+    api_key = get_youtube_api_key()
+    if not api_key:
+        return {
+            "configured": False,
+            "connected": False,
+            "message": "YOUTUBE_API_KEY is not set in backend .env yet."
+        }
+    params = urlencode({"part": "snippet", "id": "dQw4w9WgXcQ", "key": api_key})
+    url = f"https://www.googleapis.com/youtube/v3/videos?{params}"
+    try:
+        req = urllib.request.Request(url, method="GET")
+        with urllib.request.urlopen(req, timeout=6) as resp:
+            body = json.loads(resp.read().decode("utf-8"))
+            items = body.get("items", [])
+            return {
+                "configured": True,
+                "connected": resp.status == 200,
+                "items_found": len(items),
+                "message": "YouTube Data API v3 connection verified successfully (secret kept private on backend)."
+            }
+    except urllib.error.HTTPError as e:
+        err_text = ""
+        try:
+            err_json = json.loads(e.read().decode("utf-8"))
+            err_text = err_json.get("error", {}).get("message", f"HTTP {e.code}")
+        except Exception:
+            err_text = f"HTTP {e.code}"
+        # Redact key if ever echoed in error message
+        err_text = err_text.replace(api_key, "[REDACTED]")
+        return {
+            "configured": True,
+            "connected": False,
+            "status_code": e.code,
+            "message": f"YouTube API rejected request: {err_text}"
+        }
+    except Exception as e:
+        safe_msg = str(e).replace(api_key, "[REDACTED]")
+        return {
+            "configured": True,
+            "connected": False,
+            "message": f"Connection error: {safe_msg}"
+        }
 
 # 7 Games Built-in Question & Prompt Banks
 
@@ -156,10 +235,16 @@ def _ensure_db_structure(db):
         db["admin_sessions"] = {}
     if "admin_login_logs" not in db:
         db["admin_login_logs"] = []
+    music_module.ensure_music_db(db)
+
+DB_LOCK = threading.RLock()
 
 def save_db(db):
-    with open(DB_FILE, "w", encoding="utf-8") as f:
-        json.dump(db, f, indent=2, ensure_ascii=False)
+    with DB_LOCK:
+        tmp_path = DB_FILE + ".tmp"
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            json.dump(db, f, indent=2, ensure_ascii=False)
+        os.replace(tmp_path, DB_FILE)
 
 def hash_pw(pw):
     return hashlib.sha256(pw.encode("utf-8")).hexdigest()
@@ -693,6 +778,21 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
                 "delivery_success_rate": "99.8%"
             }).encode("utf-8"))
 
+        elif path.startswith("/api/music/") or path.startswith("/api/admin/music/"):
+            if music_module.handle_music_get(
+                self,
+                path,
+                query,
+                load_db,
+                save_db,
+                get_youtube_api_key,
+                verify_youtube_api_connection,
+                verify_admin_session,
+            ):
+                return
+            self._set_headers(404)
+            self.wfile.write(json.dumps({"error": "Endpoint not found"}).encode("utf-8"))
+
         else:
             self._set_headers(404)
             self.wfile.write(json.dumps({"error": "Endpoint not found"}).encode("utf-8"))
@@ -707,7 +807,7 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
 
         # 0A. DEDICATED ADMIN LOGIN
         if path == "/api/admin/login":
-            email_or_id = (data.get("email") or data.get("admin_id") or data.get("username") or "").strip().lower()
+            email_or_id = (data.get("email") or data.get("admin_id") or data.get("email_or_id") or data.get("username") or "").strip().lower()
             password = data.get("password") or ""
             ip = self.client_address[0] if self.client_address else "127.0.0.1"
 
@@ -1880,11 +1980,24 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
             self._set_headers(200)
             self.wfile.write(json.dumps({"status": "success"}).encode("utf-8"))
 
+        elif path.startswith("/api/music/") or path.startswith("/api/admin/music/"):
+            if music_module.handle_music_post(
+                self,
+                path,
+                data,
+                load_db,
+                save_db,
+                verify_admin_session,
+            ):
+                return
+            self._set_headers(404)
+            self.wfile.write(json.dumps({"error": "Unknown POST route"}).encode("utf-8"))
+
         else:
             self._set_headers(404)
             self.wfile.write(json.dumps({"error": "Unknown POST route"}).encode("utf-8"))
 
 if __name__ == "__main__":
     print("Serving SoulSync Master API on http://0.0.0.0:8089...")
-    server = HTTPServer(("0.0.0.0", 8089), SoulSyncAPIHandler)
+    server = ThreadingHTTPServer(("0.0.0.0", 8089), SoulSyncAPIHandler)
     server.serve_forever()
