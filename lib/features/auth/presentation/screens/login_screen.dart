@@ -10,6 +10,7 @@ import '../../../../shared/widgets/soulsync_button.dart';
 import '../../../../shared/widgets/soulsync_text_field.dart';
 import '../../../../shared/utils/validators.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/social_connect_sheet.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -68,8 +69,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (error.contains('Email not confirmed') || error.contains('verify')) {
       return 'Please verify your email first before logging in.';
     }
-    if (error.contains('network') || error.contains('Failed host lookup')) {
-      return 'Connection error. Please check your network connection.';
+    if (error.contains('SocketException') ||
+        error.contains('Connection refused') ||
+        error.contains('TimeoutException') ||
+        error.contains('network') ||
+        error.contains('Failed host lookup')) {
+      return 'Cannot reach SoulSync server (${AuthNotifier.apiBaseUrl}). Ensure your phone & server are on the same Wi-Fi or tap the server icon above.';
     }
     return error.replaceFirst('Exception: ', '');
   }
@@ -111,6 +116,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ),
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 14, top: 8),
+            child: IconButton(
+              icon: Icon(Icons.dns_outlined, size: 20, color: context.ssTextSecondary),
+              tooltip: 'Server Connection',
+              onPressed: () => showServerUrlDialog(context),
+            ),
+          ),
+        ],
       ),
       body: RomanticBackground(
         child: SafeArea(
@@ -251,6 +266,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             onPressed: _login,
                             isLoading: _isLoading,
                           ),
+                          const SizedBox(height: 18),
+                          const SocialAuthButtons(),
                         ],
                       ),
                     ),

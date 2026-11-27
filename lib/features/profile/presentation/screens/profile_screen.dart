@@ -168,6 +168,128 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
+  void _showSocialAccountsDialog(SoulSyncUser user) {
+    final accountCtrl = TextEditingController();
+    String selectedProvider = 'google';
+    bool isSaving = false;
+    String? dlgError;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDlgState) {
+          final currentUser = ref.read(currentUserProvider) ?? user;
+          final linked = currentUser.socialAccounts;
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: const Text('Connected Social Accounts 🔗', style: TextStyle(fontWeight: FontWeight.bold)),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (dlgError != null) ...[
+                    Text(dlgError!, style: const TextStyle(color: AppColors.error, fontSize: 12)),
+                    const SizedBox(height: 8),
+                  ],
+                  if (linked.isEmpty && (currentUser.socialAccount == null || currentUser.socialAccount!.isEmpty))
+                    const Text('No social accounts linked yet.', style: TextStyle(fontSize: 13))
+                  else ...[
+                    ...linked.map((a) {
+                      final prov = (a['provider'] ?? 'social').toString();
+                      final acc = (a['account'] ?? '').toString();
+                      return ListTile(
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.link_rounded, color: AppColors.primary),
+                        title: Text(prov[0].toUpperCase() + prov.substring(1), style: const TextStyle(fontWeight: FontWeight.w600)),
+                        subtitle: Text(acc, style: const TextStyle(fontSize: 12)),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.link_off_rounded, color: AppColors.error, size: 19),
+                          onPressed: isSaving
+                              ? null
+                              : () async {
+                                  setDlgState(() => isSaving = true);
+                                  try {
+                                    await ref.read(authRepositoryProvider).updateSocialAccount(
+                                          action: 'disconnect',
+                                          provider: prov,
+                                        );
+                                    setDlgState(() => isSaving = false);
+                                  } catch (e) {
+                                    setDlgState(() {
+                                      isSaving = false;
+                                      dlgError = e.toString().replaceFirst('Exception: ', '');
+                                    });
+                                  }
+                                },
+                        ),
+                      );
+                    }),
+                  ],
+                  const Divider(height: 20),
+                  DropdownButtonFormField<String>(
+                    value: selectedProvider,
+                    decoration: const InputDecoration(labelText: 'Provider', isDense: true),
+                    items: const [
+                      DropdownMenuItem(value: 'google', child: Text('Google')),
+                      DropdownMenuItem(value: 'apple', child: Text('Apple')),
+                      DropdownMenuItem(value: 'instagram', child: Text('Instagram')),
+                      DropdownMenuItem(value: 'facebook', child: Text('Facebook')),
+                      DropdownMenuItem(value: 'other', child: Text('Other')),
+                    ],
+                    onChanged: (v) => setDlgState(() => selectedProvider = v ?? 'google'),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: accountCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Account Email or Handle',
+                      hintText: 'name@gmail.com or @username',
+                      isDense: true,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close')),
+              ElevatedButton(
+                onPressed: isSaving
+                    ? null
+                    : () async {
+                        if (accountCtrl.text.trim().isEmpty) {
+                          setDlgState(() => dlgError = 'Please enter your social email or handle.');
+                          return;
+                        }
+                        setDlgState(() {
+                          isSaving = true;
+                          dlgError = null;
+                        });
+                        try {
+                          await ref.read(authRepositoryProvider).updateSocialAccount(
+                                action: 'connect',
+                                provider: selectedProvider,
+                                account: accountCtrl.text.trim(),
+                              );
+                          accountCtrl.clear();
+                          setDlgState(() => isSaving = false);
+                        } catch (e) {
+                          setDlgState(() {
+                            isSaving = false;
+                            dlgError = e.toString().replaceFirst('Exception: ', '');
+                          });
+                        }
+                      },
+                child: Text(isSaving ? 'Saving...' : 'Connect'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
   void _showChangeEmailDialog(SoulSyncUser user) {
     final emailCtrl = TextEditingController();
     final otpCtrl = TextEditingController();
@@ -831,6 +953,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             const SizedBox(height: 20),
 
             // Settings Tiles & Actions
+            _SettingsTile(
+              icon: Icons.hub_outlined,
+              title: 'Connected Social Accounts',
+              subtitle: (user?.socialAccount != null && user!.socialAccount!.isNotEmpty)
+                  ? '${user.socialProvider?.toUpperCase() ?? 'SOCIAL'}: ${user.socialAccount}'
+                  : 'Connect Google or other social accounts',
+              onTap: () {
+                if (user != null) _showSocialAccountsDialog(user);
+              },
+            ),
             _SettingsTile(
               icon: Icons.mark_email_read_outlined,
               title: 'Change Email',

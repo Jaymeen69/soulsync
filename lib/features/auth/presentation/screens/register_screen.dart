@@ -10,6 +10,7 @@ import '../../../../shared/widgets/soulsync_button.dart';
 import '../../../../shared/widgets/soulsync_text_field.dart';
 import '../../../../shared/utils/validators.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/social_connect_sheet.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -25,6 +26,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _confirmPasswordCtrl = TextEditingController();
+  final _socialAccountCtrl = TextEditingController();
+  String? _selectedSocialProvider;
   bool _isLoading = false;
   String? _errorMessage;
   bool _agreedToTerms = false;
@@ -36,6 +39,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
     _confirmPasswordCtrl.dispose();
+    _socialAccountCtrl.dispose();
     super.dispose();
   }
 
@@ -66,6 +70,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         password: _passwordCtrl.text,
         displayName: _nameCtrl.text.trim(),
         partnerName: _partnerCtrl.text.trim().isEmpty ? 'Partner' : _partnerCtrl.text.trim(),
+        socialProvider: _selectedSocialProvider,
+        socialAccount: _socialAccountCtrl.text.trim(),
       );
 
       if (mounted) {
@@ -76,7 +82,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         );
       }
     } catch (e) {
-      setState(() => _errorMessage = e.toString().replaceFirst('Exception: ', ''));
+      final raw = e.toString().replaceFirst('Exception: ', '');
+      final friendly = (raw.contains('SocketException') ||
+              raw.contains('Connection refused') ||
+              raw.contains('TimeoutException'))
+          ? 'Cannot reach SoulSync server (${AuthNotifier.apiBaseUrl}). Ensure your phone & server are on the same Wi-Fi or tap the server icon above.'
+          : raw;
+      setState(() => _errorMessage = friendly);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -111,6 +123,16 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             ),
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 14, top: 8),
+            child: IconButton(
+              icon: Icon(Icons.dns_outlined, size: 20, color: context.ssTextSecondary),
+              tooltip: 'Server Connection',
+              onPressed: () => showServerUrlDialog(context),
+            ),
+          ),
+        ],
       ),
       body: RomanticBackground(
         child: SafeArea(
@@ -241,9 +263,58 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               obscureText: true,
                               validator: (v) => Validators.confirmPassword(v, _passwordCtrl.text),
                               prefixIcon: Icons.lock_clock_outlined,
-                              textInputAction: TextInputAction.done,
-                              onSubmitted: (_) => _register(),
+                              textInputAction: TextInputAction.next,
                             ),
+                            const SizedBox(height: 16),
+
+                            // Optional Social Account Field (Google / Apple / Instagram / Other)
+                            Text(
+                              'Social Account (Optional)',
+                              style: AppTypography.labelLarge.copyWith(
+                                color: context.ssTextPrimary,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 6,
+                              children: kSocialProviders.map((p) {
+                                final id = p['id'] as String;
+                                final selected = _selectedSocialProvider == id;
+                                return ChoiceChip(
+                                  avatar: Icon(
+                                    p['icon'] as IconData,
+                                    size: 16,
+                                    color: selected ? Colors.white : context.ssPrimary,
+                                  ),
+                                  label: Text(p['label'] as String),
+                                  selected: selected,
+                                  selectedColor: AppColors.primary,
+                                  labelStyle: TextStyle(
+                                    color: selected ? Colors.white : context.ssTextPrimary,
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  backgroundColor: context.ssInputFill,
+                                  onSelected: (val) => setState(() {
+                                    _selectedSocialProvider = val ? id : null;
+                                  }),
+                                );
+                              }).toList(),
+                            ),
+                            if (_selectedSocialProvider != null) ...[
+                              const SizedBox(height: 12),
+                              SoulSyncTextField(
+                                label: '${_selectedSocialProvider![0].toUpperCase()}${_selectedSocialProvider!.substring(1)} Account',
+                                hint: 'e.g. your.name@gmail.com or @handle',
+                                controller: _socialAccountCtrl,
+                                prefixIcon: Icons.alternate_email_rounded,
+                                textInputAction: TextInputAction.done,
+                                onSubmitted: (_) => _register(),
+                              ),
+                            ],
                             const SizedBox(height: 16),
 
                             InkWell(
@@ -297,6 +368,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               onPressed: _register,
                               isLoading: _isLoading,
                             ),
+                            const SizedBox(height: 18),
+                            const SocialAuthButtons(),
                           ],
                         ),
                       ),

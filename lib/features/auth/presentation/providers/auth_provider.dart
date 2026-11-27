@@ -28,6 +28,9 @@ class SoulSyncUser {
     this.inviteCode,
     this.relationshipStartDate,
     this.isEmailVerified = true,
+    this.socialProvider,
+    this.socialAccount,
+    this.socialAccounts = const [],
   });
 
   final String id;
@@ -39,6 +42,9 @@ class SoulSyncUser {
   final String? inviteCode;
   final DateTime? relationshipStartDate;
   final bool isEmailVerified;
+  final String? socialProvider;
+  final String? socialAccount;
+  final List<Map<String, dynamic>> socialAccounts;
 
   bool get isConnectedToPartner => coupleId != null && coupleId!.isNotEmpty;
 
@@ -52,6 +58,9 @@ class SoulSyncUser {
         'inviteCode': inviteCode,
         'relationshipStartDate': relationshipStartDate?.toIso8601String(),
         'isEmailVerified': isEmailVerified,
+        'social_provider': socialProvider,
+        'social_account': socialAccount,
+        'social_accounts': socialAccounts,
       };
 
   factory SoulSyncUser.fromJson(Map<String, dynamic> json) => SoulSyncUser(
@@ -66,6 +75,12 @@ class SoulSyncUser {
             ? DateTime.tryParse(json['relationshipStartDate'] as String)
             : null,
         isEmailVerified: json['isEmailVerified'] as bool? ?? json['is_verified'] as bool? ?? false,
+        socialProvider: json['social_provider'] as String? ?? json['socialProvider'] as String?,
+        socialAccount: json['social_account'] as String? ?? json['socialAccount'] as String?,
+        socialAccounts: (json['social_accounts'] as List<dynamic>?)
+                ?.map((e) => Map<String, dynamic>.from(e as Map))
+                .toList() ??
+            const [],
       );
 
   SoulSyncUser copyWith({
@@ -77,6 +92,9 @@ class SoulSyncUser {
     String? inviteCode,
     DateTime? relationshipStartDate,
     bool? isEmailVerified,
+    String? socialProvider,
+    String? socialAccount,
+    List<Map<String, dynamic>>? socialAccounts,
   }) {
     return SoulSyncUser(
       id: id,
@@ -88,6 +106,9 @@ class SoulSyncUser {
       inviteCode: inviteCode ?? this.inviteCode,
       relationshipStartDate: relationshipStartDate ?? this.relationshipStartDate,
       isEmailVerified: isEmailVerified ?? this.isEmailVerified,
+      socialProvider: socialProvider ?? this.socialProvider,
+      socialAccount: socialAccount ?? this.socialAccount,
+      socialAccounts: socialAccounts ?? this.socialAccounts,
     );
   }
 }
@@ -99,21 +120,45 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
   }
 
   static const String _userPrefsKey = 'soulsync_current_user';
+  static const String _serverUrlPrefsKey = 'soulsync_server_url';
+  static const String defaultMobileBaseUrl = 'http://192.168.1.13:8089';
+  static String? _customServerUrl;
 
   /// Primary API URL for central backend shared by Mobile App and Admin Panel
   static String get apiBaseUrl {
+    if (_customServerUrl != null && _customServerUrl!.isNotEmpty) {
+      return _customServerUrl!;
+    }
+    const envUrl = String.fromEnvironment('API_BASE_URL');
+    if (envUrl.isNotEmpty) return envUrl;
     if (kIsWeb) return 'http://127.0.0.1:8089';
     try {
-      if (Platform.isAndroid) {
-        return 'http://127.0.0.1:8089';
+      if (Platform.isAndroid || Platform.isIOS) {
+        return defaultMobileBaseUrl;
       }
     } catch (_) {}
     return 'http://127.0.0.1:8089';
   }
 
+  static Future<void> setServerUrl(String url) async {
+    final clean = url.trim().replaceAll(RegExp(r'/+$'), '');
+    final prefs = await SharedPreferences.getInstance();
+    if (clean.isEmpty) {
+      _customServerUrl = null;
+      await prefs.remove(_serverUrlPrefsKey);
+    } else {
+      _customServerUrl = clean;
+      await prefs.setString(_serverUrlPrefsKey, clean);
+    }
+  }
+
   Future<void> _loadInitialUser() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      final savedUrl = prefs.getString(_serverUrlPrefsKey);
+      if (savedUrl != null && savedUrl.isNotEmpty) {
+        _customServerUrl = savedUrl;
+      }
       final userDataStr = prefs.getString(_userPrefsKey);
       if (userDataStr != null) {
         final map = jsonDecode(userDataStr) as Map<String, dynamic>;
@@ -133,6 +178,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
     required String password,
     required String displayName,
     String partnerName = 'Partner',
+    String? socialProvider,
+    String? socialAccount,
   }) async {
     final cleanEmail = email.trim().toLowerCase();
     final cleanName = displayName.trim();
@@ -146,9 +193,13 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
             'email': cleanEmail,
             'password': password,
             'partner': partnerName,
+            if (socialProvider != null && socialProvider.isNotEmpty)
+              'social_provider': socialProvider.trim().toLowerCase(),
+            if (socialAccount != null && socialAccount.isNotEmpty)
+              'social_account': socialAccount.trim(),
           }),
         )
-        .timeout(const Duration(seconds: 15));
+        .timeout(const Duration(seconds: 25));
 
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode == 200 || res.statusCode == 201) {
@@ -232,6 +283,76 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
       );
     }
     throw Exception(body['error'] ?? 'Invalid email or password.');
+  }
+
+  /// 4B. Sign in or register with Google / Other Social Account
+  Future<SoulSyncUser> signInWithSocial({
+    required String provider,
+    required String email,
+    String? displayName,
+    String? socialAccount,
+    String? partnerName,
+  }) async {
+    final cleanEmail = email.trim().toLowerCase();
+    final res = await http
+        .post(
+          Uri.parse('$apiBaseUrl/api/auth/social'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'provider': provider.trim().toLowerCase(),
+            'email': cleanEmail,
+            if (displayName != null && displayName.trim().isNotEmpty)
+              'name': displayName.trim(),
+            if (socialAccount != null && socialAccount.trim().isNotEmpty)
+              'social_account': socialAccount.trim(),
+            if (partnerName != null && partnerName.trim().isNotEmpty)
+              'partner': partnerName.trim(),
+          }),
+        )
+        .timeout(const Duration(seconds: 15));
+
+    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    if (res.statusCode == 200 && body['user'] is Map<String, dynamic>) {
+      final user = SoulSyncUser.fromJson(body['user'] as Map<String, dynamic>);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_userPrefsKey, jsonEncode(user.toJson()));
+      state = AsyncValue.data(user);
+      return user;
+    }
+    throw Exception(body['error'] ?? 'Social sign-in failed.');
+  }
+
+  /// 4C. Link or unlink a social account for the current signed-in user
+  Future<SoulSyncUser> updateSocialAccount({
+    required String action, // 'connect' or 'disconnect'
+    required String provider,
+    String account = '',
+  }) async {
+    final user = state.valueOrNull;
+    if (user == null) throw Exception('User not authenticated.');
+
+    final res = await http
+        .post(
+          Uri.parse('$apiBaseUrl/api/account/social-accounts'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'user_id': user.id,
+            'action': action,
+            'provider': provider.trim().toLowerCase(),
+            'account': account.trim(),
+          }),
+        )
+        .timeout(const Duration(seconds: 12));
+
+    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    if (res.statusCode == 200 && body['user'] is Map<String, dynamic>) {
+      final updated = SoulSyncUser.fromJson(body['user'] as Map<String, dynamic>);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_userPrefsKey, jsonEncode(updated.toJson()));
+      state = AsyncValue.data(updated);
+      return updated;
+    }
+    throw Exception(body['error'] ?? 'Failed to update social account.');
   }
 
   /// 5. Forgot Password Request (separate reset challenge)

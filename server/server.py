@@ -913,6 +913,8 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
             email = (data.get("email") or "").strip().lower()
             password = data.get("password") or ""
             partner_name = (data.get("partner") or data.get("partnerName") or "Partner").strip()
+            social_provider = (data.get("social_provider") or "").strip().lower()
+            social_account = (data.get("social_account") or "").strip()
             ip = self.client_address[0] if self.client_address else "127.0.0.1"
 
             if not name or not email or not password or "@" not in email:
@@ -965,6 +967,8 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
                 "email": email,
                 "password_hash": hash_pw(password),
                 "partner_name": partner_name,
+                "social_provider": social_provider,
+                "social_account": social_account,
                 "otp_salt": salt,
                 "otp_hash": digest,
                 "created_at": now.isoformat() + "Z",
@@ -1038,6 +1042,13 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
             # OTP Valid! Activate verified account
             user_id = f"u{len(db['users']) + 1}"
             invite_code = gen_code("SOUL")
+            social_accounts = []
+            if pending.get("social_provider") and pending.get("social_account"):
+                social_accounts.append({
+                    "provider": pending["social_provider"],
+                    "account": pending["social_account"],
+                    "connected_at": datetime.utcnow().isoformat() + "Z"
+                })
             new_user = {
                 "id": user_id,
                 "name": pending["name"],
@@ -1048,6 +1059,9 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
                 "is_active": True,
                 "invite_code": invite_code,
                 "password_hash": pending["password_hash"],
+                "social_provider": pending.get("social_provider") or "",
+                "social_account": pending.get("social_account") or "",
+                "social_accounts": social_accounts,
                 "created_at": datetime.utcnow().isoformat() + "Z",
                 "last_active": "Just now",
                 "source": "Mobile App"
@@ -1195,6 +1209,106 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
                 "status": "success",
                 "message": "Welcome back to SoulSync!",
                 "user": safe_u
+            }).encode("utf-8"))
+
+        # 4B. SOCIAL ACCOUNT LOGIN / SIGNUP (Google / Apple / Other)
+        elif path == "/api/auth/social":
+            provider = (data.get("provider") or "google").strip().lower()
+            email = (data.get("email") or "").strip().lower()
+            name = (data.get("name") or data.get("displayName") or "").strip()
+            social_handle = (data.get("social_account") or email).strip()
+            partner_name = (data.get("partner") or "Partner").strip()
+
+            if not email or "@" not in email:
+                self._set_headers(400)
+                self.wfile.write(json.dumps({"error": "A valid email address for your social account is required."}).encode("utf-8"))
+                return
+
+            if not name:
+                name = email.split("@")[0].replace(".", " ").title()
+
+            existing = [u for u in db["users"] if u.get("email") == email]
+            if existing:
+                u = existing[0]
+                if not u.get("is_active", True):
+                    self._set_headers(403)
+                    self.wfile.write(json.dumps({"error": "Account is disabled. Please contact administrator."}).encode("utf-8"))
+                    return
+                u["is_verified"] = True
+                u["last_active"] = "Just now"
+                if not u.get("invite_code"):
+                    u["invite_code"] = gen_code("SOUL")
+                accounts = u.setdefault("social_accounts", [])
+                if not any(a.get("provider") == provider and a.get("account") == social_handle for a in accounts):
+                    accounts.append({"provider": provider, "account": social_handle, "connected_at": now_iso})
+                u["social_provider"] = provider
+                u["social_account"] = social_handle
+                self.log_audit(db, email, "SOCIAL_LOGIN", provider, f"Signed in via {provider} ({social_handle})")
+                save_db(db)
+                safe_u = dict(u)
+                safe_u.pop("password_hash", None)
+                self._set_headers(200)
+                self.wfile.write(json.dumps({
+                    "status": "success",
+                    "message": f"Signed in with {provider.title()}!",
+                    "user": safe_u
+                }).encode("utf-8"))
+                return
+
+            # Promote pending unverified user if exists, or create new verified user
+            pending = db.get("unverified_users", {}).pop(email, None)
+            user_id = f"u{len(db['users']) + 1}"
+            invite_code = gen_code("SOUL")
+            final_name = pending["name"] if pending else name
+            final_partner = pending["partner_name"] if pending else partner_name
+            pw_hash = pending["password_hash"] if pending else hash_pw(f"social_{provider}_{email}_{now_iso}")
+
+            new_user = {
+                "id": user_id,
+                "name": final_name,
+                "email": email,
+                "partner": final_partner,
+                "role": "Verified App User",
+                "is_verified": True,
+                "is_active": True,
+                "invite_code": invite_code,
+                "password_hash": pw_hash,
+                "social_provider": provider,
+                "social_account": social_handle,
+                "social_accounts": [{"provider": provider, "account": social_handle, "connected_at": now_iso}],
+                "created_at": now_iso,
+                "last_active": "Just now",
+                "source": f"Social ({provider.title()})"
+            }
+            db["users"].insert(0, new_user)
+
+            couple_id = f"c{len(db['couples']) + 1}"
+            new_couple = {
+                "id": couple_id,
+                "name": f"{final_name} & {final_partner}",
+                "p1": final_name,
+                "p2": final_partner,
+                "p1_id": user_id,
+                "p2_id": None,
+                "code": invite_code,
+                "days": 1,
+                "status": "Waiting for Partner",
+                "created_at": now_iso
+            }
+            new_user["couple_id"] = couple_id
+            db["couples"].insert(0, new_couple)
+
+            self.log_audit(db, email, "SOCIAL_REGISTER", provider, f"Registered & verified via {provider} ({social_handle})")
+            save_db(db)
+
+            safe_u = dict(new_user)
+            safe_u.pop("password_hash", None)
+            self._set_headers(200)
+            self.wfile.write(json.dumps({
+                "status": "success",
+                "message": f"Account connected with {provider.title()}!",
+                "user": safe_u,
+                "couple": new_couple
             }).encode("utf-8"))
 
         # 5. FORGOT PASSWORD REQUEST OTP (Separate verification challenge)
@@ -1992,6 +2106,44 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({"status": "success", "user": safe_u}).encode("utf-8"))
 
         # ACCOUNT: REQUEST EMAIL CHANGE OTP (Separate verification challenge)
+        elif path == "/api/account/social-accounts":
+            uid = data.get("user_id")
+            action = (data.get("action") or "connect").strip().lower()
+            provider = (data.get("provider") or "").strip().lower()
+            account = (data.get("account") or "").strip()
+
+            u = next((x for x in db["users"] if x.get("id") == uid), None)
+            if not u:
+                self._set_headers(404)
+                self.wfile.write(json.dumps({"error": "User not found."}).encode("utf-8"))
+                return
+
+            accounts = u.setdefault("social_accounts", [])
+            if action == "disconnect":
+                accounts = [a for a in accounts if a.get("provider") != provider]
+                u["social_accounts"] = accounts
+                if u.get("social_provider") == provider:
+                    u["social_provider"] = accounts[0]["provider"] if accounts else ""
+                    u["social_account"] = accounts[0]["account"] if accounts else ""
+                self.log_audit(db, u.get("email", uid), "SOCIAL_UNLINK", provider, f"Disconnected {provider}")
+            else:
+                if not provider or not account:
+                    self._set_headers(400)
+                    self.wfile.write(json.dumps({"error": "Social provider and account handle/email are required."}).encode("utf-8"))
+                    return
+                accounts = [a for a in accounts if a.get("provider") != provider]
+                accounts.append({"provider": provider, "account": account, "connected_at": now_iso})
+                u["social_accounts"] = accounts
+                u["social_provider"] = provider
+                u["social_account"] = account
+                self.log_audit(db, u.get("email", uid), "SOCIAL_LINK", provider, f"Connected {provider}: {account}")
+
+            save_db(db)
+            safe_u = dict(u)
+            safe_u.pop("password_hash", None)
+            self._set_headers(200)
+            self.wfile.write(json.dumps({"status": "success", "user": safe_u}).encode("utf-8"))
+
         elif path == "/api/account/change-email/request":
             user_id = data.get("user_id")
             new_email = (data.get("new_email") or "").strip().lower()
