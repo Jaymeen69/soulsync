@@ -20,8 +20,8 @@ class ApiConfig {
     defaultValue: '',
   );
 
-  static const String defaultProductionUrl = 'https://soulsync-api.onrender.com';
-  static const String defaultStagingUrl = 'https://soulsync-api-staging.onrender.com';
+  static const String defaultProductionUrl = 'https://soulsync-backend-jaymeen.onrender.com';
+  static const String defaultStagingUrl = 'https://soulsync-backend-staging.onrender.com';
   static const String defaultDevUrl = 'http://127.0.0.1:8089';
 
   static String? _debugOverrideUrl;

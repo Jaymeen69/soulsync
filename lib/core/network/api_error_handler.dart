@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -7,6 +8,32 @@ import 'package:http/http.dart' as http;
 /// Ensures raw technical exceptions, IPs, ports, and endpoints are never shown to users.
 class ApiErrorHandler {
   ApiErrorHandler._();
+
+  /// Safely decodes a JSON object response; throws a clean user-friendly error on HTML/plain-text errors.
+  static Map<String, dynamic> decodeJsonMap(http.Response res) {
+    final trimmed = res.body.trim();
+    if (trimmed.isEmpty) {
+      if (res.statusCode >= 500 || res.statusCode == 401 || res.statusCode == 404) {
+        throw Exception(serverUnavailableMsg);
+      }
+      return <String, dynamic>{};
+    }
+    try {
+      final decoded = jsonDecode(trimmed);
+      if (decoded is Map<String, dynamic>) {
+        return decoded;
+      }
+      throw Exception(serverUnavailableMsg);
+    } on FormatException {
+      if (kDebugMode) {
+        debugPrint('[SoulSync API] Non-JSON HTTP ${res.statusCode} response received.');
+      }
+      if (res.statusCode == 408 || res.statusCode == 504) {
+        throw Exception(timeoutMsg);
+      }
+      throw Exception(serverUnavailableMsg);
+    }
+  }
 
   static const String noInternetMsg =
       'No internet connection. Please check your network and try again.';

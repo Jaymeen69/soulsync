@@ -60,5 +60,15 @@ void main() {
         ApiErrorHandler.otpSendFailedMsg,
       );
     });
+
+    test('decodeJsonMap handles non-JSON 401 Unauthorized without FormatException', () {
+      final res = http.Response('Unauthorized', 401);
+      expect(
+        () => ApiErrorHandler.decodeJsonMap(res),
+        throwsA(predicate((e) => e.toString().contains(ApiErrorHandler.serverUnavailableMsg))),
+      );
+      final ok = ApiErrorHandler.decodeJsonMap(http.Response('{"status":"ok"}', 200));
+      expect(ok['status'], 'ok');
+    });
   });
 }

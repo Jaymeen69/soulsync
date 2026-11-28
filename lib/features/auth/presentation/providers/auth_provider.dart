@@ -174,7 +174,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
         )
         .timeout(const Duration(seconds: 25));
 
-    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode == 200 || res.statusCode == 201) {
       return body;
     }
@@ -195,7 +195,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
         )
         .timeout(const Duration(seconds: 10));
 
-    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode == 200 && body['user'] is Map<String, dynamic>) {
       return SoulSyncUser.fromJson(body['user'] as Map<String, dynamic>);
     }
@@ -213,7 +213,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
         )
         .timeout(const Duration(seconds: 15));
 
-    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode == 200) {
       return body;
     }
@@ -235,7 +235,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
         )
         .timeout(const Duration(seconds: 10));
 
-    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode == 200 && body['user'] is Map<String, dynamic>) {
       final user = SoulSyncUser.fromJson(body['user'] as Map<String, dynamic>);
       if (!user.isEmailVerified) {
@@ -284,7 +284,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
         )
         .timeout(const Duration(seconds: 15));
 
-    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode == 200 && body['user'] is Map<String, dynamic>) {
       final user = SoulSyncUser.fromJson(body['user'] as Map<String, dynamic>);
       final prefs = await SharedPreferences.getInstance();
@@ -317,7 +317,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
         )
         .timeout(const Duration(seconds: 12));
 
-    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode == 200 && body['user'] is Map<String, dynamic>) {
       final updated = SoulSyncUser.fromJson(body['user'] as Map<String, dynamic>);
       final prefs = await SharedPreferences.getInstance();
@@ -338,7 +338,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
           body: jsonEncode({'email': cleanEmail}),
         )
         .timeout(const Duration(seconds: 15));
-    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode == 200) {
       return body;
     }
@@ -356,7 +356,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
         )
         .timeout(const Duration(seconds: 10));
 
-    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode != 200) {
       throw Exception(body['error'] ?? 'Invalid reset code.');
     }
@@ -381,7 +381,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
         )
         .timeout(const Duration(seconds: 10));
 
-    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode != 200) {
       throw Exception(body['error'] ?? 'Failed to reset password.');
     }
@@ -401,7 +401,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
         )
         .timeout(const Duration(seconds: 15));
 
-    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode == 200) {
       return body;
     }
@@ -429,7 +429,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
         )
         .timeout(const Duration(seconds: 10));
 
-    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode == 200) {
       final updated = user.copyWith(email: cleanEmail, isEmailVerified: true);
       final prefs = await SharedPreferences.getInstance();
@@ -481,7 +481,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
         )
         .timeout(const Duration(seconds: 5));
 
-    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode == 200 || res.statusCode == 201) {
       return body;
     } else {

@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: soulsync-api
+    name: soulsync-backend-jaymeen
     runtime: python
     plan: free
     rootDir: server
