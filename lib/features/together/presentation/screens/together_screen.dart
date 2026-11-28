@@ -46,7 +46,7 @@ class _TogetherScreenState extends ConsumerState<TogetherScreen> {
     try {
       final res = await http.get(
         Uri.parse('${AuthNotifier.apiBaseUrl}/api/games/questions?game=daily_couple_questions'),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(const Duration(seconds: 25));
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body) as Map<String, dynamic>;
@@ -485,7 +485,7 @@ class _PlayGameDialogState extends ConsumerState<_PlayGameDialog> {
     try {
       final res = await http.get(
         Uri.parse('${AuthNotifier.apiBaseUrl}/api/games/questions?game=${widget.gameType}'),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(const Duration(seconds: 25));
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body) as Map<String, dynamic>;

@@ -131,6 +131,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
   Future<void> _loadInitialUser() async {
     try {
       await ApiConfig.initialize();
+      ApiConfig.warmUpBackend();
       final prefs = await SharedPreferences.getInstance();
       final userDataStr = prefs.getString(_userPrefsKey);
       if (userDataStr != null) {
@@ -172,7 +173,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
               'social_account': socialAccount.trim(),
           }),
         )
-        .timeout(const Duration(seconds: 25));
+        .timeout(const Duration(seconds: 55));
 
     final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode == 200 || res.statusCode == 201) {
@@ -193,7 +194,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'email': cleanEmail, 'otp': otp.trim()}),
         )
-        .timeout(const Duration(seconds: 10));
+        .timeout(const Duration(seconds: 55));
 
     final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode == 200 && body['user'] is Map<String, dynamic>) {
@@ -211,7 +212,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'email': cleanEmail}),
         )
-        .timeout(const Duration(seconds: 15));
+        .timeout(const Duration(seconds: 55));
 
     final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode == 200) {
@@ -233,7 +234,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'email': cleanEmail, 'password': password}),
         )
-        .timeout(const Duration(seconds: 10));
+        .timeout(const Duration(seconds: 55));
 
     final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode == 200 && body['user'] is Map<String, dynamic>) {
@@ -282,7 +283,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
               'partner': partnerName.trim(),
           }),
         )
-        .timeout(const Duration(seconds: 15));
+        .timeout(const Duration(seconds: 55));
 
     final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode == 200 && body['user'] is Map<String, dynamic>) {
@@ -315,7 +316,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
             'account': account.trim(),
           }),
         )
-        .timeout(const Duration(seconds: 12));
+        .timeout(const Duration(seconds: 55));
 
     final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode == 200 && body['user'] is Map<String, dynamic>) {
@@ -337,7 +338,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'email': cleanEmail}),
         )
-        .timeout(const Duration(seconds: 15));
+        .timeout(const Duration(seconds: 55));
     final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode == 200) {
       return body;
@@ -354,7 +355,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'email': cleanEmail, 'otp': otp.trim()}),
         )
-        .timeout(const Duration(seconds: 10));
+        .timeout(const Duration(seconds: 55));
 
     final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode != 200) {
@@ -379,7 +380,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
             'new_password': newPassword,
           }),
         )
-        .timeout(const Duration(seconds: 10));
+        .timeout(const Duration(seconds: 55));
 
     final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode != 200) {
@@ -399,7 +400,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'user_id': user.id, 'new_email': cleanEmail}),
         )
-        .timeout(const Duration(seconds: 15));
+        .timeout(const Duration(seconds: 55));
 
     final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode == 200) {
@@ -427,7 +428,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
             'otp': otp.trim(),
           }),
         )
-        .timeout(const Duration(seconds: 10));
+        .timeout(const Duration(seconds: 55));
 
     final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode == 200) {
@@ -479,7 +480,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
             'invite_code': inviteCode.trim().toUpperCase(),
           }),
         )
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 55));
 
     final body = ApiErrorHandler.decodeJsonMap(res);
     if (res.statusCode == 200 || res.statusCode == 201) {

@@ -64,7 +64,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       final queryParam = _searchQuery.isNotEmpty ? '&query=${Uri.encodeComponent(_searchQuery)}' : '';
       final res = await http.get(
         Uri.parse('${AuthNotifier.apiBaseUrl}/api/chat/messages?couple_id=$coupleId$queryParam'),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(const Duration(seconds: 25));
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body) as Map<String, dynamic>;
@@ -83,7 +83,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       // Check partner status
       final statusRes = await http.get(
         Uri.parse('${AuthNotifier.apiBaseUrl}/api/chat/status?couple_id=$coupleId&user_id=${user.id}'),
-      ).timeout(const Duration(seconds: 3));
+      ).timeout(const Duration(seconds: 25));
       if (statusRes.statusCode == 200) {
         final stData = jsonDecode(statusRes.body) as Map<String, dynamic>;
         if (mounted) {

@@ -68,7 +68,7 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
     try {
       final res = await http.get(
         Uri.parse('${AuthNotifier.apiBaseUrl}/api/mood?user_id=${user.id}&couple_id=${user.coupleId ?? ""}'),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(const Duration(seconds: 25));
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body) as Map<String, dynamic>;
@@ -100,7 +100,7 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
           'recipient': user?.partnerName ?? 'Partner',
           'type': '${pulse.name} ${pulse.emoji}',
         }),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(const Duration(seconds: 25));
 
       if (mounted) {
         setState(() {
@@ -142,7 +142,7 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
           'note': _moodNoteCtrl.text.trim(),
           'is_private': _isMoodPrivate,
         }),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(const Duration(seconds: 25));
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

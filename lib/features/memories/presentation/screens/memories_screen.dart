@@ -47,7 +47,7 @@ class _MemoriesScreenState extends ConsumerState<MemoriesScreen> with SingleTick
       // 1. Fetch memories
       final memRes = await http.get(
         Uri.parse('${AuthNotifier.apiBaseUrl}/api/memories?couple_id=$coupleId'),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(const Duration(seconds: 25));
 
       if (memRes.statusCode == 200) {
         final data = jsonDecode(memRes.body) as Map<String, dynamic>;
@@ -57,7 +57,7 @@ class _MemoriesScreenState extends ConsumerState<MemoriesScreen> with SingleTick
       // 2. Fetch letters
       final letRes = await http.get(
         Uri.parse('${AuthNotifier.apiBaseUrl}/api/letters?couple_id=$coupleId&viewer_id=${user.id}'),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(const Duration(seconds: 25));
 
       if (letRes.statusCode == 200) {
         final data = jsonDecode(letRes.body) as Map<String, dynamic>;

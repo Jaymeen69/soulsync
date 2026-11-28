@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum AppEnvironment { development, staging, production }
@@ -20,8 +21,8 @@ class ApiConfig {
     defaultValue: '',
   );
 
-  static const String defaultProductionUrl = 'https://soulsync-backend-jaymeen.onrender.com';
-  static const String defaultStagingUrl = 'https://soulsync-backend-staging.onrender.com';
+  static const String defaultProductionUrl = 'https://soulsync-api-8h06.onrender.com';
+  static const String defaultStagingUrl = 'https://soulsync-api-8h06.onrender.com';
   static const String defaultDevUrl = 'http://127.0.0.1:8089';
 
   static String? _debugOverrideUrl;
@@ -105,6 +106,17 @@ class ApiConfig {
         _debugOverrideUrl = saved;
       }
     } catch (_) {}
+  }
+
+  /// Non-blocking health ping on app startup to wake Render Free Tier before user submits a form.
+  static void warmUpBackend() {
+    Future<void>(() async {
+      try {
+        await http
+            .get(Uri.parse('$baseUrl/health'))
+            .timeout(const Duration(seconds: 55));
+      } catch (_) {}
+    });
   }
 
   /// Developer-only override (no-op in release/production builds).

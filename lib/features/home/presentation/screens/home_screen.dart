@@ -38,7 +38,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       // 1. Fetch couple status
       final coupleRes = await http.get(
         Uri.parse('${AuthNotifier.apiBaseUrl}/api/couple/status?user_id=${user.id}&email=${user.email}'),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(const Duration(seconds: 25));
 
       if (coupleRes.statusCode == 200) {
         final data = jsonDecode(coupleRes.body) as Map<String, dynamic>;
@@ -48,7 +48,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       // Streaks
       final streakRes = await http.get(
         Uri.parse('${AuthNotifier.apiBaseUrl}/api/streaks?couple_id=${user.coupleId ?? "c_u5_u4"}'),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(const Duration(seconds: 25));
       if (streakRes.statusCode == 200) {
         final sData = jsonDecode(streakRes.body) as Map<String, dynamic>;
         if (mounted) setState(() => _streakData = sData['streak'] as Map<String, dynamic>?);
@@ -57,7 +57,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       // Notifications
       final notifRes = await http.get(
         Uri.parse('${AuthNotifier.apiBaseUrl}/api/notifications?user_id=${user.id}'),
-      ).timeout(const Duration(seconds: 3));
+      ).timeout(const Duration(seconds: 25));
       if (notifRes.statusCode == 200) {
         final nData = jsonDecode(notifRes.body) as Map<String, dynamic>;
         final nList = (nData['notifications'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
@@ -67,7 +67,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       // 2. Fetch memories
       final memRes = await http.get(
         Uri.parse('${AuthNotifier.apiBaseUrl}/api/memories?couple_id=${user.coupleId ?? ""}'),
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(const Duration(seconds: 25));
 
       if (memRes.statusCode == 200) {
         final data = jsonDecode(memRes.body) as Map<String, dynamic>;

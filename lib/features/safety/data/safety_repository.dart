@@ -12,7 +12,7 @@ class SafetyRepository {
     final res = await http
         .get(Uri.parse(
             '$_base/api/safety/state?user_id=${Uri.encodeComponent(userId)}&couple_id=${Uri.encodeComponent(coupleId)}'))
-        .timeout(const Duration(seconds: 6));
+        .timeout(const Duration(seconds: 25));
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode != 200) {
       throw Exception(body['error'] ?? 'Unable to load SoulSafe status');
@@ -48,7 +48,7 @@ class SafetyRepository {
             if (consents != null) 'consents': consents,
           }),
         )
-        .timeout(const Duration(seconds: 6));
+        .timeout(const Duration(seconds: 25));
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode != 200) {
       throw Exception(body['error'] ?? 'Failed to update sharing consent');
@@ -89,7 +89,7 @@ class SafetyRepository {
             'observed_at': DateTime.now().toUtc().toIso8601String(),
           }),
         )
-        .timeout(const Duration(seconds: 6));
+        .timeout(const Duration(seconds: 25));
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode != 200) {
       throw Exception(body['error'] ?? 'Location push rejected');
@@ -116,7 +116,7 @@ class SafetyRepository {
             if (thresholdKmh != null) 'threshold_kmh': thresholdKmh,
           }),
         )
-        .timeout(const Duration(seconds: 6));
+        .timeout(const Duration(seconds: 25));
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode != 200) {
       throw Exception(body['error'] ?? 'Agreement update failed');
@@ -146,7 +146,7 @@ class SafetyRepository {
             'notify_partner': notifyPartner,
           }),
         )
-        .timeout(const Duration(seconds: 6));
+        .timeout(const Duration(seconds: 25));
   }
 
   Future<SafetyStateModel> safeZoneOp({
@@ -179,7 +179,7 @@ class SafetyRepository {
             if (eventType != null) 'event_type': eventType,
           }),
         )
-        .timeout(const Duration(seconds: 6));
+        .timeout(const Duration(seconds: 25));
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode != 200) {
       throw Exception(body['error'] ?? 'Safe zone update failed');
@@ -208,7 +208,7 @@ class SafetyRepository {
             if (message != null) 'message': message,
           }),
         )
-        .timeout(const Duration(seconds: 6));
+        .timeout(const Duration(seconds: 25));
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode != 200) {
       throw Exception(body['error'] ?? 'Journey update failed');
@@ -239,7 +239,7 @@ class SafetyRepository {
             'travel_mode': travelMode,
           }),
         )
-        .timeout(const Duration(seconds: 8));
+        .timeout(const Duration(seconds: 25));
     return jsonDecode(res.body) as Map<String, dynamic>;
   }
 
@@ -265,7 +265,7 @@ class SafetyRepository {
             'consent_one_time_location': consentOneTimeLocation,
           }),
         )
-        .timeout(const Duration(seconds: 6));
+        .timeout(const Duration(seconds: 25));
     return jsonDecode(res.body) as Map<String, dynamic>;
   }
 
@@ -273,7 +273,7 @@ class SafetyRepository {
     final res = await http
         .get(Uri.parse(
             '$_base/api/safety/history?user_id=${Uri.encodeComponent(userId)}'))
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 25));
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     return (body['history'] as List<dynamic>?)
             ?.whereType<Map<String, dynamic>>()
@@ -288,7 +288,7 @@ class SafetyRepository {
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'user_id': userId, 'couple_id': coupleId}),
         )
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 25));
   }
 
   Future<void> updateNotifPrefs(
@@ -303,6 +303,6 @@ class SafetyRepository {
             'prefs': prefs,
           }),
         )
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 25));
   }
 }

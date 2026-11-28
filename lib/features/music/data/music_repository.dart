@@ -34,7 +34,7 @@ class MusicRepository {
     final res = await http
         .get(Uri.parse(
             '$_base/api/music/search?q=${Uri.encodeComponent(query)}&user_id=${Uri.encodeComponent(userId)}$pt'))
-        .timeout(const Duration(seconds: 10));
+        .timeout(const Duration(seconds: 25));
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode != 200) {
       throw Exception(body['error'] ?? 'Search failed (${res.statusCode})');
@@ -56,7 +56,7 @@ class MusicRepository {
     final res = await http
         .get(Uri.parse(
             '$_base/api/music/search-history?user_id=${Uri.encodeComponent(userId)}'))
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 25));
     if (res.statusCode != 200) return [];
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     final list = body['history'] as List<dynamic>? ?? [];
@@ -70,14 +70,14 @@ class MusicRepository {
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'user_id': userId}),
         )
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 25));
   }
 
   Future<MusicRoomResponse> getRoomState(String coupleId, String userId) async {
     final res = await http
         .get(Uri.parse(
             '$_base/api/music/room/state?couple_id=${Uri.encodeComponent(coupleId)}&user_id=${Uri.encodeComponent(userId)}'))
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 25));
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode != 200) {
       throw Exception(body['error'] ?? 'Unable to load room');
@@ -112,7 +112,7 @@ class MusicRepository {
             'invite_partner': invitePartner,
           }),
         )
-        .timeout(const Duration(seconds: 6));
+        .timeout(const Duration(seconds: 25));
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode != 200) {
       throw Exception(body['error'] ?? 'Unable to join room');
@@ -134,7 +134,7 @@ class MusicRepository {
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({'couple_id': coupleId, 'user_id': userId}),
           )
-          .timeout(const Duration(seconds: 4));
+          .timeout(const Duration(seconds: 25));
     } catch (_) {}
   }
 
@@ -153,7 +153,7 @@ class MusicRepository {
             'emoji': emoji,
           }),
         )
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 25));
     if (res.statusCode != 200) {
       final body = jsonDecode(res.body) as Map<String, dynamic>;
       throw Exception(body['error'] ?? 'Reaction failed');
@@ -208,7 +208,7 @@ class MusicRepository {
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(payload),
         )
-        .timeout(const Duration(seconds: 6));
+        .timeout(const Duration(seconds: 25));
 
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode != 200) {
@@ -221,7 +221,7 @@ class MusicRepository {
     final res = await http
         .get(Uri.parse(
             '$_base/api/music/playlists?couple_id=${Uri.encodeComponent(coupleId)}&user_id=${Uri.encodeComponent(userId)}'))
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 25));
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode != 200) {
       throw Exception(body['error'] ?? 'Failed to load playlists');
@@ -253,7 +253,7 @@ class MusicRepository {
             'artwork_color': artworkColor,
           }),
         )
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 25));
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode != 201 && res.statusCode != 200) {
       throw Exception(body['error'] ?? 'Failed to create playlist');
@@ -284,7 +284,7 @@ class MusicRepository {
             if (artworkColor != null) 'artwork_color': artworkColor,
           }),
         )
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 25));
     if (res.statusCode != 200) {
       final body = jsonDecode(res.body) as Map<String, dynamic>;
       throw Exception(body['error'] ?? 'Playlist action failed');
@@ -318,7 +318,7 @@ class MusicRepository {
             if (newIndex != null) 'new_index': newIndex,
           }),
         )
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 25));
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode != 200) {
       throw Exception(body['error'] ?? 'Playlist update failed');
@@ -330,7 +330,7 @@ class MusicRepository {
     final res = await http
         .get(Uri.parse(
             '$_base/api/music/likes?couple_id=${Uri.encodeComponent(coupleId)}&user_id=${Uri.encodeComponent(userId)}'))
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 25));
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode != 200) {
       throw Exception(body['error'] ?? 'Failed to load liked songs');
@@ -359,7 +359,7 @@ class MusicRepository {
             if (consent != null) 'consent': consent,
           }),
         )
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 25));
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     if (res.statusCode != 200) {
       throw Exception(body['error'] ?? 'Failed to update likes');
@@ -372,7 +372,7 @@ class MusicRepository {
     final res = await http
         .get(Uri.parse(
             '$_base/api/music/dedications?couple_id=${Uri.encodeComponent(coupleId)}&user_id=${Uri.encodeComponent(userId)}'))
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 25));
     if (res.statusCode != 200) return [];
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     final list = body['dedications'] as List<dynamic>? ?? [];
@@ -401,7 +401,7 @@ class MusicRepository {
             'emoji': emoji,
           }),
         )
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 25));
     if (res.statusCode != 201 && res.statusCode != 200) {
       final body = jsonDecode(res.body) as Map<String, dynamic>;
       throw Exception(body['error'] ?? 'Failed to send dedication');
@@ -413,7 +413,7 @@ class MusicRepository {
     final res = await http
         .get(Uri.parse(
             '$_base/api/music/memories?couple_id=${Uri.encodeComponent(coupleId)}&user_id=${Uri.encodeComponent(userId)}'))
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 25));
     if (res.statusCode != 200) return [];
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     final list = body['memories'] as List<dynamic>? ?? [];
@@ -450,7 +450,7 @@ class MusicRepository {
             if (date != null) 'date': date,
           }),
         )
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 25));
     if (res.statusCode != 200 && res.statusCode != 201) {
       final body = jsonDecode(res.body) as Map<String, dynamic>;
       throw Exception(body['error'] ?? 'Memory update failed');
@@ -461,7 +461,7 @@ class MusicRepository {
     final res = await http
         .get(Uri.parse(
             '$_base/api/music/recap?couple_id=${Uri.encodeComponent(coupleId)}&user_id=${Uri.encodeComponent(userId)}'))
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 25));
     if (res.statusCode != 200) return const MusicRecap();
     final body = jsonDecode(res.body) as Map<String, dynamic>;
     return MusicRecap.fromJson(body['recap'] as Map<String, dynamic>? ?? {});
@@ -486,6 +486,6 @@ class MusicRepository {
             'reason': reason,
           }),
         )
-        .timeout(const Duration(seconds: 5));
+        .timeout(const Duration(seconds: 25));
   }
 }
