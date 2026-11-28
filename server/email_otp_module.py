@@ -224,9 +224,81 @@ def build_otp_email_html(otp, purpose="verification", recipient_name="Partner", 
 </html>"""
 
 
+def _send_via_vercel_bridge(db, cfg, clean_to, otp, purpose, recipient_name, subject, now_iso):
+    """Send OTP email over HTTPS through the authenticated Vercel Gmail SMTP bridge."""
+    try:
+        payload = json.dumps({
+            "to": clean_to,
+            "otp": otp,
+            "purpose": purpose,
+            "recipient_name": recipient_name,
+        }).encode("utf-8")
+        vreq = urllib.request.Request(
+            cfg["vercel_url"],
+            data=payload,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {cfg['vercel_key']}",
+            },
+            method="POST",
+        )
+        with urllib.request.urlopen(vreq, timeout=20) as vresp:
+            vbody = json.loads(vresp.read().decode("utf-8"))
+            if vresp.status == 200 and vbody.get("status") == "delivered":
+                entry = _record_sanitized_log(
+                    db,
+                    to_email=clean_to,
+                    purpose=purpose,
+                    subject=subject,
+                    status="delivered",
+                    note="Delivered via Gmail SMTP (Vercel HTTPS bridge)",
+                    now_iso=now_iso,
+                )
+                print(f"[SoulSync Mailer] Delivered {purpose} email via Vercel HTTPS bridge to {mask_email(clean_to)}")
+                return True, entry, None
+    except urllib.error.HTTPError as e:
+        err_txt = ""
+        try:
+            err_txt = json.loads(e.read().decode("utf-8")).get("error", f"HTTP {e.code}")
+        except Exception:
+            err_txt = f"HTTP {e.code}"
+        entry = _record_sanitized_log(
+            db,
+            to_email=clean_to,
+            purpose=purpose,
+            subject=subject,
+            status="failed",
+            note=f"Mailer relay error: {err_txt[:160]}",
+            now_iso=now_iso,
+        )
+        return False, entry, "Unable to send verification email right now. Please try again shortly."
+    except Exception as err:
+        entry = _record_sanitized_log(
+            db,
+            to_email=clean_to,
+            purpose=purpose,
+            subject=subject,
+            status="failed",
+            note=f"Mailer connection error: {str(err)[:160]}",
+            now_iso=now_iso,
+        )
+        return False, entry, "Unable to reach email service right now."
+
+    entry = _record_sanitized_log(
+        db,
+        to_email=clean_to,
+        purpose=purpose,
+        subject=subject,
+        status="failed",
+        note="Mailer relay returned unexpected response.",
+        now_iso=now_iso,
+    )
+    return False, entry, "Unable to send verification email right now."
+
+
 def send_real_otp_email(db, to_email, otp, purpose="verification", recipient_name="Partner"):
     """
-    Deliver a real OTP email via configured Gmail SMTP credentials.
+    Deliver a real OTP email via Vercel HTTPS bridge (on Render/cloud) or direct Gmail SMTP.
     Returns (success: bool, outbox_entry: dict, error_msg: str|None).
     Never stores raw OTP codes in db['email_outbox'] or logs!
     """
@@ -258,65 +330,18 @@ def send_real_otp_email(db, to_email, otp, purpose="verification", recipient_nam
         f"If you did not request this, ignore this email."
     )
 
+    # Prefer Vercel HTTPS bridge when configured without local SMTP_PASS or when running on Render
+    # (Render Free Tier blocks outbound SMTP ports 25, 465, 587).
+    if cfg["has_vercel_bridge"] and (not cfg["has_password"] or os.environ.get("RENDER")):
+        return _send_via_vercel_bridge(
+            db, cfg, clean_to, otp, purpose, recipient_name, subject, now_iso
+        )
+
     if not (cfg["host"] and cfg["user"] and cfg["password"]):
         if cfg["has_vercel_bridge"]:
-            try:
-                payload = json.dumps({
-                    "to": clean_to,
-                    "otp": otp,
-                    "purpose": purpose,
-                    "recipient_name": recipient_name,
-                }).encode("utf-8")
-                vreq = urllib.request.Request(
-                    cfg["vercel_url"],
-                    data=payload,
-                    headers={
-                        "Content-Type": "application/json",
-                        "Authorization": f"Bearer {cfg['vercel_key']}",
-                    },
-                    method="POST",
-                )
-                with urllib.request.urlopen(vreq, timeout=15) as vresp:
-                    vbody = json.loads(vresp.read().decode("utf-8"))
-                    if vresp.status == 200 and vbody.get("status") == "delivered":
-                        entry = _record_sanitized_log(
-                            db,
-                            to_email=clean_to,
-                            purpose=purpose,
-                            subject=subject,
-                            status="delivered",
-                            note="Delivered via Gmail SMTP (Vercel Production mailer)",
-                            now_iso=now_iso,
-                        )
-                        print(f"[SoulSync Mailer] Delivered {purpose} email via Vercel Gmail SMTP to {mask_email(clean_to)}")
-                        return True, entry, None
-            except urllib.error.HTTPError as e:
-                err_txt = ""
-                try:
-                    err_txt = json.loads(e.read().decode("utf-8")).get("error", f"HTTP {e.code}")
-                except Exception:
-                    err_txt = f"HTTP {e.code}"
-                entry = _record_sanitized_log(
-                    db,
-                    to_email=clean_to,
-                    purpose=purpose,
-                    subject=subject,
-                    status="failed",
-                    note=f"Mailer relay error: {err_txt[:160]}",
-                    now_iso=now_iso,
-                )
-                return False, entry, "Unable to send verification email right now. Please try again shortly."
-            except Exception as err:
-                entry = _record_sanitized_log(
-                    db,
-                    to_email=clean_to,
-                    purpose=purpose,
-                    subject=subject,
-                    status="failed",
-                    note=f"Mailer connection error: {str(err)[:160]}",
-                    now_iso=now_iso,
-                )
-                return False, entry, "Unable to reach email service right now."
+            return _send_via_vercel_bridge(
+                db, cfg, clean_to, otp, purpose, recipient_name, subject, now_iso
+            )
 
         entry = _record_sanitized_log(
             db,
@@ -371,6 +396,11 @@ def send_real_otp_email(db, to_email, otp, purpose="verification", recipient_nam
         print(f"[SoulSync Mailer] Delivered {purpose} email to {mask_email(clean_to)}")
         return True, entry, None
     except Exception as err:
+        if cfg["has_vercel_bridge"]:
+            print(f"[SoulSync Mailer] Direct SMTP failed ({str(err)[:80]}), falling back to Vercel HTTPS bridge...")
+            return _send_via_vercel_bridge(
+                db, cfg, clean_to, otp, purpose, recipient_name, subject, now_iso
+            )
         safe_err = str(err)
         if cfg["password"]:
             safe_err = safe_err.replace(cfg["password"], "[REDACTED]")

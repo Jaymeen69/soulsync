@@ -30,6 +30,10 @@ services:
         value: 60
       - key: OTP_MAX_ATTEMPTS
         value: 5
+      - key: SOULSYNC_VERCEL_MAILER_URL
+        value: https://soulsync-admin.vercel.app/api/internal/send-otp
+      - key: SOULSYNC_MAILER_KEY
+        sync: false
       - key: SMTP_PASS
         sync: false
       - key: YOUTUBE_API_KEY
