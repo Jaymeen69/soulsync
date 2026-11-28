@@ -1,9 +1,9 @@
 /// Form validation helpers with strict password complexity policy.
 abstract final class Validators {
   static String? email(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Email is required';
+    if (value == null || value.trim().isEmpty) return 'Please enter your email address.';
     final emailRegex = RegExp(r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$');
-    if (!emailRegex.hasMatch(value.trim())) return 'Enter a valid email address';
+    if (!emailRegex.hasMatch(value.trim())) return 'Please enter a valid email address.';
     return null;
   }
 
@@ -26,7 +26,7 @@ abstract final class Validators {
   }
 
   static String? loginPassword(String? value) {
-    if (value == null || value.isEmpty) return 'Password is required';
+    if (value == null || value.isEmpty) return 'Please enter your password.';
     return null;
   }
 

@@ -36,15 +36,19 @@ class ApiErrorHandler {
   }
 
   static const String noInternetMsg =
-      'No internet connection. Please check your network and try again.';
+      'No internet connection. Please check your network.';
   static const String serverUnavailableMsg =
-      'SoulSync is temporarily unavailable. Please try again shortly.';
+      'SoulSync is temporarily unavailable. Please try again.';
+  static const String databaseUnavailableMsg =
+      'We are experiencing a temporary service issue. Please try again later.';
+  static const String sessionExpiredMsg =
+      'Your session has expired. Please sign in again.';
   static const String timeoutMsg =
       'The connection is taking longer than expected. Please try again.';
   static const String otpSendFailedMsg =
       "We couldn't send your verification code. Please try again.";
   static const String invalidOtpMsg =
-      'The verification code you entered is incorrect.';
+      'The verification code is incorrect.';
   static const String expiredOtpMsg =
       'Your verification code has expired. Please request a new code.';
 

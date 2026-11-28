@@ -9,6 +9,7 @@ import time
 import music_module
 import safesync_module
 import email_otp_module
+import db_backend
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs, urlencode
 import urllib.request
@@ -150,6 +151,8 @@ GAME_BANKS = {
 }
 
 def load_db():
+    if db_backend.is_postgres_enabled():
+        return db_backend.load_pg_db(_ensure_db_structure, fallback_seed_file=DB_FILE)
     if os.path.exists(DB_FILE):
         try:
             with open(DB_FILE, "r", encoding="utf-8") as f:
@@ -232,6 +235,9 @@ def _ensure_db_structure(db):
 DB_LOCK = threading.RLock()
 
 def save_db(db):
+    if db_backend.is_postgres_enabled():
+        db_backend.save_pg_db(db)
+        return
     with DB_LOCK:
         tmp_path = DB_FILE + ".tmp"
         with open(tmp_path, "w", encoding="utf-8") as f:
@@ -344,23 +350,39 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         path = parsed.path
         query = parse_qs(parsed.query)
-        db = load_db()
 
         if path in ("/health", "/api/health"):
-            smtp_status = email_otp_module.get_public_service_status(db)
-            self._set_headers(200)
+            db_ok, db_mode = db_backend.check_db_health()
+            users_count = 0
+            smtp_cfg = False
+            if db_ok:
+                try:
+                    db = load_db()
+                    users_count = len(db.get("users", []))
+                    smtp_cfg = email_otp_module.get_public_service_status(db).get("configured", False)
+                except db_backend.DatabaseUnavailableError:
+                    db_ok = False
+                    db_mode = "postgresql_unavailable"
+            self._set_headers(200 if db_ok else 503)
             self.wfile.write(json.dumps({
-                "status": "ok",
+                "status": "ok" if db_ok else "degraded",
                 "service": "soulsync-api",
-                "database": "connected",
-                "users_count": len(db.get("users", [])),
-                "smtp_configured": smtp_status.get("configured", False),
+                "database": db_mode,
+                "users_count": users_count,
+                "smtp_configured": smtp_cfg,
                 "youtube_configured": bool(get_youtube_api_key()),
                 "timestamp": datetime.utcnow().isoformat() + "Z",
             }).encode("utf-8"))
             return
 
-        elif path == "/api/users":
+        try:
+            db = load_db()
+        except db_backend.DatabaseUnavailableError:
+            self._set_headers(503)
+            self.wfile.write(json.dumps({"error": "We are experiencing a temporary service issue. Please try again later."}).encode("utf-8"))
+            return
+
+        if path == "/api/users":
             # Return users without exposing password hashes
             sanitized = []
             for u in db.get("users", []):
@@ -726,7 +748,12 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         parsed = urlparse(self.path)
         path = parsed.path
-        db = load_db()
+        try:
+            db = load_db()
+        except db_backend.DatabaseUnavailableError:
+            self._set_headers(503)
+            self.wfile.write(json.dumps({"error": "We are experiencing a temporary service issue. Please try again later."}).encode("utf-8"))
+            return
         data = self._read_json()
         now_iso = datetime.utcnow().isoformat() + "Z"
 
@@ -1505,7 +1532,7 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
             }).encode("utf-8"))
 
         # 9. ADMIN CREATE USER
-        elif path == "/api/users":
+        if path == "/api/users":
             name = (data.get("name") or "").strip()
             email = (data.get("email") or "").strip().lower()
             partner = (data.get("partner") or "Partner").strip()

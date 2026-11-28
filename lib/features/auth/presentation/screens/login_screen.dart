@@ -67,10 +67,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   String _parseError(Object error) {
     final msg = ApiErrorHandler.friendlyMessage(error);
     if (msg.contains('Invalid login credentials') || msg.contains('Invalid email or password')) {
-      return 'Incorrect email or password. Please try again.';
+      return 'Incorrect email or password.';
     }
     if (msg.contains('Email not confirmed') || msg.contains('verify')) {
-      return 'Please verify your email first before logging in.';
+      return 'Please verify your email address to continue.';
     }
     return msg;
   }
@@ -236,7 +236,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             obscureText: true,
                             textInputAction: TextInputAction.done,
                             prefixIcon: Icons.lock_outline_rounded,
-                            validator: (v) => v == null || v.isEmpty ? 'Password is required' : null,
+                            validator: Validators.loginPassword,
                             onSubmitted: (_) => _login(),
                             autofillHints: const [AutofillHints.password],
                           ),
