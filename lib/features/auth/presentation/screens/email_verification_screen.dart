@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/network/api_error_handler.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../shared/widgets/romantic_background.dart';
 import '../../../../shared/widgets/romantic_glass_card.dart';
@@ -158,7 +159,7 @@ class _EmailVerificationScreenState
       }
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString().replaceFirst('Exception: ', '');
+        _errorMessage = ApiErrorHandler.friendlyMessage(e);
       });
     } finally {
       if (mounted) setState(() => _isVerifying = false);
@@ -192,7 +193,10 @@ class _EmailVerificationScreenState
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _errorMessage = e.toString().replaceFirst('Exception: ', ''));
+        setState(() => _errorMessage = ApiErrorHandler.friendlyMessage(
+              e,
+              fallback: ApiErrorHandler.otpSendFailedMsg,
+            ));
       }
     } finally {
       if (mounted) setState(() => _isResending = false);

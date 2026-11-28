@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/network/api_error_handler.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../shared/widgets/romantic_background.dart';
 import '../../../../shared/widgets/romantic_glass_card.dart';
@@ -55,28 +57,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = _parseError(e.toString());
+        _errorMessage = _parseError(e);
       });
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  String _parseError(String error) {
-    if (error.contains('Invalid login credentials') || error.contains('Invalid email or password')) {
+  String _parseError(Object error) {
+    final msg = ApiErrorHandler.friendlyMessage(error);
+    if (msg.contains('Invalid login credentials') || msg.contains('Invalid email or password')) {
       return 'Incorrect email or password. Please try again.';
     }
-    if (error.contains('Email not confirmed') || error.contains('verify')) {
+    if (msg.contains('Email not confirmed') || msg.contains('verify')) {
       return 'Please verify your email first before logging in.';
     }
-    if (error.contains('SocketException') ||
-        error.contains('Connection refused') ||
-        error.contains('TimeoutException') ||
-        error.contains('network') ||
-        error.contains('Failed host lookup')) {
-      return 'Cannot reach SoulSync server (${AuthNotifier.apiBaseUrl}). Ensure your phone & server are on the same Wi-Fi or tap the server icon above.';
-    }
-    return error.replaceFirst('Exception: ', '');
+    return msg;
   }
 
   void _handleBack() {
@@ -117,14 +113,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 14, top: 8),
-            child: IconButton(
-              icon: Icon(Icons.dns_outlined, size: 20, color: context.ssTextSecondary),
-              tooltip: 'Server Connection',
-              onPressed: () => showServerUrlDialog(context),
+          if (kDebugMode)
+            Padding(
+              padding: const EdgeInsets.only(right: 14, top: 8),
+              child: IconButton(
+                icon: Icon(Icons.dns_outlined, size: 20, color: context.ssTextSecondary),
+                tooltip: 'Server Connection',
+                onPressed: () => showServerUrlDialog(context),
+              ),
             ),
-          ),
         ],
       ),
       body: RomanticBackground(

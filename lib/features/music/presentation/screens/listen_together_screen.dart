@@ -85,6 +85,7 @@ class _ListenTogetherScreenState extends ConsumerState<ListenTogetherScreen>
   Timer? _syncTickTimer;
   Timer? _pollFallbackTimer;
   Timer? _heartbeatTimer;
+  Timer? _sseReconnectTimer;
   http.Client? _sseClient;
   StreamSubscription<String>? _sseSub;
 
@@ -338,6 +339,10 @@ class _ListenTogetherScreenState extends ConsumerState<ListenTogetherScreen>
       return;
     }
 
+    _sseReconnectTimer?.cancel();
+    _sseSub?.cancel();
+    _sseClient?.close();
+
     final client = http.Client();
     _sseClient = client;
 
@@ -391,8 +396,9 @@ class _ListenTogetherScreenState extends ConsumerState<ListenTogetherScreen>
 
   void _scheduleSseReconnect() {
     if (!mounted || _hasLeftRoom) return;
+    if (_sseReconnectTimer?.isActive ?? false) return;
     setState(() => _isReconnecting = true);
-    Future.delayed(const Duration(seconds: 3), () {
+    _sseReconnectTimer = Timer(const Duration(seconds: 3), () {
       if (mounted && !_hasLeftRoom) {
         _fetchAndResyncRoom(silent: true);
         _connectSseStream();

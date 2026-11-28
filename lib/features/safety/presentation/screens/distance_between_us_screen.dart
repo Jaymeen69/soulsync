@@ -149,8 +149,15 @@ class _DistanceBetweenUsScreenState
           .listen((line) {
         if (!line.startsWith('data: ')) return;
         _loadSafetyState(silent: true);
-      }, onError: (_) {}, onDone: () {});
-    }).catchError((_) {});
+      }, onError: (_) => _scheduleSafetyReconnect(), onDone: () => _scheduleSafetyReconnect());
+    }).catchError((_) => _scheduleSafetyReconnect());
+  }
+
+  void _scheduleSafetyReconnect() {
+    if (!mounted) return;
+    Future.delayed(const Duration(seconds: 4), () {
+      if (mounted) _connectSse();
+    });
   }
 
   Future<void> _startLocationStream() async {

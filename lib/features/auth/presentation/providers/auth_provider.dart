@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import '../../../../core/config/api_config.dart';
+import '../../../../core/network/api_error_handler.dart';
 
 /// Exception thrown when an account tries to sign in before completing email verification.
 class UnverifiedEmailException implements Exception {
@@ -120,45 +122,16 @@ class AuthNotifier extends StateNotifier<AsyncValue<SoulSyncUser?>> {
   }
 
   static const String _userPrefsKey = 'soulsync_current_user';
-  static const String _serverUrlPrefsKey = 'soulsync_server_url';
-  static const String defaultMobileBaseUrl = 'http://192.168.1.13:8089';
-  static String? _customServerUrl;
 
   /// Primary API URL for central backend shared by Mobile App and Admin Panel
-  static String get apiBaseUrl {
-    if (_customServerUrl != null && _customServerUrl!.isNotEmpty) {
-      return _customServerUrl!;
-    }
-    const envUrl = String.fromEnvironment('API_BASE_URL');
-    if (envUrl.isNotEmpty) return envUrl;
-    if (kIsWeb) return 'http://127.0.0.1:8089';
-    try {
-      if (Platform.isAndroid || Platform.isIOS) {
-        return defaultMobileBaseUrl;
-      }
-    } catch (_) {}
-    return 'http://127.0.0.1:8089';
-  }
+  static String get apiBaseUrl => ApiConfig.baseUrl;
 
-  static Future<void> setServerUrl(String url) async {
-    final clean = url.trim().replaceAll(RegExp(r'/+$'), '');
-    final prefs = await SharedPreferences.getInstance();
-    if (clean.isEmpty) {
-      _customServerUrl = null;
-      await prefs.remove(_serverUrlPrefsKey);
-    } else {
-      _customServerUrl = clean;
-      await prefs.setString(_serverUrlPrefsKey, clean);
-    }
-  }
+  static Future<void> setServerUrl(String url) => ApiConfig.setDebugOverrideUrl(url);
 
   Future<void> _loadInitialUser() async {
     try {
+      await ApiConfig.initialize();
       final prefs = await SharedPreferences.getInstance();
-      final savedUrl = prefs.getString(_serverUrlPrefsKey);
-      if (savedUrl != null && savedUrl.isNotEmpty) {
-        _customServerUrl = savedUrl;
-      }
       final userDataStr = prefs.getString(_userPrefsKey);
       if (userDataStr != null) {
         final map = jsonDecode(userDataStr) as Map<String, dynamic>;

@@ -1,8 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/config/api_config.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/network/api_error_handler.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../shared/utils/validators.dart';
 import '../../../../shared/widgets/soulsync_button.dart';
@@ -36,15 +39,16 @@ Future<void> showSocialConnectSheet(
   );
 }
 
-/// Opens a dialog allowing the user to view or change the backend Server URL.
+/// Developer-only dialog to inspect or override backend URL in debug builds.
 Future<void> showServerUrlDialog(BuildContext context) async {
+  if (!kDebugMode || ApiConfig.isProduction) return;
   final ctrl = TextEditingController(text: AuthNotifier.apiBaseUrl);
   await showDialog<void>(
     context: context,
     builder: (ctx) => AlertDialog(
       backgroundColor: context.ssSurface,
       title: Text(
-        'Server Connection',
+        'Server Connection (Dev)',
         style: TextStyle(color: context.ssTextPrimary, fontWeight: FontWeight.w700),
       ),
       content: Column(
@@ -52,7 +56,7 @@ Future<void> showServerUrlDialog(BuildContext context) async {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Enter the SoulSync backend URL (e.g. your computer LAN IP http://192.168.1.13:8089 or tunnel URL).',
+            'Enter a custom development or staging backend URL.',
             style: TextStyle(color: context.ssTextSecondary, fontSize: 12.5, height: 1.4),
           ),
           const SizedBox(height: 12),
@@ -61,7 +65,7 @@ Future<void> showServerUrlDialog(BuildContext context) async {
             style: TextStyle(color: context.ssTextPrimary, fontSize: 13.5),
             decoration: InputDecoration(
               labelText: 'Backend API URL',
-              hintText: AuthNotifier.defaultMobileBaseUrl,
+              hintText: ApiConfig.defaultDevUrl,
               filled: true,
               fillColor: context.ssInputFill,
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -213,7 +217,7 @@ class _SocialConnectSheetState extends State<_SocialConnectSheet> {
         }
       }
     } catch (e) {
-      setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
+      setState(() => _error = ApiErrorHandler.friendlyMessage(e));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

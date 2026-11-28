@@ -63,7 +63,8 @@
       "role": "Verified App User",
       "created_at": "2024-11-10T10:00:00Z",
       "last_active": "Just now",
-      "source": "Mobile App"
+      "source": "Mobile App",
+      "invite_code": "SOUL-4752"
     },
     {
       "id": "u2",
@@ -79,70 +80,70 @@
   "couples": [
     {
       "id": "c6",
-      "name": "jaymeen & Partner \ud83d\udc9e",
+      "name": "jaymeen & Partner 💞",
       "p1": "jaymeen",
       "p2": "Partner",
       "p1_id": "u6",
       "p2_id": null,
       "code": "SOUL-5543",
       "days": 1,
-      "status": "Waiting for Partner \u23f3",
+      "status": "Waiting for Partner ⏳",
       "created_at": "2026-11-19T09:25:56.080999Z"
     },
     {
       "id": "c_u5_u4",
-      "name": "Emma Watson & Sarah Test \ud83d\udc9e",
+      "name": "Emma Watson & Sarah Test 💞",
       "p1": "Emma Watson",
       "p2": "Sarah Test",
       "p1_id": "u5",
       "p2_id": "u4",
       "code": "SOUL-1023",
       "days": 1,
-      "status": "Active \ud83d\udfe2",
+      "status": "Active 🟢",
       "created_at": "2026-11-18T10:26:39.156979Z"
     },
     {
       "id": "c4",
-      "name": "Emma Watson & Liam \ud83d\udc9e",
+      "name": "Emma Watson & Liam 💞",
       "p1": "Emma Watson",
       "p2": "Liam",
       "p1_id": "u5",
       "p2_id": null,
       "code": "SOUL-1023",
       "days": 1,
-      "status": "Waiting for Partner \u23f3",
+      "status": "Waiting for Partner ⏳",
       "created_at": "2026-11-18T10:26:39.148882Z"
     },
     {
       "id": "c3",
-      "name": "Sarah Test & David \ud83d\udc9e",
+      "name": "Sarah Test & David 💞",
       "p1": "Sarah Test",
       "p2": "David",
       "p1_id": "u4",
       "p2_id": null,
       "code": "SOUL-1170",
       "days": 1,
-      "status": "Active \ud83d\udfe2",
+      "status": "Active 🟢",
       "created_at": "2026-11-18T10:26:39.143082Z"
     },
     {
       "id": "c2",
-      "name": "kizay & Partner \ud83d\udc9e",
+      "name": "kizay & Partner 💞",
       "p1": "kizay",
       "p2": "Partner",
       "code": "PAIR-2654",
       "days": 1,
-      "status": "Active \ud83d\udfe2",
+      "status": "Active 🟢",
       "created_at": "2026-11-18T09:30:15.557802Z"
     },
     {
       "id": "c1",
-      "name": "Alex & Jordan \ud83d\udc9e",
+      "name": "Alex & Jordan 💞",
       "p1": "Alex",
       "p2": "Jordan",
       "code": "SOUL-8492",
       "days": 342,
-      "status": "Active \ud83d\udfe2",
+      "status": "Active 🟢",
       "created_at": "2023-12-12T00:00:00Z"
     }
   ],
@@ -158,7 +159,7 @@
       "id": "p7",
       "sender": "Sarah Test",
       "recipient": "Emma Watson",
-      "type": "Hug \ud83e\udec2",
+      "type": "Hug 🫂",
       "time": "Just now",
       "created_at": "2026-11-18T10:26:39.158147Z"
     },
@@ -166,7 +167,7 @@
       "id": "p6",
       "sender": "Emma Watson",
       "recipient": "Sarah Test",
-      "type": "Love \u2764\ufe0f",
+      "type": "Love ❤️",
       "time": "Just now",
       "created_at": "2026-11-18T10:26:39.157595Z"
     },
@@ -174,35 +175,35 @@
       "id": "p5",
       "sender": "Alex",
       "recipient": "Jordan",
-      "type": "Thinking of You \ud83d\udcad",
+      "type": "Thinking of You 💭",
       "time": "Just now"
     },
     {
       "id": "p4",
       "sender": "Alex",
       "recipient": "Jordan",
-      "type": "Thinking of You \ud83d\udcad",
+      "type": "Thinking of You 💭",
       "time": "Just now"
     },
     {
       "id": "p3",
       "sender": "Alex",
       "recipient": "Jordan",
-      "type": "Hug \ud83e\udec2",
+      "type": "Hug 🫂",
       "time": "Just now"
     },
     {
       "id": "p1",
       "sender": "Alex",
       "recipient": "Jordan",
-      "type": "Love \u2764\ufe0f",
+      "type": "Love ❤️",
       "time": "5m ago"
     },
     {
       "id": "p2",
       "sender": "Jordan",
       "recipient": "Alex",
-      "type": "Hug \ud83e\udec2",
+      "type": "Hug 🫂",
       "time": "2h ago"
     }
   ],
@@ -211,9 +212,9 @@
       "id": "q4",
       "date": "Scheduled",
       "q": "\"haha\"",
-      "cat": "Romance \ud83e\udd70",
+      "cat": "Romance 🥰",
       "rate": "Pending",
-      "status": "Active \ud83d\udfe2"
+      "status": "Active 🟢"
     },
     {
       "id": "q1",
@@ -221,7 +222,7 @@
       "q": "\"What is your favorite memory of us traveling together?\"",
       "cat": "Travel",
       "rate": "91% (194 pairs)",
-      "status": "Active \ud83d\udfe2"
+      "status": "Active 🟢"
     },
     {
       "id": "q2",
@@ -229,7 +230,7 @@
       "q": "\"What is one small habit of mine that makes you smile?\"",
       "cat": "Romance",
       "rate": "Scheduled",
-      "status": "Pending \u23f3"
+      "status": "Pending ⏳"
     },
     {
       "id": "q3",
@@ -237,7 +238,7 @@
       "q": "\"If we could teleport anywhere for 24 hours right now, where?\"",
       "cat": "Fun",
       "rate": "Scheduled",
-      "status": "Pending \u23f3"
+      "status": "Pending ⏳"
     }
   ],
   "unverified_users": {
@@ -272,7 +273,7 @@
       "user_id": "u_sarah",
       "couple_id": "c_emma_sarah",
       "mood": "Stressed",
-      "emoji": "\ud83d\ude2b",
+      "emoji": "😫",
       "note": "Work deadline is heavy today.",
       "is_private": true,
       "created_at": "2026-11-18T10:26:39.159881Z"
@@ -282,7 +283,7 @@
       "user_id": "u_emma",
       "couple_id": "c_emma_sarah",
       "mood": "Romantic",
-      "emoji": "\ud83e\udd70",
+      "emoji": "🥰",
       "note": "Thinking of our wonderful conversation earlier!",
       "is_private": false,
       "created_at": "2026-11-18T10:26:39.158863Z"
@@ -293,7 +294,7 @@
       "id": "mem_1",
       "couple_id": "c_emma_sarah",
       "user_id": "u_emma",
-      "title": "Sunset by the Harbor \ud83c\udf05",
+      "title": "Sunset by the Harbor 🌅",
       "caption": "Watching the golden hour light reflect across the water.",
       "date": "Today",
       "tag": "Date",
@@ -307,7 +308,7 @@
       "couple_id": "c_emma_sarah",
       "sender_id": "u_emma",
       "sender_name": "Emma",
-      "title": "Open on 2029 Anniversary \ud83c\udf82",
+      "title": "Open on 2029 Anniversary 🎂",
       "content": "Happy 5th Anniversary my love!",
       "unlock_date": "2029-12-31T00:00:00Z",
       "unlock_condition": "Open Anytime",
@@ -318,7 +319,7 @@
       "couple_id": "c_emma_sarah",
       "sender_id": "u_emma",
       "sender_name": "Emma",
-      "title": "Open When You Miss Me \ud83e\udd7a",
+      "title": "Open When You Miss Me 🥺",
       "content": "Distance means nothing when someone means everything.",
       "unlock_date": null,
       "unlock_condition": "Open Anytime",
@@ -337,7 +338,7 @@
           "question_id": "wyr_1",
           "answers": {
             "u_emma": {
-              "answer": "Surprise Getaway \ud83c\udf92",
+              "answer": "Surprise Getaway 🎒",
               "submitted_at": "2026-11-18T10:26:39.165989Z"
             }
           }
@@ -346,6 +347,186 @@
     }
   ],
   "audit_logs": [
+    {
+      "id": "aud_26",
+      "timestamp": "2026-11-27T12:36:45.936294Z",
+      "actor": "admin@soulsync.app",
+      "action": "ADMIN_LOGIN",
+      "target": "Superadmin",
+      "details": "Admin logged in from 127.0.0.1"
+    },
+    {
+      "id": "aud_25",
+      "timestamp": "2026-11-27T12:36:43.479364Z",
+      "actor": "pateljaymin1234567890+soulsynctest@gmail.com",
+      "action": "EMAIL_VERIFIED",
+      "target": "pateljaymin1234567890+soulsynctest@gmail.com",
+      "details": "User email verified via OTP and account activated"
+    },
+    {
+      "id": "aud_24",
+      "timestamp": "2026-11-27T12:36:39.358652Z",
+      "actor": "socialtest_ss@gmail.com",
+      "action": "SOCIAL_UNLINK",
+      "target": "instagram",
+      "details": "Disconnected instagram"
+    },
+    {
+      "id": "aud_23",
+      "timestamp": "2026-11-27T12:36:39.353653Z",
+      "actor": "socialtest_ss@gmail.com",
+      "action": "SOCIAL_LINK",
+      "target": "instagram",
+      "details": "Connected instagram: @soulsync_couple"
+    },
+    {
+      "id": "aud_22",
+      "timestamp": "2026-11-27T12:36:39.345273Z",
+      "actor": "socialtest_ss@gmail.com",
+      "action": "SOCIAL_REGISTER",
+      "target": "google",
+      "details": "Registered & verified via google (socialtest_ss@gmail.com)"
+    },
+    {
+      "id": "aud_21",
+      "timestamp": "2026-11-26T12:35:16.304494Z",
+      "actor": "admin@soulsync.app",
+      "action": "ADMIN_LOGIN",
+      "target": "Superadmin",
+      "details": "Admin logged in from 127.0.0.1"
+    },
+    {
+      "id": "aud_20",
+      "timestamp": "2026-11-26T12:35:14.079486Z",
+      "actor": "pateljaymin1234567890+soulsynctest@gmail.com",
+      "action": "EMAIL_VERIFIED",
+      "target": "pateljaymin1234567890+soulsynctest@gmail.com",
+      "details": "User email verified via OTP and account activated"
+    },
+    {
+      "id": "aud_19",
+      "timestamp": "2026-11-26T12:34:56.774273Z",
+      "actor": "pateljaymin1234567890+soulsynctest@gmail.com",
+      "action": "EMAIL_VERIFIED",
+      "target": "pateljaymin1234567890+soulsynctest@gmail.com",
+      "details": "User email verified via OTP and account activated"
+    },
+    {
+      "id": "aud_18",
+      "timestamp": "2026-11-26T12:34:36.364148Z",
+      "actor": "admin@soulsync.app",
+      "action": "ADMIN_LOGIN",
+      "target": "Superadmin",
+      "details": "Admin logged in from 127.0.0.1"
+    },
+    {
+      "id": "aud_17",
+      "timestamp": "2026-11-26T12:34:14.252932Z",
+      "actor": "admin@soulsync.app",
+      "action": "ADMIN_LOGIN",
+      "target": "Superadmin",
+      "details": "Admin logged in from 127.0.0.1"
+    },
+    {
+      "id": "aud_16",
+      "timestamp": "2026-11-26T12:34:11.504650Z",
+      "actor": "pateljaymin1234567890+soulsynctest@gmail.com",
+      "action": "EMAIL_VERIFIED",
+      "target": "pateljaymin1234567890+soulsynctest@gmail.com",
+      "details": "User email verified via OTP and account activated"
+    },
+    {
+      "id": "aud_15",
+      "timestamp": "2026-11-26T09:59:16.411754Z",
+      "actor": "admin@soulsync.app",
+      "action": "ADMIN_LOGIN",
+      "target": "Superadmin",
+      "details": "Admin logged in from 127.0.0.1"
+    },
+    {
+      "id": "aud_14",
+      "timestamp": "2026-11-26T09:15:32.425817Z",
+      "actor": "admin@soulsync.app",
+      "action": "ADMIN_LOGIN",
+      "target": "Superadmin",
+      "details": "Admin logged in from 127.0.0.1"
+    },
+    {
+      "id": "aud_1795679186825",
+      "admin": "admin@soulsync.app",
+      "action": "UPDATE_SOULSAFE_CONFIG",
+      "details": "SoulSafe enabled=True, speed_alerts=True",
+      "timestamp": "Nov 26, 2026 - 07:46 UTC"
+    },
+    {
+      "id": "aud_1795679186822",
+      "admin": "admin@soulsync.app",
+      "action": "UPDATE_SOULSAFE_CONFIG",
+      "details": "SoulSafe enabled=False, speed_alerts=True",
+      "timestamp": "Nov 26, 2026 - 07:46 UTC"
+    },
+    {
+      "id": "aud_11",
+      "timestamp": "2026-11-26T07:46:26.780106Z",
+      "actor": "admin@soulsync.app",
+      "action": "ADMIN_LOGIN",
+      "target": "Superadmin",
+      "details": "Admin logged in from 127.0.0.1"
+    },
+    {
+      "id": "aud_10",
+      "timestamp": "2026-11-26T07:28:08.609642Z",
+      "actor": "admin@soulsync.app",
+      "action": "ADMIN_LOGIN",
+      "target": "Superadmin",
+      "details": "Admin logged in from 127.0.0.1"
+    },
+    {
+      "id": "aud_1795677570560",
+      "admin": "admin@soulsync.app",
+      "action": "UPDATE_MUSIC_CONFIG",
+      "details": "Music enabled=True, together_mode=True",
+      "timestamp": "Nov 26, 2026 - 07:19 UTC"
+    },
+    {
+      "id": "aud_1795677570556",
+      "admin": "admin@soulsync.app",
+      "action": "UPDATE_MUSIC_CONFIG",
+      "details": "Music enabled=False, together_mode=True",
+      "timestamp": "Nov 26, 2026 - 07:19 UTC"
+    },
+    {
+      "id": "aud_7",
+      "timestamp": "2026-11-26T07:19:28.290607Z",
+      "actor": "admin@soulsync.app",
+      "action": "ADMIN_LOGIN",
+      "target": "Superadmin",
+      "details": "Admin logged in from 127.0.0.1"
+    },
+    {
+      "id": "aud_6",
+      "timestamp": "2026-11-25T13:05:49.336980Z",
+      "actor": "admin@soulsync.app",
+      "action": "ADMIN_LOGIN",
+      "target": "Superadmin",
+      "details": "Admin logged in from 127.0.0.1"
+    },
+    {
+      "id": "aud_5",
+      "timestamp": "2026-11-25T13:03:01.200251Z",
+      "actor": "admin@soulsync.app",
+      "action": "ADMIN_LOGIN",
+      "target": "Superadmin",
+      "details": "Admin logged in from 127.0.0.1"
+    },
+    {
+      "id": "aud_4",
+      "timestamp": "2026-11-25T12:59:22.954495Z",
+      "actor": "admin@soulsync.app",
+      "action": "ADMIN_LOGIN",
+      "target": "Superadmin",
+      "details": "Admin logged in from 127.0.0.1"
+    },
     {
       "id": "aud_3",
       "timestamp": "2026-11-18T10:26:39.154013Z",
@@ -373,34 +554,178 @@
   ],
   "email_outbox": [
     {
+      "id": "mail_1795783005923_476c",
+      "to_masked": "pa*****@gmail.com",
+      "purpose": "email_change",
+      "subject": "SoulSync Email Change Verification",
+      "status": "delivered",
+      "note": "Delivered via Gmail SMTP (Vercel Production mailer)",
+      "timestamp": "2026-11-27T12:36:44.807302Z"
+    },
+    {
+      "id": "mail_1795783004790_aaed",
+      "to_masked": "pa*****@gmail.com",
+      "purpose": "password_reset",
+      "subject": "SoulSync Password Reset Code",
+      "status": "delivered",
+      "note": "Delivered via Gmail SMTP (Vercel Production mailer)",
+      "timestamp": "2026-11-27T12:36:43.490326Z"
+    },
+    {
+      "id": "mail_1795783003451_dbbd",
+      "to_masked": "pa*****@gmail.com",
+      "purpose": "verification",
+      "subject": "SoulSync Email Verification Code",
+      "status": "delivered",
+      "note": "Delivered via Gmail SMTP (Vercel Production mailer)",
+      "timestamp": "2026-11-27T12:36:42.082242Z"
+    },
+    {
+      "id": "mail_1795783002032_8696",
+      "to_masked": "pa*****@gmail.com",
+      "purpose": "verification",
+      "subject": "SoulSync Email Verification Code",
+      "status": "delivered",
+      "note": "Delivered via Gmail SMTP (Vercel Production mailer)",
+      "timestamp": "2026-11-27T12:36:39.483175Z"
+    },
+    {
+      "id": "mail_1795696516290_4903",
+      "to_masked": "pa*****@gmail.com",
+      "purpose": "email_change",
+      "subject": "SoulSync Email Change Verification",
+      "status": "delivered",
+      "note": "Delivered via Gmail SMTP (Vercel Production mailer)",
+      "timestamp": "2026-11-26T12:35:15.257177Z"
+    },
+    {
+      "id": "mail_1795696515242_0782",
+      "to_masked": "pa*****@gmail.com",
+      "purpose": "password_reset",
+      "subject": "SoulSync Password Reset Code",
+      "status": "delivered",
+      "note": "Delivered via Gmail SMTP (Vercel Production mailer)",
+      "timestamp": "2026-11-26T12:35:14.089830Z"
+    },
+    {
+      "id": "mail_1795696514053_cb47",
+      "to_masked": "pa*****@gmail.com",
+      "purpose": "verification",
+      "subject": "SoulSync Email Verification Code",
+      "status": "delivered",
+      "note": "Delivered via Gmail SMTP (Vercel Production mailer)",
+      "timestamp": "2026-11-26T12:35:12.874437Z"
+    },
+    {
+      "id": "mail_1795696512826_fb76",
+      "to_masked": "pa*****@gmail.com",
+      "purpose": "verification",
+      "subject": "SoulSync Email Verification Code",
+      "status": "delivered",
+      "note": "Delivered via Gmail SMTP (Vercel Production mailer)",
+      "timestamp": "2026-11-26T12:35:11.693166Z"
+    },
+    {
+      "id": "mail_1795696497816_9d6f",
+      "to_masked": "pa*****@gmail.com",
+      "purpose": "password_reset",
+      "subject": "SoulSync Password Reset Code",
+      "status": "delivered",
+      "note": "Delivered via Gmail SMTP (Vercel Production mailer)",
+      "timestamp": "2026-11-26T12:34:56.784404Z"
+    },
+    {
+      "id": "mail_1795696496747_e156",
+      "to_masked": "pa*****@gmail.com",
+      "purpose": "verification",
+      "subject": "SoulSync Email Verification Code",
+      "status": "delivered",
+      "note": "Delivered via Gmail SMTP (Vercel Production mailer)",
+      "timestamp": "2026-11-26T12:34:55.253620Z"
+    },
+    {
+      "id": "mail_1795696495206_e189",
+      "to_masked": "pa*****@gmail.com",
+      "purpose": "verification",
+      "subject": "SoulSync Email Verification Code",
+      "status": "delivered",
+      "note": "Delivered via Gmail SMTP (Vercel Production mailer)",
+      "timestamp": "2026-11-26T12:34:53.869191Z"
+    },
+    {
+      "id": "mail_1795696454240_cc13",
+      "to_masked": "pa*****@gmail.com",
+      "purpose": "email_change",
+      "subject": "SoulSync Email Change Verification",
+      "status": "delivered",
+      "note": "Delivered via Gmail SMTP (Vercel Production mailer)",
+      "timestamp": "2026-11-26T12:34:12.931459Z"
+    },
+    {
+      "id": "mail_1795696452916_716f",
+      "to_masked": "pa*****@gmail.com",
+      "purpose": "password_reset",
+      "subject": "SoulSync Password Reset Code",
+      "status": "delivered",
+      "note": "Delivered via Gmail SMTP (Vercel Production mailer)",
+      "timestamp": "2026-11-26T12:34:11.514708Z"
+    },
+    {
+      "id": "mail_1795696451479_a8c7",
+      "to_masked": "pa*****@gmail.com",
+      "purpose": "verification",
+      "subject": "SoulSync Email Verification Code",
+      "status": "delivered",
+      "note": "Delivered via Gmail SMTP (Vercel Production mailer)",
+      "timestamp": "2026-11-26T12:34:09.782377Z"
+    },
+    {
+      "id": "mail_1795696449737_6244",
+      "to_masked": "pa*****@gmail.com",
+      "purpose": "verification",
+      "subject": "SoulSync Email Verification Code",
+      "status": "delivered",
+      "note": "Delivered via Gmail SMTP (Vercel Production mailer)",
+      "timestamp": "2026-11-26T12:34:08.266069Z"
+    },
+    {
+      "id": "mail_1795696379701_a9e6",
+      "to_masked": "pa*****@gmail.com",
+      "purpose": "verification",
+      "subject": "SoulSync Email Verification Code",
+      "status": "failed",
+      "note": "Mailer connection error: [Errno 5] Input/output error",
+      "timestamp": "2026-11-26T12:32:57.561708Z"
+    },
+    {
+      "id": "mail_1795696379701_353b",
+      "to_masked": "pa*****@gmail.com",
+      "purpose": "verification",
+      "subject": "SoulSync Email Verification Code",
+      "status": "delivered",
+      "note": "Delivered via Gmail SMTP (Vercel Production mailer)",
+      "timestamp": "2026-11-26T12:32:57.561708Z"
+    },
+    {
       "id": "mail_1",
       "to": "jaymeen@yopmail.com",
-      "code": "268075",
       "purpose": "verification",
-      "subject": "Your SoulSync Verification Code: 268075 \ud83d\udc9e",
+      "subject": "Your SoulSync Verification Code: 268075 💞",
       "status": "simulated_local",
       "note": "Dispatched and saved to outbox (Configure SMTP in environment or admin to send via external mail server)",
       "timestamp": "2026-11-19T09:25:53.125092Z"
     }
   ],
-  "smtp_config": {
-    "host": "",
-    "port": 587,
-    "user": "",
-    "password": "",
-    "from_address": "SoulSync <no-reply@soulsync.app>",
-    "enabled": true
-  },
   "chat_messages": [
     {
       "id": "msg_seed_1",
       "couple_id": "c_u5_u4",
       "sender_id": "u4",
       "sender_name": "Sarah Test",
-      "content": "Good morning my love! Hope you slept well \ud83e\udd70",
+      "content": "Good morning my love! Hope you slept well 🥰",
       "media_type": "text",
       "reactions": {
-        "\u2764\ufe0f": [
+        "❤️": [
           "u5"
         ]
       },
@@ -413,10 +738,10 @@
       "couple_id": "c_u5_u4",
       "sender_id": "u5",
       "sender_name": "Emma Watson",
-      "content": "Good morning sweetie! Just saw your pulse, my heart skipped a beat \u2728",
+      "content": "Good morning sweetie! Just saw your pulse, my heart skipped a beat ✨",
       "media_type": "text",
       "reactions": {
-        "\ud83e\udd70": [
+        "🥰": [
           "u4"
         ]
       },
@@ -429,11 +754,11 @@
       "couple_id": "c_u5_u4",
       "sender_id": "u4",
       "sender_name": "Sarah Test",
-      "content": "Listen to this morning whisper for you \ud83c\udf99\ufe0f",
+      "content": "Listen to this morning whisper for you 🎙️",
       "media_type": "voice",
       "voice_duration": "0:14",
       "reactions": {
-        "\ud83d\udd25": [
+        "🔥": [
           "u5"
         ]
       },
@@ -446,26 +771,90 @@
       "couple_id": "c_u5_u4",
       "sender_id": "u5",
       "sender_name": "Emma Watson",
-      "content": "That voice note melted me! Can't wait for our game tonight \ud83d\udc96",
+      "content": "That voice note melted me! Can't wait for our game tonight 💖",
       "media_type": "text",
       "reactions": {
-        "\u2764\ufe0f": [
+        "❤️": [
           "u4"
         ]
       },
       "is_read": true,
       "delivered": true,
       "created_at": "2026-11-25T08:45:00Z"
+    },
+    {
+      "id": "msg_20261125122200_473",
+      "couple_id": "c_u5_u4",
+      "sender_id": "u5",
+      "sender_name": "Emma Watson",
+      "content": "I am counting down the days until we meet again ❤️",
+      "media_type": "text",
+      "media_url": null,
+      "voice_duration": null,
+      "reply_to_id": null,
+      "reply_preview": null,
+      "reactions": {},
+      "is_read": false,
+      "delivered": true,
+      "created_at": "2026-11-25T12:22:00.264173Z"
+    },
+    {
+      "id": "msg_20261125124406_672",
+      "couple_id": "c6",
+      "sender_id": "u6",
+      "sender_name": "jaymeen",
+      "content": "Hey love! Missing you right now 💕",
+      "media_type": "text",
+      "media_url": null,
+      "voice_duration": null,
+      "reply_to_id": null,
+      "reply_preview": null,
+      "reactions": {},
+      "is_read": false,
+      "delivered": true,
+      "created_at": "2026-11-25T12:44:06.470921Z"
+    },
+    {
+      "id": "msg_20261125124538_839",
+      "couple_id": "c_u5_u4",
+      "sender_id": "u1",
+      "sender_name": "Alex",
+      "content": "Counting every second with you too 💕",
+      "media_type": "text",
+      "media_url": null,
+      "voice_duration": null,
+      "reply_to_id": null,
+      "reply_preview": null,
+      "reactions": {},
+      "is_read": false,
+      "delivered": true,
+      "created_at": "2026-11-25T12:45:38.683732Z"
+    },
+    {
+      "id": "msg_20261126072737_964",
+      "couple_id": "c_u5_u4",
+      "sender_id": "u5",
+      "sender_name": "Emma Watson",
+      "content": "hii",
+      "media_type": "text",
+      "media_url": null,
+      "voice_duration": null,
+      "reply_to_id": null,
+      "reply_preview": null,
+      "reactions": {},
+      "is_read": false,
+      "delivered": true,
+      "created_at": "2026-11-26T07:27:37.775535Z"
     }
   ],
   "streaks": {
     "c_u5_u4": {
       "couple_id": "c_u5_u4",
-      "current_streak": 7,
+      "current_streak": 8,
       "longest_streak": 14,
       "freeze_tokens": 2,
       "last_active": "2026-11-25",
-      "milestone": "Special Heart Badge (7 Days) \ud83d\udc96",
+      "milestone": "Special Heart Badge (7 Days) 💖",
       "history": [
         "2026-11-25",
         "2026-11-24",
@@ -473,7 +862,8 @@
         "2026-11-22",
         "2026-11-21",
         "2026-11-20",
-        "2026-11-19"
+        "2026-11-19",
+        "2026-11-26"
       ]
     },
     "c6": {
@@ -482,7 +872,7 @@
       "longest_streak": 5,
       "freeze_tokens": 1,
       "last_active": "2026-11-25",
-      "milestone": "Little Heart (3 Days) \u2764\ufe0f",
+      "milestone": "Little Heart (3 Days) ❤️",
       "history": [
         "2026-11-25",
         "2026-11-24",
@@ -492,14 +882,26 @@
   },
   "gifts": [
     {
+      "id": "gift_2",
+      "couple_id": "c_u5_u4",
+      "sender_id": "u5",
+      "sender_name": "Emma Watson",
+      "gift_id": "gift_rose",
+      "gift_name": "Digital Red Rose",
+      "emoji": "🌹",
+      "message": "A rose for my forever love",
+      "created_at": "Nov 25, 2026 - 12:22",
+      "is_opened": false
+    },
+    {
       "id": "gift_1",
       "couple_id": "c_u5_u4",
       "sender_id": "u4",
       "sender_name": "Sarah Test",
       "gift_id": "gift_rose",
       "gift_name": "Digital Red Rose",
-      "emoji": "\ud83c\udf39",
-      "message": "A red rose because you make every single day brighter \ud83c\udf39",
+      "emoji": "🌹",
+      "message": "A red rose because you make every single day brighter 🌹",
       "created_at": "Nov 24, 2026 - 19:30",
       "is_opened": true
     }
@@ -515,15 +917,204 @@
       "content_id": "prof_u2",
       "reason": "Suspected Impersonation / Spam Profile",
       "details": "Profile bio contains external advertising link",
-      "status": "Pending Review \ud83d\udfe1",
+      "status": "Pending Review 🟡",
       "created_at": "Nov 25, 2026 14:15 UTC"
     }
   ],
   "notifications": [
     {
+      "id": "notif_1795696476327",
+      "user_id": "u4",
+      "title": "Emma Watson dedicated a song to you 💖",
+      "body": "Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster) — \"Thinking of you!\"",
+      "type": "music_dedication",
+      "deep_link": "/music",
+      "is_read": false,
+      "created_at": "Just now"
+    },
+    {
+      "id": "notif_1795696476208",
+      "user_id": "u4",
+      "title": "Emma Watson opened Listen Together 🎵",
+      "body": "Tap to join your private couple listening room!",
+      "type": "music_invite",
+      "deep_link": "/music",
+      "is_read": false,
+      "created_at": "Just now"
+    },
+    {
+      "id": "notif_1795684532387",
+      "user_id": "u4",
+      "title": "Emma Watson dedicated a song to you 💖",
+      "body": "Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster) — \"Thinking of you!\"",
+      "type": "music_dedication",
+      "deep_link": "/music",
+      "is_read": false,
+      "created_at": "Just now"
+    },
+    {
+      "id": "notif_1795684532293",
+      "user_id": "u4",
+      "title": "Emma Watson opened Listen Together 🎵",
+      "body": "Tap to join your private couple listening room!",
+      "type": "music_invite",
+      "deep_link": "/music",
+      "is_read": false,
+      "created_at": "Just now"
+    },
+    {
+      "id": "notif_1795684486201",
+      "user_id": "u4",
+      "title": "Emma Watson dedicated a song to you 💖",
+      "body": "Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster) — \"Thinking of you!\"",
+      "type": "music_dedication",
+      "deep_link": "/music",
+      "is_read": false,
+      "created_at": "Just now"
+    },
+    {
+      "id": "notif_1795684486112",
+      "user_id": "u4",
+      "title": "Emma Watson opened Listen Together 🎵",
+      "body": "Tap to join your private couple listening room!",
+      "type": "music_invite",
+      "deep_link": "/music",
+      "is_read": false,
+      "created_at": "Just now"
+    },
+    {
+      "id": "notif_1795684421918",
+      "user_id": "u4",
+      "title": "Emma Watson opened Listen Together 🎵",
+      "body": "Tap to join your private couple listening room!",
+      "type": "music_invite",
+      "deep_link": "/music",
+      "is_read": false,
+      "created_at": "Just now"
+    },
+    {
+      "id": "notif_1795684363867",
+      "user_id": "u4",
+      "title": "Emma Watson opened Listen Together 🎵",
+      "body": "Tap to join your private couple listening room!",
+      "type": "music_invite",
+      "deep_link": "/music",
+      "is_read": false,
+      "created_at": "Just now"
+    },
+    {
+      "id": "notif_1795684216075",
+      "user_id": "u4",
+      "title": "Emma Watson opened Listen Together 🎵",
+      "body": "Tap to join your private couple listening room!",
+      "type": "music_invite",
+      "deep_link": "/music",
+      "is_read": false,
+      "created_at": "Just now"
+    },
+    {
+      "id": "notif_1795684203697",
+      "user_id": "u4",
+      "title": "Emma Watson opened Listen Together 🎵",
+      "body": "Tap to join your private couple listening room!",
+      "type": "music_invite",
+      "deep_link": "/music",
+      "is_read": false,
+      "created_at": "Just now"
+    },
+    {
+      "id": "snotif_1795679186816",
+      "user_id": "u4",
+      "title": "🚨 URGENT SOS from Emma Watson!",
+      "body": "Test SOS verification",
+      "type": "safety_sos",
+      "deep_link": "/safety",
+      "is_read": false,
+      "created_at": "Just now"
+    },
+    {
+      "id": "snotif_1795679186810",
+      "user_id": "u5",
+      "title": "Speed Safety Notice ⚠️",
+      "body": "Sarah Test's estimated speed exceeded their agreed threshold (60.0 km/h).",
+      "type": "safety_speed_exceeded",
+      "deep_link": "/safety",
+      "is_read": false,
+      "created_at": "Just now"
+    },
+    {
+      "id": "snotif_1795679186807",
+      "user_id": "u5",
+      "title": "Speed Alert Threshold Proposal",
+      "body": "Sarah Test proposed a 80.0 km/h safety alert threshold for your travel.",
+      "type": "safety_speed_exceeded",
+      "deep_link": "/safety",
+      "is_read": false,
+      "created_at": "Just now"
+    },
+    {
+      "id": "snotif_1795679186799",
+      "user_id": "u4",
+      "title": "Speed Alert Threshold Proposal",
+      "body": "Emma Watson proposed a 60.0 km/h safety alert threshold for your travel.",
+      "type": "safety_speed_exceeded",
+      "deep_link": "/safety",
+      "is_read": false,
+      "created_at": "Just now"
+    },
+    {
+      "id": "snotif_1795679186787",
+      "user_id": "u5",
+      "title": "Live Location Shared 📍",
+      "body": "Sarah Test started sharing their live location.",
+      "type": "safety_sharing_started",
+      "deep_link": "/safety",
+      "is_read": false,
+      "created_at": "Just now"
+    },
+    {
+      "id": "snotif_1795679186783",
+      "user_id": "u4",
+      "title": "Live Location Shared 📍",
+      "body": "Emma Watson started sharing their live location.",
+      "type": "safety_sharing_started",
+      "deep_link": "/safety",
+      "is_read": false,
+      "created_at": "Just now"
+    },
+    {
+      "id": "notif_1795677568853",
+      "user_id": "u4",
+      "title": "Emma Watson opened Listen Together 🎵",
+      "body": "Tap to join your private couple listening room!",
+      "type": "music_invite",
+      "deep_link": "/music",
+      "is_read": false,
+      "created_at": "Just now"
+    },
+    {
+      "id": "notif_1795677216308",
+      "user_id": "u4",
+      "title": "Emma Watson opened Listen Together 🎵",
+      "body": "Tap to join your private couple listening room!",
+      "type": "music_invite",
+      "deep_link": "/music",
+      "is_read": false,
+      "created_at": "Just now"
+    },
+    {
+      "id": "notif_3",
+      "user_id": "partner",
+      "title": "New Gift from Emma Watson! 🌹",
+      "body": "\"A rose for my forever love\"",
+      "type": "gift",
+      "is_read": false,
+      "created_at": "Just now"
+    },
+    {
       "id": "notif_1",
       "user_id": "u5",
-      "title": "Love Pulse Received! \ud83d\udc8b",
+      "title": "Love Pulse Received! 💋",
       "body": "Sarah sent you a passionate Kiss!",
       "type": "pulse",
       "is_read": false,
@@ -532,11 +1123,1642 @@
     {
       "id": "notif_2",
       "user_id": "u5",
-      "title": "Streak Milestone Reached! \ud83c\udfc6",
+      "title": "Streak Milestone Reached! 🏆",
       "body": "You and Sarah hit a 7-Day Connection Streak! Special Heart Badge unlocked.",
       "type": "streak",
       "is_read": false,
       "created_at": "2h ago"
     }
-  ]
+  ],
+  "admins": [
+    {
+      "id": "adm_1",
+      "name": "SoulSync Superadmin",
+      "email": "admin@soulsync.app",
+      "admin_id": "SUPERADMIN-01",
+      "role": "Superadmin",
+      "password_hash": "e6236ce44cbb7bda01f35d0a964e0f23fc936f310a12991d8209eb3f2151ffb1",
+      "is_active": true,
+      "created_at": "2026-11-19T00:00:00Z",
+      "last_login": "2026-11-27T12:36:45.936143Z"
+    },
+    {
+      "id": "adm_2",
+      "name": "Sarah Support",
+      "email": "support@soulsync.app",
+      "admin_id": "SUPPORT-01",
+      "role": "Support Admin",
+      "password_hash": "619b9687dc1209aac2473710d0e0c2dedcea78708fe88f676c816351e069043b",
+      "is_active": true,
+      "created_at": "2026-11-19T00:00:00Z",
+      "last_login": null
+    }
+  ],
+  "admin_sessions": {
+    "adm_token_d95a800fbd60d2fcba214e4eeaaa5257": {
+      "admin_id": "adm_1",
+      "role": "Superadmin",
+      "created_at": "2026-11-25T12:59:22.953893Z",
+      "expires_at": "2026-11-26T12:59:22.954463Z"
+    },
+    "adm_token_b58eef0f26deb6a8717de7e1a275c07f": {
+      "admin_id": "adm_1",
+      "role": "Superadmin",
+      "created_at": "2026-11-25T13:03:01.194519Z",
+      "expires_at": "2026-11-26T13:03:01.200179Z"
+    },
+    "adm_token_fd7a36956ec46ea842051ed8eb992adf": {
+      "admin_id": "adm_1",
+      "role": "Superadmin",
+      "created_at": "2026-11-25T13:05:49.336723Z",
+      "expires_at": "2026-11-26T13:05:49.336918Z"
+    },
+    "adm_token_493cfcbd8b79a291516484887c58cc1a": {
+      "admin_id": "adm_1",
+      "role": "Superadmin",
+      "created_at": "2026-11-26T07:19:28.290454Z",
+      "expires_at": "2026-11-27T07:19:28.290584Z"
+    },
+    "adm_token_e7f39c70606bc90af6da98fd65a4381e": {
+      "admin_id": "adm_1",
+      "role": "Superadmin",
+      "created_at": "2026-11-26T07:28:08.609371Z",
+      "expires_at": "2026-11-27T07:28:08.609575Z"
+    },
+    "adm_token_cc45597bb690600ae989040504d3c3a5": {
+      "admin_id": "adm_1",
+      "role": "Superadmin",
+      "created_at": "2026-11-26T07:46:26.779960Z",
+      "expires_at": "2026-11-27T07:46:26.780084Z"
+    },
+    "adm_token_7f5aa26ee5dba142e5d035a8ddba3a45": {
+      "admin_id": "adm_1",
+      "role": "Superadmin",
+      "created_at": "2026-11-26T09:15:32.425417Z",
+      "expires_at": "2026-11-27T09:15:32.425790Z"
+    },
+    "adm_token_52f218249533dc27b25d57a8926567ff": {
+      "admin_id": "adm_1",
+      "role": "Superadmin",
+      "created_at": "2026-11-26T09:59:16.406593Z",
+      "expires_at": "2026-11-27T09:59:16.411689Z"
+    },
+    "adm_token_144775f72099afa49f8cd2e1e9363a42": {
+      "admin_id": "adm_1",
+      "role": "Superadmin",
+      "created_at": "2026-11-26T12:34:14.252776Z",
+      "expires_at": "2026-11-27T12:34:14.252903Z"
+    },
+    "adm_token_6022cd5923d6938f9d20d2bdeeec1bab": {
+      "admin_id": "adm_1",
+      "role": "Superadmin",
+      "created_at": "2026-11-26T12:34:36.364120Z",
+      "expires_at": "2026-11-27T12:34:36.364140Z"
+    },
+    "adm_token_a9f5318ff8d295c6522c9a16672d9b42": {
+      "admin_id": "adm_1",
+      "role": "Superadmin",
+      "created_at": "2026-11-26T12:35:16.304406Z",
+      "expires_at": "2026-11-27T12:35:16.304465Z"
+    },
+    "adm_token_4521c1cbd822660bcb7187c290855e19": {
+      "admin_id": "adm_1",
+      "role": "Superadmin",
+      "created_at": "2026-11-27T12:36:45.936143Z",
+      "expires_at": "2026-11-28T12:36:45.936257Z"
+    }
+  },
+  "admin_login_logs": [
+    {
+      "id": "log_12",
+      "identifier": "admin@soulsync.app",
+      "admin_name": "SoulSync Superadmin",
+      "role": "Superadmin",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-11-27T12:36:45.936143Z"
+    },
+    {
+      "id": "log_11",
+      "identifier": "admin@soulsync.app",
+      "admin_name": "SoulSync Superadmin",
+      "role": "Superadmin",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-11-26T12:35:16.304406Z"
+    },
+    {
+      "id": "log_10",
+      "identifier": "admin@soulsync.app",
+      "admin_name": "SoulSync Superadmin",
+      "role": "Superadmin",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-11-26T12:34:36.364120Z"
+    },
+    {
+      "id": "log_9",
+      "identifier": "admin@soulsync.app",
+      "admin_name": "SoulSync Superadmin",
+      "role": "Superadmin",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-11-26T12:34:14.252776Z"
+    },
+    {
+      "id": "log_8",
+      "identifier": "admin@soulsync.app",
+      "admin_name": "SoulSync Superadmin",
+      "role": "Superadmin",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-11-26T09:59:16.406593Z"
+    },
+    {
+      "id": "log_7",
+      "identifier": "admin@soulsync.app",
+      "admin_name": "SoulSync Superadmin",
+      "role": "Superadmin",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-11-26T09:15:32.425417Z"
+    },
+    {
+      "id": "log_6",
+      "identifier": "admin@soulsync.app",
+      "admin_name": "SoulSync Superadmin",
+      "role": "Superadmin",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-11-26T07:46:26.779960Z"
+    },
+    {
+      "id": "log_5",
+      "identifier": "admin@soulsync.app",
+      "admin_name": "SoulSync Superadmin",
+      "role": "Superadmin",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-11-26T07:28:08.609371Z"
+    },
+    {
+      "id": "log_4",
+      "identifier": "admin@soulsync.app",
+      "admin_name": "SoulSync Superadmin",
+      "role": "Superadmin",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-11-26T07:19:28.290454Z"
+    },
+    {
+      "id": "log_3",
+      "identifier": "admin@soulsync.app",
+      "admin_name": "SoulSync Superadmin",
+      "role": "Superadmin",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-11-25T13:05:49.336723Z"
+    },
+    {
+      "id": "log_2",
+      "identifier": "admin@soulsync.app",
+      "admin_name": "SoulSync Superadmin",
+      "role": "Superadmin",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-11-25T13:03:01.194519Z"
+    },
+    {
+      "id": "log_1",
+      "identifier": "admin@soulsync.app",
+      "admin_name": "SoulSync Superadmin",
+      "role": "Superadmin",
+      "status": "SUCCESS",
+      "ip": "127.0.0.1",
+      "timestamp": "2026-11-25T12:59:22.953893Z"
+    }
+  ],
+  "music_rooms": {
+    "c_u5_u4": {
+      "id": "room_c_u5_u4",
+      "couple_id": "c_u5_u4",
+      "creator_id": "u5",
+      "host_id": "u5",
+      "mode": "together",
+      "created_at": "2026-11-26T07:13:36.308928Z",
+      "participants": {
+        "u5": {
+          "user_id": "u5",
+          "name": "Emma Watson",
+          "avatar_url": null,
+          "online": true,
+          "buffering": false,
+          "state": "listening",
+          "joined_at": "2026-11-26T12:34:36.208365Z",
+          "last_heartbeat_ms": 1795696476345
+        },
+        "u4": {
+          "user_id": "u4",
+          "name": "Sarah Test",
+          "avatar_url": null,
+          "online": true,
+          "buffering": false,
+          "state": "listening",
+          "joined_at": "2026-11-26T12:34:36.217175Z",
+          "last_heartbeat_ms": 1795696476352
+        }
+      },
+      "playback": {
+        "video_id": "lp-EO5I60KA",
+        "title": "Ed Sheeran - Thinking Out Loud (Official Music Video)",
+        "artist": "Ed Sheeran",
+        "thumbnail": "https://i.ytimg.com/vi/lp-EO5I60KA/hqdefault.jpg",
+        "duration_seconds": 290,
+        "is_playing": true,
+        "position_seconds": 0.0,
+        "playback_rate": 1.0,
+        "anchor_timestamp_ms": 1795696476322,
+        "repeat_mode": "none",
+        "shuffle": false,
+        "event_seq": 81,
+        "updated_by": "Sarah Test"
+      },
+      "queue": [
+        {
+          "video_id": "dQw4w9WgXcQ",
+          "title": "Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)",
+          "artist": "Rick Astley",
+          "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+          "duration_seconds": 214,
+          "added_by": "Emma Watson",
+          "is_our_song": false,
+          "added_at": "2026-11-26T12:34:36.308752Z"
+        }
+      ],
+      "recently_played": [
+        {
+          "video_id": "2Vv-BfVoq4g",
+          "title": "Ed Sheeran - Perfect (Official Music Video)",
+          "artist": "Ed Sheeran",
+          "thumbnail": "https://i.ytimg.com/vi/2Vv-BfVoq4g/hqdefault.jpg",
+          "duration_seconds": 282,
+          "played_at": "2026-11-26T12:34:36.322435Z"
+        },
+        {
+          "video_id": "cNGjD0VG4R8",
+          "title": "Ed Sheeran - Perfect",
+          "artist": "LatinHype",
+          "thumbnail": "https://i.ytimg.com/vi/cNGjD0VG4R8/hqdefault.jpg",
+          "duration_seconds": 264,
+          "played_at": "2026-11-26T12:34:36.318933Z"
+        },
+        {
+          "video_id": "dQw4w9WgXcQ",
+          "title": "Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)",
+          "artist": "Rick Astley",
+          "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+          "duration_seconds": 214,
+          "played_at": "2026-11-26T12:34:36.228900Z"
+        },
+        {
+          "video_id": "OsRwcU03guM",
+          "title": "Ed Sheeran - Thinking Out Loud (Lyrics)",
+          "artist": "Cakes & Eclairs",
+          "thumbnail": "https://i.ytimg.com/vi/OsRwcU03guM/hqdefault.jpg",
+          "duration_seconds": 277,
+          "played_at": "2026-11-26T09:10:03.708199Z"
+        },
+        {
+          "video_id": "lp-EO5I60KA",
+          "title": "Ed Sheeran - Thinking Out Loud (Official Music Video)",
+          "artist": "Ed Sheeran",
+          "thumbnail": "https://i.ytimg.com/vi/lp-EO5I60KA/hqdefault.jpg",
+          "duration_seconds": 290,
+          "played_at": "2026-11-26T07:27:01.861141Z"
+        }
+      ],
+      "suggestions": [],
+      "sleep_timer": null
+    }
+  },
+  "music_playlists": [
+    {
+      "id": "pl_c_u5_u4_our_songs",
+      "couple_id": "c_u5_u4",
+      "name": "Our Songs",
+      "is_our_songs": true,
+      "created_by": "u5",
+      "created_at": "2026-11-26T07:13:36.307908Z",
+      "songs": []
+    },
+    {
+      "id": "pl_1795677570409",
+      "couple_id": "c_u5_u4",
+      "name": "Midnight Acoustic",
+      "is_our_songs": false,
+      "created_by": "Emma Watson",
+      "created_at": "2026-11-26T07:19:30.409324Z",
+      "songs": [
+        {
+          "video_id": "lp-EO5I60KA",
+          "title": "Ed Sheeran - Thinking Out Loud (Official Music Video)",
+          "artist": "Ed Sheeran",
+          "thumbnail": "https://i.ytimg.com/vi/lp-EO5I60KA/hqdefault.jpg",
+          "duration_seconds": 290,
+          "added_by": "Sarah Test",
+          "is_our_song": true,
+          "added_at": "2026-11-26T07:19:30.411461Z"
+        }
+      ]
+    }
+  ],
+  "music_playback_events": [
+    {
+      "id": "mev_1795696476352",
+      "couple_id": "c_u5_u4",
+      "user_id": "u4",
+      "action": "sleep_timer_cancel",
+      "video_id": "lp-EO5I60KA",
+      "position": 0.0,
+      "seq": 81,
+      "timestamp": "2026-11-26T12:34:36.352956Z"
+    },
+    {
+      "id": "mev_1795696476349",
+      "couple_id": "c_u5_u4",
+      "user_id": "u4",
+      "action": "sleep_timer_accept",
+      "video_id": "lp-EO5I60KA",
+      "position": 0.0,
+      "seq": 80,
+      "timestamp": "2026-11-26T12:34:36.349299Z"
+    },
+    {
+      "id": "mev_1795696476345",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "sleep_timer_propose",
+      "video_id": "lp-EO5I60KA",
+      "position": 0.0,
+      "seq": 79,
+      "timestamp": "2026-11-26T12:34:36.345973Z"
+    },
+    {
+      "id": "mev_1795696476322",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "surprise",
+      "video_id": "lp-EO5I60KA",
+      "position": 0.0,
+      "seq": 78,
+      "timestamp": "2026-11-26T12:34:36.322435Z"
+    },
+    {
+      "id": "mev_1795696476318",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "play_playlist",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 77,
+      "timestamp": "2026-11-26T12:34:36.318933Z"
+    },
+    {
+      "id": "mev_1795696476298",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "mode",
+      "video_id": "cNGjD0VG4R8",
+      "position": 0.0,
+      "seq": 76,
+      "timestamp": "2026-11-26T12:34:36.298597Z"
+    },
+    {
+      "id": "mev_1795696476295",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "dismiss_suggestion",
+      "video_id": "cNGjD0VG4R8",
+      "position": 0.0,
+      "seq": 75,
+      "timestamp": "2026-11-26T12:34:36.295340Z"
+    },
+    {
+      "id": "mev_1795696476291",
+      "couple_id": "c_u5_u4",
+      "user_id": "u4",
+      "action": "suggest_track",
+      "video_id": "cNGjD0VG4R8",
+      "position": 0.0,
+      "seq": 74,
+      "timestamp": "2026-11-26T12:34:36.291979Z"
+    },
+    {
+      "id": "mev_1795696476286",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "mode",
+      "video_id": "cNGjD0VG4R8",
+      "position": 0.0,
+      "seq": 73,
+      "timestamp": "2026-11-26T12:34:36.286514Z"
+    },
+    {
+      "id": "mev_1795696476283",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_play",
+      "video_id": "cNGjD0VG4R8",
+      "position": 0.0,
+      "seq": 72,
+      "timestamp": "2026-11-26T12:34:36.283114Z"
+    },
+    {
+      "id": "mev_1795696476279",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_reorder",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 71,
+      "timestamp": "2026-11-26T12:34:36.279635Z"
+    },
+    {
+      "id": "mev_1795696476275",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_add",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 70,
+      "timestamp": "2026-11-26T12:34:36.275962Z"
+    },
+    {
+      "id": "mev_1795696476272",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_add",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 69,
+      "timestamp": "2026-11-26T12:34:36.272345Z"
+    },
+    {
+      "id": "mev_1795696476268",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_clear",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 68,
+      "timestamp": "2026-11-26T12:34:36.268810Z"
+    },
+    {
+      "id": "mev_1795696476228",
+      "couple_id": "c_u5_u4",
+      "user_id": "u4",
+      "action": "set_track",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 67,
+      "timestamp": "2026-11-26T12:34:36.228900Z"
+    },
+    {
+      "id": "mev_1795696476223",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "set_track",
+      "video_id": "dQw4w9WgXcQ",
+      "position": 0.0,
+      "seq": 66,
+      "timestamp": "2026-11-26T12:34:36.223072Z"
+    },
+    {
+      "id": "mev_1795684532413",
+      "couple_id": "c_u5_u4",
+      "user_id": "u4",
+      "action": "sleep_timer_cancel",
+      "video_id": "dQw4w9WgXcQ",
+      "position": 0.0,
+      "seq": 65,
+      "timestamp": "2026-11-26T09:15:32.413524Z"
+    },
+    {
+      "id": "mev_1795684532409",
+      "couple_id": "c_u5_u4",
+      "user_id": "u4",
+      "action": "sleep_timer_accept",
+      "video_id": "dQw4w9WgXcQ",
+      "position": 0.0,
+      "seq": 64,
+      "timestamp": "2026-11-26T09:15:32.409301Z"
+    },
+    {
+      "id": "mev_1795684532406",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "sleep_timer_propose",
+      "video_id": "dQw4w9WgXcQ",
+      "position": 0.0,
+      "seq": 63,
+      "timestamp": "2026-11-26T09:15:32.406010Z"
+    },
+    {
+      "id": "mev_1795684532382",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "surprise",
+      "video_id": "dQw4w9WgXcQ",
+      "position": 0.0,
+      "seq": 62,
+      "timestamp": "2026-11-26T09:15:32.382613Z"
+    },
+    {
+      "id": "mev_1795684532378",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "play_playlist",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 61,
+      "timestamp": "2026-11-26T09:15:32.378451Z"
+    },
+    {
+      "id": "mev_1795684532359",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "mode",
+      "video_id": "cNGjD0VG4R8",
+      "position": 0.0,
+      "seq": 60,
+      "timestamp": "2026-11-26T09:15:32.359032Z"
+    },
+    {
+      "id": "mev_1795684532355",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "dismiss_suggestion",
+      "video_id": "cNGjD0VG4R8",
+      "position": 0.0,
+      "seq": 59,
+      "timestamp": "2026-11-26T09:15:32.355654Z"
+    },
+    {
+      "id": "mev_1795684532352",
+      "couple_id": "c_u5_u4",
+      "user_id": "u4",
+      "action": "suggest_track",
+      "video_id": "cNGjD0VG4R8",
+      "position": 0.0,
+      "seq": 58,
+      "timestamp": "2026-11-26T09:15:32.352683Z"
+    },
+    {
+      "id": "mev_1795684532347",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "mode",
+      "video_id": "cNGjD0VG4R8",
+      "position": 0.0,
+      "seq": 57,
+      "timestamp": "2026-11-26T09:15:32.347904Z"
+    },
+    {
+      "id": "mev_1795684532344",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_play",
+      "video_id": "cNGjD0VG4R8",
+      "position": 0.0,
+      "seq": 56,
+      "timestamp": "2026-11-26T09:15:32.344576Z"
+    },
+    {
+      "id": "mev_1795684532341",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_reorder",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 55,
+      "timestamp": "2026-11-26T09:15:32.341143Z"
+    },
+    {
+      "id": "mev_1795684532338",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_add",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 54,
+      "timestamp": "2026-11-26T09:15:32.338188Z"
+    },
+    {
+      "id": "mev_1795684532335",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_add",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 53,
+      "timestamp": "2026-11-26T09:15:32.335287Z"
+    },
+    {
+      "id": "mev_1795684532332",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_clear",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 52,
+      "timestamp": "2026-11-26T09:15:32.332328Z"
+    },
+    {
+      "id": "mev_1795684532304",
+      "couple_id": "c_u5_u4",
+      "user_id": "u4",
+      "action": "set_track",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 51,
+      "timestamp": "2026-11-26T09:15:32.304050Z"
+    },
+    {
+      "id": "mev_1795684532300",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "set_track",
+      "video_id": "dQw4w9WgXcQ",
+      "position": 0.0,
+      "seq": 50,
+      "timestamp": "2026-11-26T09:15:32.300670Z"
+    },
+    {
+      "id": "mev_1795684486247",
+      "couple_id": "c_u5_u4",
+      "user_id": "u4",
+      "action": "sleep_timer_cancel",
+      "video_id": "dQw4w9WgXcQ",
+      "position": 0.0,
+      "seq": 49,
+      "timestamp": "2026-11-26T09:14:46.247934Z"
+    },
+    {
+      "id": "mev_1795684486244",
+      "couple_id": "c_u5_u4",
+      "user_id": "u4",
+      "action": "sleep_timer_accept",
+      "video_id": "dQw4w9WgXcQ",
+      "position": 0.0,
+      "seq": 48,
+      "timestamp": "2026-11-26T09:14:46.244327Z"
+    },
+    {
+      "id": "mev_1795684486241",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "sleep_timer_propose",
+      "video_id": "dQw4w9WgXcQ",
+      "position": 0.0,
+      "seq": 47,
+      "timestamp": "2026-11-26T09:14:46.241406Z"
+    },
+    {
+      "id": "mev_1795684486197",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "surprise",
+      "video_id": "dQw4w9WgXcQ",
+      "position": 0.0,
+      "seq": 46,
+      "timestamp": "2026-11-26T09:14:46.197851Z"
+    },
+    {
+      "id": "mev_1795684486194",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "play_playlist",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 45,
+      "timestamp": "2026-11-26T09:14:46.194455Z"
+    },
+    {
+      "id": "mev_1795684486175",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "mode",
+      "video_id": "cNGjD0VG4R8",
+      "position": 0.0,
+      "seq": 44,
+      "timestamp": "2026-11-26T09:14:46.175600Z"
+    },
+    {
+      "id": "mev_1795684486172",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "dismiss_suggestion",
+      "video_id": "cNGjD0VG4R8",
+      "position": 0.0,
+      "seq": 43,
+      "timestamp": "2026-11-26T09:14:46.172943Z"
+    },
+    {
+      "id": "mev_1795684486170",
+      "couple_id": "c_u5_u4",
+      "user_id": "u4",
+      "action": "suggest_track",
+      "video_id": "cNGjD0VG4R8",
+      "position": 0.0,
+      "seq": 42,
+      "timestamp": "2026-11-26T09:14:46.170138Z"
+    },
+    {
+      "id": "mev_1795684486165",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "mode",
+      "video_id": "cNGjD0VG4R8",
+      "position": 0.0,
+      "seq": 41,
+      "timestamp": "2026-11-26T09:14:46.165822Z"
+    },
+    {
+      "id": "mev_1795684486163",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_play",
+      "video_id": "cNGjD0VG4R8",
+      "position": 0.0,
+      "seq": 40,
+      "timestamp": "2026-11-26T09:14:46.163104Z"
+    },
+    {
+      "id": "mev_1795684486160",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_reorder",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 39,
+      "timestamp": "2026-11-26T09:14:46.160342Z"
+    },
+    {
+      "id": "mev_1795684486157",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_add",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 38,
+      "timestamp": "2026-11-26T09:14:46.157620Z"
+    },
+    {
+      "id": "mev_1795684486154",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_add",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 37,
+      "timestamp": "2026-11-26T09:14:46.154377Z"
+    },
+    {
+      "id": "mev_1795684486151",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_clear",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 36,
+      "timestamp": "2026-11-26T09:14:46.151325Z"
+    },
+    {
+      "id": "mev_1795684486123",
+      "couple_id": "c_u5_u4",
+      "user_id": "u4",
+      "action": "set_track",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 35,
+      "timestamp": "2026-11-26T09:14:46.123045Z"
+    },
+    {
+      "id": "mev_1795684486119",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "set_track",
+      "video_id": "dQw4w9WgXcQ",
+      "position": 0.0,
+      "seq": 34,
+      "timestamp": "2026-11-26T09:14:46.119546Z"
+    },
+    {
+      "id": "mev_1795684421929",
+      "couple_id": "c_u5_u4",
+      "user_id": "u4",
+      "action": "set_track",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 33,
+      "timestamp": "2026-11-26T09:13:41.929136Z"
+    },
+    {
+      "id": "mev_1795684421925",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "set_track",
+      "video_id": "dQw4w9WgXcQ",
+      "position": 0.0,
+      "seq": 32,
+      "timestamp": "2026-11-26T09:13:41.925558Z"
+    },
+    {
+      "id": "mev_1795684363910",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "mode",
+      "video_id": "cNGjD0VG4R8",
+      "position": 0.0,
+      "seq": 31,
+      "timestamp": "2026-11-26T09:12:43.910967Z"
+    },
+    {
+      "id": "mev_1795684363907",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_play",
+      "video_id": "cNGjD0VG4R8",
+      "position": 0.0,
+      "seq": 30,
+      "timestamp": "2026-11-26T09:12:43.907508Z"
+    },
+    {
+      "id": "mev_1795684363904",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_reorder",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 29,
+      "timestamp": "2026-11-26T09:12:43.904888Z"
+    },
+    {
+      "id": "mev_1795684363902",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_add",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 28,
+      "timestamp": "2026-11-26T09:12:43.902293Z"
+    },
+    {
+      "id": "mev_1795684363899",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_add",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 27,
+      "timestamp": "2026-11-26T09:12:43.899655Z"
+    },
+    {
+      "id": "mev_1795684363896",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_clear",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 26,
+      "timestamp": "2026-11-26T09:12:43.896978Z"
+    },
+    {
+      "id": "mev_1795684363876",
+      "couple_id": "c_u5_u4",
+      "user_id": "u4",
+      "action": "set_track",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 25,
+      "timestamp": "2026-11-26T09:12:43.876578Z"
+    },
+    {
+      "id": "mev_1795684363873",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "set_track",
+      "video_id": "dQw4w9WgXcQ",
+      "position": 0.0,
+      "seq": 24,
+      "timestamp": "2026-11-26T09:12:43.873901Z"
+    },
+    {
+      "id": "mev_1795684203708",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "set_track",
+      "video_id": "dQw4w9WgXcQ",
+      "position": 0.0,
+      "seq": 23,
+      "timestamp": "2026-11-26T09:10:03.708199Z"
+    },
+    {
+      "id": "mev_1795678116122",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "pause",
+      "video_id": "OsRwcU03guM",
+      "position": 93.94399999999999,
+      "seq": 22,
+      "timestamp": "2026-11-26T07:28:36.122580Z"
+    },
+    {
+      "id": "mev_1795678021861",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "next",
+      "video_id": "OsRwcU03guM",
+      "position": 0.0,
+      "seq": 21,
+      "timestamp": "2026-11-26T07:27:01.861141Z"
+    },
+    {
+      "id": "mev_1795678020391",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "next",
+      "video_id": "lp-EO5I60KA",
+      "position": 0.0,
+      "seq": 20,
+      "timestamp": "2026-11-26T07:27:00.391987Z"
+    },
+    {
+      "id": "mev_1795678018482",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "prev",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 19,
+      "timestamp": "2026-11-26T07:26:58.482663Z"
+    },
+    {
+      "id": "mev_1795678017600",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "prev",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 18,
+      "timestamp": "2026-11-26T07:26:57.600460Z"
+    },
+    {
+      "id": "mev_1795678017366",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "prev",
+      "video_id": "lp-EO5I60KA",
+      "position": 0.0,
+      "seq": 17,
+      "timestamp": "2026-11-26T07:26:57.366802Z"
+    },
+    {
+      "id": "mev_1795678016554",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "prev",
+      "video_id": "OsRwcU03guM",
+      "position": 0.0,
+      "seq": 16,
+      "timestamp": "2026-11-26T07:26:56.554144Z"
+    },
+    {
+      "id": "mev_1795678015272",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "next",
+      "video_id": "OsRwcU03guM",
+      "position": 277.0,
+      "seq": 15,
+      "timestamp": "2026-11-26T07:26:55.272814Z"
+    },
+    {
+      "id": "mev_1795678014152",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "next",
+      "video_id": "OsRwcU03guM",
+      "position": 277.0,
+      "seq": 14,
+      "timestamp": "2026-11-26T07:26:54.152948Z"
+    },
+    {
+      "id": "mev_1795678011667",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "resume",
+      "video_id": "OsRwcU03guM",
+      "position": 277.0,
+      "seq": 13,
+      "timestamp": "2026-11-26T07:26:51.667131Z"
+    },
+    {
+      "id": "mev_1795678010977",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "pause",
+      "video_id": "OsRwcU03guM",
+      "position": 277.0,
+      "seq": 12,
+      "timestamp": "2026-11-26T07:26:50.977585Z"
+    },
+    {
+      "id": "mev_1795677795228",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "mode",
+      "video_id": "OsRwcU03guM",
+      "position": 0.0,
+      "seq": 11,
+      "timestamp": "2026-11-26T07:23:15.228471Z"
+    },
+    {
+      "id": "mev_1795677570395",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "next",
+      "video_id": "OsRwcU03guM",
+      "position": 0.0,
+      "seq": 10,
+      "timestamp": "2026-11-26T07:19:30.395371Z"
+    },
+    {
+      "id": "mev_1795677570391",
+      "couple_id": "c_u5_u4",
+      "user_id": "u4",
+      "action": "seek",
+      "video_id": "lp-EO5I60KA",
+      "position": 75.0,
+      "seq": 9,
+      "timestamp": "2026-11-26T07:19:30.391353Z"
+    },
+    {
+      "id": "mev_1795677570385",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "resume",
+      "video_id": "lp-EO5I60KA",
+      "position": 1.515,
+      "seq": 8,
+      "timestamp": "2026-11-26T07:19:30.385686Z"
+    },
+    {
+      "id": "mev_1795677570377",
+      "couple_id": "c_u5_u4",
+      "user_id": "u4",
+      "action": "pause",
+      "video_id": "lp-EO5I60KA",
+      "position": 1.515,
+      "seq": 7,
+      "timestamp": "2026-11-26T07:19:30.377438Z"
+    },
+    {
+      "id": "mev_1795677568863",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "set_track",
+      "video_id": "lp-EO5I60KA",
+      "position": 0.0,
+      "seq": 6,
+      "timestamp": "2026-11-26T07:19:28.863961Z"
+    },
+    {
+      "id": "mev_1795677568861",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "queue_add",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 46.217,
+      "seq": 5,
+      "timestamp": "2026-11-26T07:19:28.861612Z"
+    },
+    {
+      "id": "mev_1795677217534",
+      "couple_id": "c_u5_u4",
+      "user_id": "u4",
+      "action": "pause",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 46.217,
+      "seq": 4,
+      "timestamp": "2026-11-26T07:13:37.534774Z"
+    },
+    {
+      "id": "mev_1795677216318",
+      "couple_id": "c_u5_u4",
+      "user_id": "u4",
+      "action": "seek",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 45.0,
+      "seq": 3,
+      "timestamp": "2026-11-26T07:13:36.318523Z"
+    },
+    {
+      "id": "mev_1795677216316",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "mode",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 2,
+      "timestamp": "2026-11-26T07:13:36.316463Z"
+    },
+    {
+      "id": "mev_1795677216313",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "action": "set_track",
+      "video_id": "2Vv-BfVoq4g",
+      "position": 0.0,
+      "seq": 1,
+      "timestamp": "2026-11-26T07:13:36.313228Z"
+    }
+  ],
+  "music_session_history": [
+    {
+      "id": "msess_1795677216308",
+      "couple_id": "c_u5_u4",
+      "started_at": "2026-11-26T07:13:36.308928Z",
+      "creator_name": "Emma Watson",
+      "mode": "host"
+    }
+  ],
+  "music_error_logs": [],
+  "music_reports": [],
+  "youtube_cache": {
+    "search:perfect ed sheeran": {
+      "ts": 1795677215,
+      "results": [
+        {
+          "video_id": "2Vv-BfVoq4g",
+          "title": "Ed Sheeran - Perfect (Official Music Video)",
+          "artist": "Ed Sheeran",
+          "thumbnail": "https://i.ytimg.com/vi/2Vv-BfVoq4g/hqdefault.jpg",
+          "duration_seconds": 282
+        },
+        {
+          "video_id": "cNGjD0VG4R8",
+          "title": "Ed Sheeran - Perfect",
+          "artist": "LatinHype",
+          "thumbnail": "https://i.ytimg.com/vi/cNGjD0VG4R8/hqdefault.jpg",
+          "duration_seconds": 264
+        },
+        {
+          "video_id": "kPhpHvnnn0Q",
+          "title": "Ed Sheeran - Perfect (Lyrics)",
+          "artist": "7clouds",
+          "thumbnail": "https://i.ytimg.com/vi/kPhpHvnnn0Q/hqdefault.jpg",
+          "duration_seconds": 264
+        },
+        {
+          "video_id": "t6zu5cv32cM",
+          "title": "Ed Sheeran - Perfect (Lyrics)",
+          "artist": "MusicLoudz Vintage",
+          "thumbnail": "https://i.ytimg.com/vi/t6zu5cv32cM/hqdefault.jpg",
+          "duration_seconds": 264
+        },
+        {
+          "video_id": "9vDIzVuDzTs",
+          "title": "Perfect (Acoustic)",
+          "artist": "Ed Sheeran - Topic",
+          "thumbnail": "https://i.ytimg.com/vi/9vDIzVuDzTs/hqdefault.jpg",
+          "duration_seconds": 261
+        },
+        {
+          "video_id": "iKzRIweSBLA",
+          "title": "Ed Sheeran - Perfect [Official Lyric Video]",
+          "artist": "Ed Sheeran",
+          "thumbnail": "https://i.ytimg.com/vi/iKzRIweSBLA/hqdefault.jpg",
+          "duration_seconds": 264
+        },
+        {
+          "video_id": "W5ztt1yXoH4",
+          "title": "Ed sheeran - perfect (lyrics)",
+          "artist": "ANGEL LYRICS",
+          "thumbnail": "https://i.ytimg.com/vi/W5ztt1yXoH4/hqdefault.jpg",
+          "duration_seconds": 269
+        },
+        {
+          "video_id": "w9jwLRx2yhY",
+          "title": "Ed sheeran - Perfect (lyrics) #lyrics #music #perfectedsheeran",
+          "artist": "Just Talks",
+          "thumbnail": "https://i.ytimg.com/vi/w9jwLRx2yhY/hqdefault.jpg",
+          "duration_seconds": 60
+        },
+        {
+          "video_id": "hIvcu6291ik",
+          "title": "Ed Sheeran - Perfect (Lyrics)",
+          "artist": "Cakes & Eclairs",
+          "thumbnail": "https://i.ytimg.com/vi/hIvcu6291ik/hqdefault.jpg",
+          "duration_seconds": 253
+        },
+        {
+          "video_id": "fezKpDFKf5U",
+          "title": "Ed Sheeran - Perfect (Live from the Mathematics Tour 2024)",
+          "artist": "Ed Sheeran",
+          "thumbnail": "https://i.ytimg.com/vi/fezKpDFKf5U/hqdefault.jpg",
+          "duration_seconds": 231
+        }
+      ]
+    },
+    "search:ed sheeran thinking out loud": {
+      "ts": 1795677568,
+      "results": [
+        {
+          "video_id": "lp-EO5I60KA",
+          "title": "Ed Sheeran - Thinking Out Loud (Official Music Video)",
+          "artist": "Ed Sheeran",
+          "thumbnail": "https://i.ytimg.com/vi/lp-EO5I60KA/hqdefault.jpg",
+          "duration_seconds": 290
+        },
+        {
+          "video_id": "OsRwcU03guM",
+          "title": "Ed Sheeran - Thinking Out Loud (Lyrics)",
+          "artist": "Cakes & Eclairs",
+          "thumbnail": "https://i.ytimg.com/vi/OsRwcU03guM/hqdefault.jpg",
+          "duration_seconds": 277
+        },
+        {
+          "video_id": "XMPgVZtADtQ",
+          "title": "Ed Sheeran - Thinking out Loud (Lyrics)",
+          "artist": "7clouds",
+          "thumbnail": "https://i.ytimg.com/vi/XMPgVZtADtQ/hqdefault.jpg",
+          "duration_seconds": 276
+        },
+        {
+          "video_id": "qepZ2A0SJ64",
+          "title": "ed sheeran ✨ thinking out loud ✨ ~ lyrics",
+          "artist": "loveeeeee songs",
+          "thumbnail": "https://i.ytimg.com/vi/qepZ2A0SJ64/hqdefault.jpg",
+          "duration_seconds": 282
+        },
+        {
+          "video_id": "Q5z6RHIpi2Y",
+          "title": "Ed Sheeran - Thinking Out Loud (Official Lyric Video)",
+          "artist": "Ed Sheeran",
+          "thumbnail": "https://i.ytimg.com/vi/Q5z6RHIpi2Y/hqdefault.jpg",
+          "duration_seconds": 282
+        },
+        {
+          "video_id": "f6Cswdm601A",
+          "title": "Ed Sheeran - Thinking Out Loud (x Acoustic Session)",
+          "artist": "Ed Sheeran",
+          "thumbnail": "https://i.ytimg.com/vi/f6Cswdm601A/hqdefault.jpg",
+          "duration_seconds": 266
+        },
+        {
+          "video_id": "H9kcLTStfpQ",
+          "title": "Ed Sheeran - Thinking Out Loud (Lyrics)",
+          "artist": "Taj Tracks",
+          "thumbnail": "https://i.ytimg.com/vi/H9kcLTStfpQ/hqdefault.jpg",
+          "duration_seconds": 278
+        },
+        {
+          "video_id": "WpyfrixXBqU",
+          "title": "Ed Sheeran - Thinking Out Loud [Official Audio]",
+          "artist": "Ed Sheeran",
+          "thumbnail": "https://i.ytimg.com/vi/WpyfrixXBqU/hqdefault.jpg",
+          "duration_seconds": 293
+        },
+        {
+          "video_id": "scl0LNnoQR4",
+          "title": "Ed Sheeran - ‘Thinking Out Loud’ - (Live At Capital’s Jingle Bell Ball 2017)",
+          "artist": "Capital",
+          "thumbnail": "https://i.ytimg.com/vi/scl0LNnoQR4/hqdefault.jpg",
+          "duration_seconds": 294
+        },
+        {
+          "video_id": "ovknA5fCoHI",
+          "title": "Ed sheeran - thinking out loud (lyrics)",
+          "artist": "ANGEL LYRICS",
+          "thumbnail": "https://i.ytimg.com/vi/ovknA5fCoHI/hqdefault.jpg",
+          "duration_seconds": 286
+        }
+      ]
+    },
+    "vid:dQw4w9WgXcQ": {
+      "ts": 1795696475,
+      "results": [
+        {
+          "video_id": "dQw4w9WgXcQ",
+          "title": "Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)",
+          "artist": "Rick Astley",
+          "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+          "duration_seconds": 214
+        }
+      ]
+    },
+    "search:ed sheeran perfect:": {
+      "ts": 1795696475,
+      "results": [
+        {
+          "video_id": "2Vv-BfVoq4g",
+          "title": "Ed Sheeran - Perfect (Official Music Video)",
+          "artist": "Ed Sheeran",
+          "thumbnail": "https://i.ytimg.com/vi/2Vv-BfVoq4g/hqdefault.jpg",
+          "duration_seconds": 282
+        },
+        {
+          "video_id": "cNGjD0VG4R8",
+          "title": "Ed Sheeran - Perfect",
+          "artist": "LatinHype",
+          "thumbnail": "https://i.ytimg.com/vi/cNGjD0VG4R8/hqdefault.jpg",
+          "duration_seconds": 264
+        },
+        {
+          "video_id": "kPhpHvnnn0Q",
+          "title": "Ed Sheeran - Perfect (Lyrics)",
+          "artist": "7clouds",
+          "thumbnail": "https://i.ytimg.com/vi/kPhpHvnnn0Q/hqdefault.jpg",
+          "duration_seconds": 264
+        },
+        {
+          "video_id": "t6zu5cv32cM",
+          "title": "Ed Sheeran - Perfect (Lyrics)",
+          "artist": "MusicLoudz Vintage",
+          "thumbnail": "https://i.ytimg.com/vi/t6zu5cv32cM/hqdefault.jpg",
+          "duration_seconds": 264
+        },
+        {
+          "video_id": "9vDIzVuDzTs",
+          "title": "Perfect (Acoustic)",
+          "artist": "Ed Sheeran - Topic",
+          "thumbnail": "https://i.ytimg.com/vi/9vDIzVuDzTs/hqdefault.jpg",
+          "duration_seconds": 261
+        },
+        {
+          "video_id": "iKzRIweSBLA",
+          "title": "Ed Sheeran - Perfect [Official Lyric Video]",
+          "artist": "Ed Sheeran",
+          "thumbnail": "https://i.ytimg.com/vi/iKzRIweSBLA/hqdefault.jpg",
+          "duration_seconds": 264
+        },
+        {
+          "video_id": "W5ztt1yXoH4",
+          "title": "Ed sheeran - perfect (lyrics)",
+          "artist": "ANGEL LYRICS",
+          "thumbnail": "https://i.ytimg.com/vi/W5ztt1yXoH4/hqdefault.jpg",
+          "duration_seconds": 269
+        },
+        {
+          "video_id": "fezKpDFKf5U",
+          "title": "Ed Sheeran - Perfect (Live from the Mathematics Tour 2024)",
+          "artist": "Ed Sheeran",
+          "thumbnail": "https://i.ytimg.com/vi/fezKpDFKf5U/hqdefault.jpg",
+          "duration_seconds": 231
+        },
+        {
+          "video_id": "fgcwFILyTVo",
+          "title": "Ed Sheeran &amp; Arijit Singh - Perfect (Backstage Rehearsal)",
+          "artist": "Ed Sheeran",
+          "thumbnail": "https://i.ytimg.com/vi/fgcwFILyTVo/hqdefault.jpg",
+          "duration_seconds": 227
+        },
+        {
+          "video_id": "hIvcu6291ik",
+          "title": "Ed Sheeran - Perfect (Lyrics)",
+          "artist": "Cakes & Eclairs",
+          "thumbnail": "https://i.ytimg.com/vi/hIvcu6291ik/hqdefault.jpg",
+          "duration_seconds": 253
+        }
+      ],
+      "next_page_token": "CAoQAA"
+    }
+  },
+  "music_config": {
+    "enabled": true,
+    "allow_together_mode": true,
+    "daily_quota_limit": 10000,
+    "quota_used_today": 0,
+    "quota_date": "2026-11-27",
+    "cache_hits": 10
+  },
+  "safety_sessions": {
+    "u5": {
+      "user_id": "u5",
+      "couple_id": "c_u5_u4",
+      "session_id": "ssess_1795679186782",
+      "status": "stopped",
+      "duration_key": "8h",
+      "daily_sharing": false,
+      "started_at": "2026-11-26T07:46:26.782865Z",
+      "expires_at": "2026-11-26T15:46:26.783186Z",
+      "expires_at_ms": 1795707986782,
+      "travel_mode": "car",
+      "driving_mode": false,
+      "consents": {
+        "location": false,
+        "speed": true,
+        "battery": false,
+        "destination": false,
+        "history": false,
+        "safe_zones": false
+      },
+      "history_retention_days": 7
+    },
+    "u4": {
+      "user_id": "u4",
+      "couple_id": "c_u5_u4",
+      "session_id": "ssess_1795679186787",
+      "status": "stopped",
+      "duration_key": "1h",
+      "daily_sharing": false,
+      "started_at": "2026-11-26T07:46:26.787578Z",
+      "expires_at": "2026-11-26T08:46:26.787975Z",
+      "expires_at_ms": 1795682786787,
+      "travel_mode": "bike",
+      "driving_mode": false,
+      "consents": {
+        "location": false,
+        "speed": true,
+        "battery": true,
+        "destination": false,
+        "history": false,
+        "safe_zones": false
+      },
+      "history_retention_days": 7
+    }
+  },
+  "safety_locations": {},
+  "safety_agreements": {
+    "c_u5_u4": {
+      "for_u4": {
+        "target_user_id": "u4",
+        "proposed_by": "u5",
+        "active_threshold_kmh": 60.0,
+        "pending_threshold_kmh": null,
+        "status": "accepted",
+        "version": 1,
+        "accepted_at": "2026-11-26T07:46:26.803298Z",
+        "unit": "km/h"
+      },
+      "for_u5": {
+        "target_user_id": "u5",
+        "proposed_by": "u4",
+        "active_threshold_kmh": null,
+        "pending_threshold_kmh": 80.0,
+        "status": "pending",
+        "version": 0,
+        "accepted_at": null,
+        "unit": "km/h"
+      }
+    }
+  },
+  "safety_alerts": [
+    {
+      "id": "alt_test_1",
+      "couple_id": "c_u5_u4",
+      "user_id": "u4",
+      "user_name": "Sarah Test",
+      "speed_kmh": 72.0,
+      "threshold_kmh": 60.0,
+      "sustained_seconds": 15,
+      "timestamp": "2026-11-26T07:46:26.810232Z"
+    }
+  ],
+  "safety_safe_zones": {},
+  "safety_journeys": {},
+  "safety_history": {
+    "u5": []
+  },
+  "safety_sos": [
+    {
+      "id": "sos_1795679186816",
+      "couple_id": "c_u5_u4",
+      "user_id": "u5",
+      "user_name": "Emma Watson",
+      "message": "Test SOS verification",
+      "lat": null,
+      "lng": null,
+      "timestamp": "2026-11-26T07:46:26.816040Z"
+    }
+  ],
+  "safety_fcm_tokens": {},
+  "safety_notif_prefs": {},
+  "safety_error_logs": [],
+  "safety_metrics": {
+    "total_updates": 3,
+    "total_journeys": 0,
+    "total_sos": 1,
+    "total_alerts": 1,
+    "route_requests": 0
+  },
+  "safety_config": {
+    "enabled": true,
+    "speed_alerts_enabled": true,
+    "routing_enabled": true,
+    "history_allowed": true,
+    "allowed_durations": [
+      "1h",
+      "8h",
+      "12h",
+      "manual"
+    ],
+    "min_threshold_kmh": 10,
+    "max_threshold_kmh": 200,
+    "alert_cooldown_seconds": 60,
+    "notification_templates": {
+      "sharing_started": "{name} started sharing their live location.",
+      "sharing_stopped": "{name} stopped sharing their live location.",
+      "driving_mode_on": "{name} enabled Driving Mode.",
+      "vehicle_changed": "{name} switched travel mode to {mode}.",
+      "speed_exceeded": "Safety Alert: Your partner's estimated speed exceeded their agreed threshold.",
+      "expiry_warning": "Location sharing expires soon.",
+      "safe_checkin": "{name} tapped I Reached Safely.",
+      "sos": "URGENT SOS from {name}! Tap to check details and call."
+    }
+  },
+  "music_likes": {
+    "u5": [
+      {
+        "video_id": "dQw4w9WgXcQ",
+        "title": "Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)",
+        "artist": "Rick Astley",
+        "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+        "duration_seconds": 214,
+        "liked_at": "2026-11-26T09:12:43.879230Z"
+      }
+    ],
+    "u4": [
+      {
+        "video_id": "dQw4w9WgXcQ",
+        "title": "Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)",
+        "artist": "Rick Astley",
+        "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+        "duration_seconds": 214,
+        "liked_at": "2026-11-26T09:12:43.882295Z"
+      }
+    ]
+  },
+  "music_like_consents": {
+    "u5": true,
+    "u4": false
+  },
+  "music_dedications": [
+    {
+      "id": "ded_1795696476327",
+      "couple_id": "c_u5_u4",
+      "sender_id": "u5",
+      "sender_name": "Emma Watson",
+      "recipient_id": "u4",
+      "track": {
+        "video_id": "dQw4w9WgXcQ",
+        "title": "Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)",
+        "artist": "Rick Astley",
+        "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+        "duration_seconds": 214
+      },
+      "message": "Thinking of you!",
+      "emoji": "💖",
+      "created_at": "2026-11-26T12:34:36.327060Z"
+    },
+    {
+      "id": "ded_1795684532387",
+      "couple_id": "c_u5_u4",
+      "sender_id": "u5",
+      "sender_name": "Emma Watson",
+      "recipient_id": "u4",
+      "track": {
+        "video_id": "dQw4w9WgXcQ",
+        "title": "Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)",
+        "artist": "Rick Astley",
+        "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+        "duration_seconds": 214
+      },
+      "message": "Thinking of you!",
+      "emoji": "💖",
+      "created_at": "2026-11-26T09:15:32.387026Z"
+    },
+    {
+      "id": "ded_1795684486201",
+      "couple_id": "c_u5_u4",
+      "sender_id": "u5",
+      "sender_name": "Emma Watson",
+      "recipient_id": "u4",
+      "track": {
+        "video_id": "dQw4w9WgXcQ",
+        "title": "Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)",
+        "artist": "Rick Astley",
+        "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+        "duration_seconds": 214
+      },
+      "message": "Thinking of you!",
+      "emoji": "💖",
+      "created_at": "2026-11-26T09:14:46.201535Z"
+    }
+  ],
+  "music_memories": [],
+  "music_search_history": {
+    "u5": []
+  }
 }

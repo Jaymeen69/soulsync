@@ -346,7 +346,21 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
         query = parse_qs(parsed.query)
         db = load_db()
 
-        if path == "/api/users":
+        if path in ("/health", "/api/health"):
+            smtp_status = email_otp_module.get_public_service_status(db)
+            self._set_headers(200)
+            self.wfile.write(json.dumps({
+                "status": "ok",
+                "service": "soulsync-api",
+                "database": "connected",
+                "users_count": len(db.get("users", [])),
+                "smtp_configured": smtp_status.get("configured", False),
+                "youtube_configured": bool(get_youtube_api_key()),
+                "timestamp": datetime.utcnow().isoformat() + "Z",
+            }).encode("utf-8"))
+            return
+
+        elif path == "/api/users":
             # Return users without exposing password hashes
             sanitized = []
             for u in db.get("users", []):
@@ -2367,6 +2381,7 @@ class SoulSyncAPIHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({"error": "Unknown POST route"}).encode("utf-8"))
 
 if __name__ == "__main__":
-    print("Serving SoulSync Master API on http://0.0.0.0:8089...")
-    server = ThreadingHTTPServer(("0.0.0.0", 8089), SoulSyncAPIHandler)
+    port = int(os.environ.get("PORT", "8089"))
+    print(f"Serving SoulSync Master API on http://0.0.0.0:{port}...")
+    server = ThreadingHTTPServer(("0.0.0.0", port), SoulSyncAPIHandler)
     server.serve_forever()

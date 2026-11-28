@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
+import '../../../../core/network/api_error_handler.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../shared/widgets/romantic_background.dart';
 import '../../../../shared/widgets/romantic_glass_card.dart';
@@ -82,13 +84,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         );
       }
     } catch (e) {
-      final raw = e.toString().replaceFirst('Exception: ', '');
-      final friendly = (raw.contains('SocketException') ||
-              raw.contains('Connection refused') ||
-              raw.contains('TimeoutException'))
-          ? 'Cannot reach SoulSync server (${AuthNotifier.apiBaseUrl}). Ensure your phone & server are on the same Wi-Fi or tap the server icon above.'
-          : raw;
-      setState(() => _errorMessage = friendly);
+      setState(() => _errorMessage = ApiErrorHandler.friendlyMessage(
+            e,
+            fallback: ApiErrorHandler.serverUnavailableMsg,
+          ));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -124,14 +123,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           ),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 14, top: 8),
-            child: IconButton(
-              icon: Icon(Icons.dns_outlined, size: 20, color: context.ssTextSecondary),
-              tooltip: 'Server Connection',
-              onPressed: () => showServerUrlDialog(context),
+          if (kDebugMode)
+            Padding(
+              padding: const EdgeInsets.only(right: 14, top: 8),
+              child: IconButton(
+                icon: Icon(Icons.dns_outlined, size: 20, color: context.ssTextSecondary),
+                tooltip: 'Server Connection',
+                onPressed: () => showServerUrlDialog(context),
+              ),
             ),
-          ),
         ],
       ),
       body: RomanticBackground(

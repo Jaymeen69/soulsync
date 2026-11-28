@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: soulsync-api
+    runtime: python
+    plan: free
+    rootDir: server
+    buildCommand: pip install -r requirements.txt
+    startCommand: python3 server.py
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: 465
+      - key: SMTP_SECURE
+        value: true
+      - key: SMTP_REQUIRE_TLS
+        value: true
+      - key: SMTP_USER
+        value: pateljaymin1234567890@gmail.com
+      - key: MAIL_FROM_NAME
+        value: SoulSync
+      - key: MAIL_FROM_EMAIL
+        value: pateljaymin1234567890@gmail.com
+      - key: OTP_EXPIRY_MINUTES
+        value: 5
+      - key: OTP_RESEND_SECONDS
+        value: 60
+      - key: OTP_MAX_ATTEMPTS
+        value: 5
+      - key: SMTP_PASS
+        sync: false
+      - key: YOUTUBE_API_KEY
+        sync: false
